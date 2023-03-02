@@ -1,11 +1,12 @@
 import { useState } from 'react'
+import HomePage from './components/HomePage'
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <div className="App">
-      <h1>This is App Component!</h1>
+      <HomePage />
     </div>
   )
 }

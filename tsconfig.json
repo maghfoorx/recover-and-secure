@@ -19,7 +19,8 @@
     "paths": {
       "@/*": [
         "src/*"
-      ]
+      ],
+      "IPC/*": ["./src/data/IPC/*"]
     },
   },
   "include": ["src"],
