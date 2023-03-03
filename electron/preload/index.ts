@@ -98,6 +98,7 @@ window.onmessage = (ev) => {
 
 setTimeout(removeLoading, 4999);
 
+// setting up contextbridge
 contextBridge.exposeInMainWorld("ipcAPI", {
   setWindowTitle: (title: string) => ipcRenderer.send(SET_WINDOW_TITLE, title),
 });
