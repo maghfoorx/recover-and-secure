@@ -1,7 +1,4 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { IPC_ACTIONS } from "../IPC/IPCActions";
-
-const { SET_WINDOW_TITLE } = IPC_ACTIONS.Window;
 
 function domReady(
   condition: DocumentReadyState[] = ["complete", "interactive"]
@@ -100,7 +97,6 @@ setTimeout(removeLoading, 4999);
 
 // setting up contextbridge
 contextBridge.exposeInMainWorld("ipcAPI", {
-  setWindowTitle: (title: string) => ipcRenderer.send(SET_WINDOW_TITLE, title),
   getAllData: () => ipcRenderer.invoke("GET_DATA"),
   getVersion: () => ipcRenderer.invoke("get-version"),
 });
