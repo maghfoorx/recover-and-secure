@@ -11,6 +11,9 @@
     "dist-electron",
     "dist"
   ],
+  "extraFiles": [
+    "database.db"
+  ],
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
     "target": [
