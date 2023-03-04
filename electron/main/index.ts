@@ -73,7 +73,9 @@ async function createWindow() {
 }
 
 app.whenReady().then(() => {
+  //register IPChandlers
   registerIPCHandlers();
+  //then create window
   createWindow();
 });
 
