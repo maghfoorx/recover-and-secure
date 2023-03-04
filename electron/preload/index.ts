@@ -101,4 +101,6 @@ setTimeout(removeLoading, 4999);
 // setting up contextbridge
 contextBridge.exposeInMainWorld("ipcAPI", {
   setWindowTitle: (title: string) => ipcRenderer.send(SET_WINDOW_TITLE, title),
+  getAllData: () => ipcRenderer.invoke("GET_DATA"),
+  getVersion: () => ipcRenderer.invoke("get-version"),
 });
