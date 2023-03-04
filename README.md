@@ -9,5 +9,5 @@ An offline desktop application made using Electron, React, TypeScript and Vite. 
 
 ### Credits
 
-Thank you to the developers that create the electron-vite-react template. I would not be able to get started with this project without their tempalte and documentation. You can find the repo [here](https://github.com/electron-vite/electron-vite-react).
+Thank you to the developers that created the electron-vite-react template. I would not be able to get started with this project without their tempalte and documentation. You can find the repo [here](https://github.com/electron-vite/electron-vite-react).
 
