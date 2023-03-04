@@ -1,7 +1,6 @@
 import { ipcMain } from "electron";
 import { getAllData } from "../models/databaseFunctions";
 
-
 // function that exports all the IPCActions
 export const registerIPCHandlers = () => {
   ipcMain.handle("get-version", async (event, args) => {
