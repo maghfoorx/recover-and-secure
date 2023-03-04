@@ -1,1 +1,1 @@
-export const { setWindowTitle, getAllData, getVersion } = window["ipcAPI"];
+export const { getAllData, getVersion } = window["ipcAPI"];
