@@ -1,1 +1,1 @@
-export const { getAllData, getVersion } = window["ipcAPI"];
+export const { getLostItemsReported, getVersion } = window["ipcAPI"];
