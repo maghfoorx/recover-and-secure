@@ -1,0 +1,15 @@
+.navbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0.5rem;
+}
+.navbar-item {
+  text-decoration: none;
+  font-size: 1.5rem;
+  text-align: center;
+  color: black;
+}
+
+.active {
+  background-color: green;
+}
