@@ -1,12 +1,19 @@
 import { useState } from "react";
 import HomePage from "./components/HomePage";
+import NavBar from "./components/NavBar";
+import { Routes, Route } from "react-router-dom"
+import LostProperty from "./components/LostProperty";
+import Amaanat from "./components/Amaanat";
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <div className="App">
-      <HomePage />
+      <NavBar />
+      <Routes>
+        <Route path="/" element={<LostProperty />} />
+        <Route path="/amaanat" element={<Amaanat />} />
+      </Routes>
     </div>
   );
 }
