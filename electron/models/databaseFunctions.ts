@@ -1,7 +1,7 @@
 import { db } from "./dbConnection";
 
-export function getAllData() {
-  const qry = "SELECT * FROM names";
+export function getLostItemsReported() {
+  const qry = "SELECT * FROM lost_items";
   return new Promise((resolve, reject) => {
     let statement = db.prepare(qry);
     statement.all((err, rows) => {
@@ -9,7 +9,6 @@ export function getAllData() {
         console.error(err.message);
         reject(err);
       } else {
-        console.log("The data is:", rows);
         resolve(rows);
       }
       statement.finalize();
