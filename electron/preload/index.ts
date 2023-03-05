@@ -97,6 +97,6 @@ setTimeout(removeLoading, 4999);
 
 // setting up contextbridge
 contextBridge.exposeInMainWorld("ipcAPI", {
-  getAllData: () => ipcRenderer.invoke("GET_DATA"),
+  getLostItemsReported: () => ipcRenderer.invoke("GET_LOST_ITEMS"),
   getVersion: () => ipcRenderer.invoke("get-version"),
 });
