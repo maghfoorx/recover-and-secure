@@ -1,5 +1,3 @@
-import { useState } from "react";
-import HomePage from "./components/HomePage";
 import NavBar from "./components/NavBar";
 import { Routes, Route } from "react-router-dom"
 import LostProperty from "./components/LostProperty";
