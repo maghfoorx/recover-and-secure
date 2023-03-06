@@ -3,6 +3,7 @@ import { getLostItemsReported } from "@/data/IPC/IPCMessages"
 import { useEffect, useState } from "react"
 import DataGrid from "react-data-grid";
 import 'react-data-grid/lib/styles.css';
+import { Link } from "react-router-dom";
 
 export default function LostProperty(): JSX.Element {
 
@@ -31,6 +32,7 @@ export default function LostProperty(): JSX.Element {
     return (
         <>
             <h1>This is Lost Property Page</h1>
+            <Link to="/lost-item-form">Report Lost Item</Link>
             <DataGrid columns={columns} rows={lostItems} rowHeight={40} />
         </>
     )
