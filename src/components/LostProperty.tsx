@@ -24,7 +24,9 @@ export default function LostProperty(): JSX.Element {
         <>
             <h1>This is Lost Property Page</h1>
             <Link to="/lost-item-form">Report Lost Item</Link>
-            <DataGrid columns={columns} rows={lostItems} rowHeight={40} />
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <DataGrid columns={columns} rows={lostItems} rowHeight={45} style={{ height: "100vh", width: "90vw" }} />
+            </div>
         </>
     )
 }
