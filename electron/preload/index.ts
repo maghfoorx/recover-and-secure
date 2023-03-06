@@ -96,7 +96,18 @@ window.onmessage = (ev) => {
 setTimeout(removeLoading, 4999);
 
 // setting up contextbridge
+
+export interface PostLostItemType {
+  PersonName: string;
+  ItemName: string;
+  Details: string;
+  LostArea: string;
+  PhoneNumber: string;
+  AimsID: string;
+}
 contextBridge.exposeInMainWorld("ipcAPI", {
   getLostItemsReported: () => ipcRenderer.invoke("GET_LOST_ITEMS"),
   getVersion: () => ipcRenderer.invoke("get-version"),
+  postLostItem: (data: PostLostItemType) =>
+    ipcRenderer.invoke("POST_LOST_ITEM", data),
 });
