@@ -1,5 +1,9 @@
 import { ipcMain } from "electron";
-import { getLostItemsReported } from "../models/databaseFunctions";
+import {
+  getLostItemsReported,
+  postLostItem,
+} from "../models/databaseFunctions";
+import { PostLostItemType } from "../preload";
 
 // function that exports all the IPCActions
 export const registerIPCHandlers = () => {
@@ -9,5 +13,9 @@ export const registerIPCHandlers = () => {
   ipcMain.handle("GET_LOST_ITEMS", async (event, args) => {
     const data = await getLostItemsReported();
     return data;
+  });
+  ipcMain.handle("POST_LOST_ITEM", async (event, args: PostLostItemType) => {
+    const response = await postLostItem(args);
+    return response;
   });
 };
