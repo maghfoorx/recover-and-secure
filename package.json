@@ -39,6 +39,7 @@
   "dependencies": {
     "@material-ui/core": "^4.12.4",
     "react-data-grid": "^7.0.0-beta.26",
+    "react-hook-form": "^7.43.5",
     "react-router-dom": "^6.8.2",
     "sqlite3": "^5.1.4"
   }
