@@ -1,1 +1,2 @@
-export const { getLostItemsReported, getVersion } = window["ipcAPI"];
+export const { getLostItemsReported, getVersion, postLostItem } =
+  window["ipcAPI"];
