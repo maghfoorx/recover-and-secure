@@ -1,3 +1,4 @@
+import useFetchLostItems from "@/customHooks/useFetchLostItems";
 import { LostItemType } from "@/data/Interfaces";
 import { getLostItemsReported } from "@/data/IPC/IPCMessages"
 import { useEffect, useState } from "react"
@@ -7,17 +8,7 @@ import { Link } from "react-router-dom";
 
 export default function LostProperty(): JSX.Element {
 
-    const [lostItems, setLostItems] = useState<LostItemType[]>([])
-
-    useEffect(() => {
-        handleGetLostItems();
-    }, []);
-
-    async function handleGetLostItems() {
-        const response = await getLostItemsReported()
-        setLostItems(response);
-    }
-    console.log(lostItems);
+    const { lostItems } = useFetchLostItems();
 
     //creating columns
     const columns = [
