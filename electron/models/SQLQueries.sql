@@ -6,7 +6,7 @@ CREATE TABLE lost_items (
   Details TEXT,
   LostArea TEXT,
   PersonName TEXT,
-  AimsID INTEGER,
+  AimsID TEXT,
   PhoneNumber TEXT,
   ItemFound BOOLEAN DEFAULT false
 );
