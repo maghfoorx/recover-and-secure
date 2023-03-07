@@ -10,7 +10,14 @@ export function getLostItemsReported() {
         console.error(err.message);
         reject(err);
       } else {
-        resolve(rows);
+        const formattedData = rows.map((item) => {
+          if (item.ItemFound === 0) {
+            return { ...item, ItemFound: "No" };
+          } else {
+            return { ...item, ItemFound: "Yes" };
+          }
+        });
+        resolve(formattedData);
       }
       statement.finalize();
     });
