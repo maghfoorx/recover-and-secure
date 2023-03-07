@@ -110,4 +110,5 @@ contextBridge.exposeInMainWorld("ipcAPI", {
   getVersion: () => ipcRenderer.invoke("get-version"),
   postLostItem: (data: PostLostItemType) =>
     ipcRenderer.invoke("POST_LOST_ITEM", data),
+  deleteLostItem: (ID: number) => ipcRenderer.invoke("DELETE_LOST_ITEM", ID),
 });
