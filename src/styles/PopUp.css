@@ -9,6 +9,10 @@
   position: fixed;
 }
 
+.modal {
+  z-index: 60;
+}
+
 .overlay {
   background: rgba(49, 49, 49, 0.8);
 }
