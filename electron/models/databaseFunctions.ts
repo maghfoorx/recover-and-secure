@@ -42,3 +42,20 @@ export function postLostItem(data: PostLostItemType) {
     });
   });
 }
+
+//deleting a posted item
+export function deleteLostItem(id: number) {
+  const query = `DELETE FROM lost_items WHERE ID = ${id}`;
+  return new Promise((resolve, reject) => {
+    let statement = db.prepare(query);
+    statement.all((err, rows) => {
+      if (err) {
+        console.error(err.message);
+        reject(err.message);
+      } else {
+        resolve(rows);
+      }
+      statement.finalize();
+    });
+  });
+}
