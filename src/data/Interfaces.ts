@@ -6,4 +6,5 @@ export interface LostItemType {
   PersonName: string;
   PhoneNumber: string;
   AimsID: number;
+  ItemFound: "Yes" | "No";
 }
