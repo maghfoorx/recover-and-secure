@@ -1,7 +1,7 @@
 export interface LostItemType {
   ID: number;
   ItemName: string;
-  ItemDetails: string;
+  Details: string;
   LostArea: string;
   PersonName: string;
   PhoneNumber: string;
