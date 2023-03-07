@@ -17,7 +17,6 @@ export default function PopUp(props: PopUpProps): JSX.Element {
         try {
             await deleteLostItem(ID);
             props.setPopup(!props.popup);
-            handleGetLostItems()
         }
         catch (error) {
             console.error(error)
