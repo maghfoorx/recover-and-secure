@@ -1,4 +1,4 @@
-export default function Amaanat(): JSX.Element {
+export default function AmaanatPage(): JSX.Element {
     return (
         <>
             <h1>This is Amaanat Page</h1>
