@@ -19,80 +19,35 @@ export default function LostProperty(): JSX.Element {
     const { lostItems, handleGetLostItems } = useFetchLostItems();
 
     useEffect(() => {
-        handleGetLostItems()
+        handleGetLostItems();
     }, [popup])
 
     //creating columns
-    // const columns = [
-    //     { key: "ID", name: "ID", width: 10 },
-    //     {
-    //         key: "ItemName", name: "Name", width: 20,
-    //         formatter: ({ row }: any) => (
-    //             <div onClick={() => {
-    //                 setPopUpData(row)
-    //                 setPopup(!popup)
-    //             }} style={{ cursor: "pointer" }}>{row.ItemName}</div>
-    //         )
-    //     },
-    //     { key: "Details", name: "Details" },
-    //     { key: "LostArea", name: "Lost Area", width: 100 },
-    //     { key: "Date", name: "Date Lost", width: 90 },
-    //     { key: "ItemFound", name: "Found", width: 90 }
-    // ]
-
-    const COLUMNS = [
+    const columns = [
+        { key: "ID", name: "ID", width: 10 },
         {
-            title: "ID",
-            field: "ID"
-        },
-        {
-            title: "Name",
-            field: "ItemName",
-            render: ((rowData: LostItemType) => (
+            key: "ItemName", name: "Name", width: 20,
+            formatter: ({ row }: any) => (
                 <div onClick={() => {
-                    setPopUpData(rowData)
+                    setPopUpData(row)
                     setPopup(!popup)
-                }} style={{ cursor: "pointer" }}>
-                    {rowData.ItemName}
-                </div>
-            ))
+                }} style={{ cursor: "pointer" }}>{row.ItemName}</div>
+            )
         },
-        {
-            title: "Details",
-            field: "Details"
-        },
-        {
-            title: "Lost Area",
-            field: "LostArea"
-        },
-        {
-            title: "Date",
-            field: "Date"
-        },
-        {
-            title: "Found",
-            field: "ItemFound"
-        }
+        { key: "Details", name: "Details" },
+        { key: "LostArea", name: "Lost Area", width: 100 },
+        { key: "Date", name: "Date Lost", width: 90 },
+        { key: "ItemFound", name: "Found", width: 90 }
     ]
-
-    const defaultMaterialTheme = createTheme()
 
     return (
         <>
             <h1>This is Lost Property Page</h1>
             <Link to="/lost-item-form">Report Lost Item</Link>
-            {/* <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                 <DataGrid columns={columns} rows={lostItems} rowKeyGetter={(row: LostItemType) => row.ID} rowHeight={45} style={{ height: "100vh", width: "90vw" }} />
-            </div> */}
-            <PopUp popup={popup} setPopup={setPopup} item={PopUpData} />
-            <div style={{ width: '100%', height: '100%' }}>
-                <ThemeProvider theme={defaultMaterialTheme}>
-                    <MaterialTable
-                        columns={COLUMNS}
-                        data={lostItems}
-                    />
-                </ThemeProvider>
             </div>
+            <PopUp popup={popup} setPopup={setPopup} item={PopUpData} />
         </>
     )
 }
