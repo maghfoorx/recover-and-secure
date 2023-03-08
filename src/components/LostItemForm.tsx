@@ -7,12 +7,13 @@ export default function LostItemForm(): JSX.Element {
 
     const [sucess, setSuccess] = useState<boolean>(false);
 
-    const { register, handleSubmit, formState: { errors }, } = useForm();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
     async function handlePostingForm(data: unknown) {
         try {
             await postLostItem(data)
             setSuccess(true);
+            reset();
             setTimeout(() => setSuccess(false), 2000)
         }
         catch (error) {
@@ -25,9 +26,9 @@ export default function LostItemForm(): JSX.Element {
             <h1>This is the form to submit lost property!</h1>
             <form onSubmit={handleSubmit((data) => handlePostingForm(data))}>
                 <p>Person Name</p>
-                <input {...register("PersonName")} />
+                <input {...register("PersonName", { required: true })} />
                 <p>Item Name</p>
-                <input {...register("ItemName")} />
+                <input {...register("ItemName", { required: true })} />
                 <p>Item Details</p>
                 <input {...register("Details")} />
                 <p>Lost Area</p>
