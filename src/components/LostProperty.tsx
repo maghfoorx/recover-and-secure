@@ -5,9 +5,6 @@ import DataGrid from "react-data-grid";
 import 'react-data-grid/lib/styles.css';
 import { Link } from "react-router-dom";
 import PopUp from "./PopUp";
-import TableLostItems from "./TableLostItems";
-import MaterialTable from "material-table";
-import { ThemeProvider, createTheme } from "@mui/material";
 
 export default function LostProperty(): JSX.Element {
 
