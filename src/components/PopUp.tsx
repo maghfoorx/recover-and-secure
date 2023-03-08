@@ -1,6 +1,6 @@
 import useFetchLostItems from "@/customHooks/useFetchLostItems";
 import { LostItemType } from "@/data/Interfaces";
-import { deleteLostItem } from "@/data/IPC/IPCMessages";
+import { deleteLostItem, foundLostItem } from "@/data/IPC/IPCMessages";
 import "../styles/PopUp.css";
 
 interface PopUpProps {
@@ -11,11 +11,19 @@ interface PopUpProps {
 
 export default function PopUp(props: PopUpProps): JSX.Element {
 
-    const { handleGetLostItems } = useFetchLostItems();
-
     async function handleDeleteItem(ID: number | undefined) {
         try {
             await deleteLostItem(ID);
+            props.setPopup(!props.popup);
+        }
+        catch (error) {
+            console.error(error)
+        }
+    }
+
+    async function handleLostItemFound(ID: number | undefined) {
+        try {
+            await foundLostItem(ID);
             props.setPopup(!props.popup);
         }
         catch (error) {
@@ -35,6 +43,7 @@ export default function PopUp(props: PopUpProps): JSX.Element {
                         <p>Phone Number: {props.item?.PhoneNumber}</p>
                         <button onClick={() => props.setPopup(!props.popup)} className="close-modal">Close</button>
                         <button onClick={() => handleDeleteItem(props.item?.ID)}>Delete Item</button>
+                        {props.item?.ItemFound === "No" && <button onClick={() => handleLostItemFound(props.item?.ID)}>Found</button>}
                     </div>
                 </div>
             )}

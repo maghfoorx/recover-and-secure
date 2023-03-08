@@ -3,6 +3,7 @@ import {
   deleteLostItem,
   getLostItemsReported,
   postLostItem,
+  updateFoundColumn,
 } from "../models/databaseFunctions";
 import { PostLostItemType } from "../preload";
 
@@ -24,6 +25,11 @@ export const registerIPCHandlers = () => {
 
   ipcMain.handle("DELETE_LOST_ITEM", async (event, args: number) => {
     const response = await deleteLostItem(args);
+    return response;
+  });
+
+  ipcMain.handle("FOUND_LOST_ITEM", async (event, args: number) => {
+    const response = await updateFoundColumn(args);
     return response;
   });
 };

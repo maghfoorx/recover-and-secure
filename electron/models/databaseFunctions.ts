@@ -59,3 +59,20 @@ export function deleteLostItem(id: number) {
     });
   });
 }
+
+//Found a lost reported item
+export function updateFoundColumn(id: number) {
+  const query = `UPDATE lost_items SET ItemFound = 1 WHERE ID = ${id}`;
+  return new Promise((resolve, reject) => {
+    let statement = db.prepare(query);
+    statement.all((err, rows) => {
+      if (err) {
+        console.error(err.message);
+        reject(err.message);
+      } else {
+        resolve(rows);
+      }
+      statement.finalize();
+    });
+  });
+}
