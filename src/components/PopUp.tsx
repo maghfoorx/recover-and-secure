@@ -33,7 +33,7 @@ export default function PopUp(props: PopUpProps): JSX.Element {
                         <p>Lost Area: {props.item?.LostArea}</p>
                         <p>Person: {props.item?.PersonName}</p>
                         <p>Phone Number: {props.item?.PhoneNumber}</p>
-                        <button onClick={() => props.setPopup(!props.popup)}>Close</button>
+                        <button onClick={() => props.setPopup(!props.popup)} className="close-modal">Close</button>
                         <button onClick={() => handleDeleteItem(props.item?.ID)}>Delete Item</button>
                     </div>
                 </div>
