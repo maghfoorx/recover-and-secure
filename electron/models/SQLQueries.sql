@@ -29,3 +29,9 @@ CREATE TABLE found_items (
   ReturnedBy TEXT,
   ReturnDate TEXT
 );
+
+-- mock data for found_items
+INSERT INTO found_items (ItemName, Details, LostArea) VALUES ('iPhone', 'Black case, cracked screen', 'Main Street');
+INSERT INTO found_items (ItemName, Details, LostArea) VALUES ('Wallet', 'Brown leather, contains ID and credit cards', 'Central Park');
+INSERT INTO found_items (ItemName, Details, LostArea) VALUES ('Keys', 'Gold keychain, includes house key and car key', 'Downtown');
+INSERT INTO found_items (ItemName, Details, LostArea) VALUES ('Sunglasses', 'Aviator style, polarized lenses', 'Shopping Mall');
