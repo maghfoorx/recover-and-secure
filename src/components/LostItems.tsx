@@ -3,7 +3,6 @@ import { LostItemType } from "@/data/Interfaces";
 import { useEffect, useState } from "react";
 import DataGrid from "react-data-grid";
 import 'react-data-grid/lib/styles.css';
-import { Link } from "react-router-dom";
 import PopUp from "./PopUp";
 import "../styles/LostItems.css"
 
@@ -48,7 +47,6 @@ export default function LostItems(): JSX.Element {
 
     return (
         <div className="lost-items-component">
-            <Link to="/lost-item-form">Report Lost Item</Link>
             <h2>Reported Lost Items</h2>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <DataGrid columns={columns} rows={lostItems} rowKeyGetter={(row: LostItemType) => row.ID} rowHeight={45} style={{ width: "100vw" }} className="fill-grid" />
