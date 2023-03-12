@@ -1,8 +1,9 @@
 import NavBar from "./components/NavBar";
 import { Routes, Route } from "react-router-dom"
-import LostItemForm from "./components/LostItemForm";
+import LostItemForm from "./Pages/LostItemForm";
 import LostPropertyPage from "./Pages/LostPropertyPage";
 import AmaanatPage from "./Pages/AmaanatPage";
+import FoundItemForm from "./Pages/FoundItemForm";
 
 function App() {
 
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<LostPropertyPage />} />
         <Route path="/amaanat" element={<AmaanatPage />} />
         <Route path="/lost-item-form" element={<LostItemForm />} />
+        <Route path="/found-item-form" element={<FoundItemForm />} />
       </Routes>
     </div>
   );
