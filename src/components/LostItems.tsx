@@ -5,6 +5,7 @@ import DataGrid from "react-data-grid";
 import 'react-data-grid/lib/styles.css';
 import { Link } from "react-router-dom";
 import PopUp from "./PopUp";
+import "../styles/LostItems.css"
 
 export default function LostItems(): JSX.Element {
 
@@ -46,7 +47,7 @@ export default function LostItems(): JSX.Element {
     ]
 
     return (
-        <>
+        <div className="lost-items-component">
             <Link to="/lost-item-form">Report Lost Item</Link>
             <h2>Reported Lost Items</h2>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -55,6 +56,6 @@ export default function LostItems(): JSX.Element {
             <p>Total Lost Items: {lostItems.length}</p>
             <p>Total Found Items: {lostItems.filter(item => item.ItemFound === "Yes").length}</p>
             <PopUp popup={popup} setPopup={setPopup} item={PopUpData} />
-        </>
+        </div>
     )
 }
