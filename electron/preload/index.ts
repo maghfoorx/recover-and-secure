@@ -107,6 +107,7 @@ export interface PostLostItemType {
 }
 contextBridge.exposeInMainWorld("ipcAPI", {
   getLostItemsReported: () => ipcRenderer.invoke("GET_LOST_ITEMS"),
+  getFoundItemsReported: () => ipcRenderer.invoke("GET_FOUND_ITEMS"),
   getVersion: () => ipcRenderer.invoke("get-version"),
   postLostItem: (data: PostLostItemType) =>
     ipcRenderer.invoke("POST_LOST_ITEM", data),

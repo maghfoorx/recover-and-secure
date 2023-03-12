@@ -24,6 +24,30 @@ export function getLostItemsReported() {
   });
 }
 
+//getting items from found_items table
+export function getFoundItemsReported() {
+  const qry = "SELECT * FROM found_items;";
+  return new Promise((resolve, reject) => {
+    let statement = db.prepare(qry);
+    statement.all((err, rows) => {
+      if (err) {
+        console.error(err.message);
+        reject(err);
+      } else {
+        const formattedData = rows.map((item) => {
+          if (item.ItemFound === 0) {
+            return { ...item, ItemFound: "No" };
+          } else {
+            return { ...item, ItemFound: "Yes" };
+          }
+        });
+        resolve(formattedData);
+      }
+      statement.finalize();
+    });
+  });
+}
+
 export function postLostItem(data: PostLostItemType) {
   const { PersonName, ItemName, AimsID, Details, LostArea, PhoneNumber } = data;
 

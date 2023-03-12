@@ -1,5 +1,6 @@
 export const {
   getLostItemsReported,
+  getFoundItemsReported,
   getVersion,
   postLostItem,
   deleteLostItem,

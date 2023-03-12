@@ -1,4 +1,3 @@
-import useFetchLostItems from "@/customHooks/useFetchLostItems";
 import { LostItemType } from "@/data/Interfaces";
 import { deleteLostItem, foundLostItem } from "@/data/IPC/IPCMessages";
 import "../styles/PopUp.css";

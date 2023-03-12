@@ -1,6 +1,7 @@
 import { ipcMain } from "electron";
 import {
   deleteLostItem,
+  getFoundItemsReported,
   getLostItemsReported,
   postLostItem,
   updateFoundColumn,
@@ -31,5 +32,10 @@ export const registerIPCHandlers = () => {
   ipcMain.handle("FOUND_LOST_ITEM", async (event, args: number) => {
     const response = await updateFoundColumn(args);
     return response;
+  });
+
+  ipcMain.handle("GET_FOUND_ITEMS", async (event, args) => {
+    const data = await getFoundItemsReported();
+    return data;
   });
 };

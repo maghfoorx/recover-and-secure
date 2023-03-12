@@ -1,10 +1,10 @@
-import useFetchLostItems from "@/customHooks/useFetchLostItems";
 import { LostItemType } from "@/data/Interfaces";
 import { useEffect, useState } from "react";
 import DataGrid from "react-data-grid";
 import 'react-data-grid/lib/styles.css';
 import PopUp from "./PopUp";
 import "../styles/LostItems.css"
+import useFetchLostPropertyData from "@/customHooks/useFetchLostPropertyData";
 
 export default function LostItems(): JSX.Element {
 
@@ -13,7 +13,7 @@ export default function LostItems(): JSX.Element {
     const [popup, setPopup] = useState<boolean>(false);
     const [PopUpData, setPopUpData] = useState<null | LostItemType>(null)
 
-    const { lostItems, handleGetLostItems } = useFetchLostItems();
+    const { lostItems, handleGetLostItems } = useFetchLostPropertyData();
 
     useEffect(() => {
         handleGetLostItems();
