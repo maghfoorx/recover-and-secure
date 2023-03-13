@@ -1,16 +1,16 @@
-import { LostItemType } from "@/data/Interfaces";
+import { FoundItemType, LostItemType } from "@/data/Interfaces";
 import { getFoundItemsReported, getLostItemsReported } from "@/data/IPC/IPCMessages";
 import { useEffect, useState } from "react";
 
 interface UseFetchLostItemsType {
     lostItems: LostItemType[];
     handleGetLostItems: () => Promise<void>
-    foundItems: any[]
+    foundItems: FoundItemType[]
 }
 
 export default function useFetchLostPropertyData(): UseFetchLostItemsType {
     const [lostItems, setLostItems] = useState<LostItemType[]>([]);
-    const [foundItems, setFoundItems] = useState<any[]>([])
+    const [foundItems, setFoundItems] = useState<FoundItemType[]>([])
 
     async function handleGetLostItems() {
         const response = await getLostItemsReported()
