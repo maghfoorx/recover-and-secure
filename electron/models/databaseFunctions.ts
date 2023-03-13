@@ -1,6 +1,7 @@
 import { PostLostItemType } from "../preload";
 import { db } from "./dbConnection";
 
+// getting all lost items reported from lost_items table
 export function getLostItemsReported() {
   const qry = "SELECT * FROM lost_items;";
   return new Promise((resolve, reject) => {
@@ -35,10 +36,10 @@ export function getFoundItemsReported() {
         reject(err);
       } else {
         const formattedData = rows.map((item) => {
-          if (item.ItemFound === 0) {
-            return { ...item, ItemFound: "No" };
+          if (item.Returned === 0) {
+            return { ...item, Returned: "No" };
           } else {
-            return { ...item, ItemFound: "Yes" };
+            return { ...item, Returned: "Yes" };
           }
         });
         resolve(formattedData);
