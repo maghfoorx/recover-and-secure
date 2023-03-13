@@ -1,19 +1,21 @@
-import { LostItemType } from "@/data/Interfaces";
+import { FoundItemType, LostItemType } from "@/data/Interfaces";
 import { deleteLostItem, foundLostItem } from "@/data/IPC/IPCMessages";
 import "../styles/PopUp.css";
+
+type PopUpItemType = LostItemType | null | FoundItemType
 
 interface PopUpProps {
     popup: boolean;
     setPopup: React.Dispatch<React.SetStateAction<boolean>>;
-    item: LostItemType | null
+    item: PopUpItemType
 }
 
-export default function PopUp(props: PopUpProps): JSX.Element {
+export default function PopUp({ item, popup, setPopup }: PopUpProps): JSX.Element {
 
     async function handleDeleteItem(ID: number | undefined) {
         try {
             await deleteLostItem(ID);
-            props.setPopup(!props.popup);
+            setPopup(!popup);
         }
         catch (error) {
             console.error(error)
@@ -23,26 +25,32 @@ export default function PopUp(props: PopUpProps): JSX.Element {
     async function handleLostItemFound(ID: number | undefined) {
         try {
             await foundLostItem(ID);
-            props.setPopup(!props.popup);
+            setPopup(!popup);
         }
         catch (error) {
             console.error(error)
         }
     }
+
+    function isLostItem(item: PopUpItemType) {
+        if (item) {
+            return "Found" in item && "ItemFound" in item
+        }
+    }
     return (
         <div>
-            {props.popup && (
+            {popup && item && (
                 <div className="modal">
-                    <div className="overlay" onClick={() => props.setPopup(!props.popup)}></div>
+                    <div className="overlay" onClick={() => setPopup(!popup)}></div>
                     <div className="modal-content">
-                        <h2>{props.item?.ItemName}</h2>
-                        <p>Details: {props.item?.Details}</p>
-                        <p>Lost Area: {props.item?.LostArea}</p>
-                        <p>Person: {props.item?.PersonName}</p>
-                        <p>Phone Number: {props.item?.PhoneNumber}</p>
-                        <button onClick={() => props.setPopup(!props.popup)} className="close-modal">Close</button>
-                        <button onClick={() => handleDeleteItem(props.item?.ID)}>Delete Item</button>
-                        {props.item?.ItemFound === "No" && <button onClick={() => handleLostItemFound(props.item?.ID)}>Found</button>}
+                        <h2>{item.ItemName}</h2>
+                        <p>Details: {item.Details}</p>
+                        {isLostItem(item) && <p>Lost Area: {item.LostArea}</p>}
+                        {isLostItem(item) && <p>Person: {item.PersonName}</p>}
+                        {isLostItem(item) && <p>Phone Number: {item.PhoneNumber}</p>}
+                        <button onClick={() => setPopup(!popup)} className="close-modal">Close</button>
+                        <button onClick={() => handleDeleteItem(item.ID)}>Delete Item</button>
+                        {isLostItem(item) && item.ItemFound === "No" && <button onClick={() => handleLostItemFound(item.ID)}>Found</button>}
                     </div>
                 </div>
             )}
