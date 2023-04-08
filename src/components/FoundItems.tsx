@@ -96,6 +96,7 @@ export default function FoundItems(): JSX.Element {
                             <p><b>Date Found:</b> {modalData.FoundDate}</p>
                             <p><b>Found Area:</b> {modalData.FoundArea}</p>
                             <p><b>Returned:</b> {modalData.Returned}</p>
+                            <button>Delete</button>
                         </div>
                     }
                 </Box>
