@@ -57,14 +57,14 @@ export default function LostItems(): JSX.Element {
 
     //creating columns
     const columns = [
-        { name: 'ID', cell: (row: LostItemType) => row.ID },
         {
             name: 'Name',
             selector: (row: LostItemType) => row.ItemName
         },
         {
             name: 'Found',
-            selector: (row: LostItemType) => row.ItemFound
+            selector: (row: LostItemType) => row.ItemFound,
+            sortable: true
         }
     ]
 
@@ -79,6 +79,7 @@ export default function LostItems(): JSX.Element {
                 data={lostItems}
                 onRowClicked={handleRowClicked}
                 customStyles={DataStyles}
+                pagination
             />
             <Modal
                 open={openModal}
@@ -90,7 +91,7 @@ export default function LostItems(): JSX.Element {
                     {modalData
                         &&
                         <div>
-                            <h1>{modalData.ItemName}</h1>
+                            <h1>{modalData.ID}: {modalData.ItemName}</h1>
                             <p><b>Details:</b> {modalData.Details}</p>
                             <p><b>Found Area:</b> {modalData.LostArea}</p>
                             <p><b>Person Name:</b> {modalData.PersonName}</p>

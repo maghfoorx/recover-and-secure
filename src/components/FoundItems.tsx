@@ -79,6 +79,7 @@ export default function FoundItems(): JSX.Element {
                 data={foundItems}
                 onRowClicked={handleRowClicked}
                 customStyles={DataStyles}
+                pagination
             />
             {/* creating the modal */}
             <Modal
@@ -91,7 +92,7 @@ export default function FoundItems(): JSX.Element {
                     {modalData
                         &&
                         <div>
-                            <h1>{modalData.ItemName}</h1>
+                            <h1>{modalData.ID}: {modalData.ItemName}</h1>
                             <p><b>Details:</b> {modalData.Details}</p>
                             <p><b>Date Found:</b> {modalData.FoundDate}</p>
                             <p><b>Found Area:</b> {modalData.FoundArea}</p>
