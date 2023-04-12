@@ -1,8 +1,6 @@
 import { LostItemType } from "@/data/Interfaces";
-import { useEffect, useState } from "react";
-import DataGrid from "react-data-grid";
+import { useState } from "react";
 import 'react-data-grid/lib/styles.css';
-import PopUp from "./PopUp";
 import "../styles/LostItems.css"
 import useFetchLostPropertyData from "@/customHooks/useFetchLostPropertyData";
 import { Box, Modal } from "@mui/material";
@@ -63,6 +61,10 @@ export default function LostItems(): JSX.Element {
         {
             name: 'Name',
             selector: (row: LostItemType) => row.ItemName
+        },
+        {
+            name: 'Found',
+            selector: (row: LostItemType) => row.ItemFound
         }
     ]
 
@@ -91,6 +93,8 @@ export default function LostItems(): JSX.Element {
                             <h1>{modalData.ItemName}</h1>
                             <p><b>Details:</b> {modalData.Details}</p>
                             <p><b>Found Area:</b> {modalData.LostArea}</p>
+                            <p><b>Person Name:</b> {modalData.PersonName}</p>
+                            <p><b>Found:</b> {modalData.ItemFound}</p>
                             <p><b>Returned:</b> {modalData.ItemFound}</p>
                             <button>Delete</button>
                         </div>
