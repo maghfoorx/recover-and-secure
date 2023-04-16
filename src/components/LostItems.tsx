@@ -100,10 +100,11 @@ export default function LostItems(): JSX.Element {
                         <div>
                             <h1>{modalData.ID}: {modalData.ItemName}</h1>
                             <p><b>Details:</b> {modalData.Details}</p>
-                            <p><b>Found Area:</b> {modalData.LostArea}</p>
                             <p><b>Person Name:</b> {modalData.PersonName}</p>
+                            <p><b>Contact No:</b> {modalData.PhoneNumber}</p>
+                            <p><b>Aims ID:</b> {modalData.AimsID}</p>
+                            <p><b>Lost Area:</b> {modalData.LostArea}</p>
                             <p><b>Found:</b> {modalData.ItemFound}</p>
-                            <p><b>Returned:</b> {modalData.ItemFound}</p>
                             <button onClick={() => handleDeletingLostItem(modalData.ID)}>Delete</button>
                         </div>
                     }

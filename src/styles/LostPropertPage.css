@@ -1,0 +1,21 @@
+.show-table-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+button {
+    font-size: 1.1rem;
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+button:hover {
+    box-shadow: 4px 4px 4px black;
+}
+
+.live {
+    background-color: rgb(29, 206, 29);
+}
