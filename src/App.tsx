@@ -4,6 +4,7 @@ import LostItemForm from "./Pages/LostItemForm";
 import LostPropertyPage from "./Pages/LostPropertyPage";
 import AmaanatPage from "./Pages/AmaanatPage";
 import FoundItemForm from "./Pages/FoundItemForm";
+import "./styles/globals.css"
 
 function App() {
 
