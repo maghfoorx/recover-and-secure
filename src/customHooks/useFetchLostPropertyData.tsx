@@ -6,6 +6,7 @@ interface UseFetchLostItemsType {
     lostItems: LostItemType[];
     handleGetLostItems: () => Promise<void>
     foundItems: FoundItemType[]
+    handleGetFoundItems: () => Promise<void>
 }
 
 export default function useFetchLostPropertyData(): UseFetchLostItemsType {
@@ -27,6 +28,6 @@ export default function useFetchLostPropertyData(): UseFetchLostItemsType {
         handleGetFoundItems();
     }, []);
 
-    return { lostItems, handleGetLostItems, foundItems };
+    return { lostItems, handleGetLostItems, foundItems, handleGetFoundItems };
 
 }

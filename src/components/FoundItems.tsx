@@ -5,6 +5,7 @@ import "../styles/FoundItems.css";
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import DataTable from "react-data-table-component";
+import { deleteFoundItem } from "@/data/IPC/IPCMessages";
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -37,7 +38,7 @@ export default function FoundItems(): JSX.Element {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | FoundItemType>(null);
 
-    const { foundItems } = useFetchLostPropertyData();
+    const { foundItems, handleGetFoundItems } = useFetchLostPropertyData();
 
     function handleOpenModal() {
         console.log("trying to open modal")
@@ -51,11 +52,7 @@ export default function FoundItems(): JSX.Element {
     const columns = [
         {
             name: "Name",
-            cell: (row: FoundItemType) => <p>{row.ItemName}</p>
-        },
-        {
-            name: "Details",
-            selector: (row: FoundItemType) => row.Details
+            selector: (row: FoundItemType) => row.ItemName
         },
         {
             name: "Returned",
@@ -68,6 +65,13 @@ export default function FoundItems(): JSX.Element {
     function handleRowClicked(row: FoundItemType) {
         setModalData(row)
         handleOpenModal()
+    }
+
+    //function to handle deleting an item
+    async function handleDeletingFoundItem(id: number) {
+        await deleteFoundItem(id);
+        await handleGetFoundItems();
+        handleCloseModal()
     }
 
     return (
@@ -97,7 +101,7 @@ export default function FoundItems(): JSX.Element {
                             <p><b>Date Found:</b> {modalData.FoundDate}</p>
                             <p><b>Found Area:</b> {modalData.FoundArea}</p>
                             <p><b>Returned:</b> {modalData.Returned}</p>
-                            <button>Delete</button>
+                            <button onClick={() => handleDeletingFoundItem(modalData.ID)}>Delete</button>
                         </div>
                     }
                 </Box>

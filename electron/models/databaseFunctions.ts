@@ -87,7 +87,7 @@ export function postFoundItem(data: PostFoundItem) {
   })
 }
 
-//deleting a posted item
+//deleting a Lost item
 export function deleteLostItem(id: number) {
   const query = `DELETE FROM lost_items WHERE ID = ${id}`;
   return new Promise((resolve, reject) => {
@@ -102,6 +102,23 @@ export function deleteLostItem(id: number) {
       statement.finalize();
     });
   });
+}
+
+//deleting a Found Item
+export function deleteFoundItem(id: number) {
+  const query = `DELETE FROM found_items WHERE ID = ${id}`
+  return new Promise((resolve, reject) => {
+    let statement = db.prepare(query)
+    statement.all((err, rows) => {
+      if (err) {
+        console.error(err.message)
+        reject(err.message)
+      } else {
+        resolve(rows);
+      }
+      statement.finalize();
+    })
+  })
 }
 
 //Found a lost reported item

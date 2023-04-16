@@ -5,5 +5,6 @@ export const {
   postLostItem,
   postFoundItem,
   deleteLostItem,
+  deleteFoundItem,
   foundLostItem,
 } = window["ipcAPI"];

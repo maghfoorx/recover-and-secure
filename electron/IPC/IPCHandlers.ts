@@ -1,5 +1,6 @@
 import { ipcMain } from "electron";
 import {
+  deleteFoundItem,
   deleteLostItem,
   getFoundItemsReported,
   getLostItemsReported,
@@ -32,6 +33,11 @@ export const registerIPCHandlers = () => {
 
   ipcMain.handle("DELETE_LOST_ITEM", async (event, args: number) => {
     const response = await deleteLostItem(args);
+    return response;
+  });
+
+  ipcMain.handle("DELETE_FOUND_ITEM", async (event, args: number) => {
+    const response = await deleteFoundItem(args);
     return response;
   });
 
