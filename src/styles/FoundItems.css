@@ -1,3 +1,5 @@
 .found-items-component {
-  background-color: aquamarine;
+  background-color: rgb(48, 84, 180);
+  padding: 1rem;
+  border-radius: 10px;
 }

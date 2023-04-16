@@ -1,3 +1,5 @@
 .lost-items-component {
-  background-color: aqua;
+  background-color: rgb(7, 92, 92);
+  padding: 1rem;
+  border-radius: 10px;
 }

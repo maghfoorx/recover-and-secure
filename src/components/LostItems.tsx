@@ -78,10 +78,7 @@ export default function LostItems(): JSX.Element {
     return (
         <div className="lost-items-component">
             <h2>Reported Lost Items</h2>
-            <p>Total Lost Items: {lostItems.length}</p>
-            <p>Total Found Items: {lostItems.filter(item => item.ItemFound === "Yes").length}</p>
             <DataTable
-                title="Lost Items"
                 columns={columns}
                 data={lostItems}
                 onRowClicked={handleRowClicked}
@@ -110,6 +107,8 @@ export default function LostItems(): JSX.Element {
                     }
                 </Box>
             </Modal>
+            <p>Total Lost Items: {lostItems.length}</p>
+            <p>Total Found Items: {lostItems.filter(item => item.ItemFound === "Yes").length}</p>
         </div>
     )
 }

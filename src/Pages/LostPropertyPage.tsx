@@ -10,9 +10,10 @@ export default function LostPropertyPage(): JSX.Element {
     const [showTable, setShowTable] = useState<ShowTableType>('LostItems')
     return (
         <div>
-            <Link to="/lost-item-form">Report Lost Item</Link>
-            <br />
-            <Link to="/found-item-form">Submit Found Item</Link>
+            <div className="form-links">
+            <Link to="/lost-item-form" className="form-links__lost-item">Report Lost Item</Link>
+            <Link to="/found-item-form" className="form-links__found-item">Submit Found Item</Link>
+            </div>
             <div className="show-table-buttons">
                 <button onClick={() => setShowTable("LostItems")} className={showTable === "LostItems" ? "live" : ""}>Lost Items</button>
                 <button onClick={() => setShowTable("FoundItems")} className={showTable === "FoundItems" ? "live" : ""}>Found Items</button>

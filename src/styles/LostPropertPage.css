@@ -2,6 +2,34 @@
     display: flex;
     justify-content: center;
     gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.form-links {
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.form-links__lost-item {
+    background-color: rgb(7, 92, 92);
+    color: whitesmoke;
+}
+
+.form-links__found-item {
+    background-color: rgb(48, 84, 180);
+    color: whitesmoke;
+}
+
+.form-links__found-item, .form-links__lost-item {
+    padding: 1rem;
+    border-radius: 10px;
+}
+a {
+    text-decoration: none;
+    color: black;
 }
 
 button {
