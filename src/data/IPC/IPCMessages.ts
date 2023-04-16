@@ -3,6 +3,7 @@ export const {
   getFoundItemsReported,
   getVersion,
   postLostItem,
+  postFoundItem,
   deleteLostItem,
   foundLostItem,
 } = window["ipcAPI"];

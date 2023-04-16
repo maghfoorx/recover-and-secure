@@ -1,4 +1,4 @@
-import { PostLostItemType } from "../preload";
+import { PostFoundItem, PostLostItemType } from "../preload";
 import { db } from "./dbConnection";
 
 // getting all lost items reported from lost_items table
@@ -49,6 +49,7 @@ export function getFoundItemsReported() {
   });
 }
 
+//inserting a lost item
 export function postLostItem(data: PostLostItemType) {
   const { PersonName, ItemName, AimsID, Details, LostArea, PhoneNumber } = data;
 
@@ -66,6 +67,24 @@ export function postLostItem(data: PostLostItemType) {
       statement.finalize();
     });
   });
+}
+
+//inserting a found item
+export function postFoundItem(data: PostFoundItem) {
+  const {ItemName, Details, FoundArea } = data;
+  const query = `INSERT INTO found_items (ItemName, Details, FoundArea) VALUES ('${ItemName}', '${Details}', '${FoundArea}')`;
+  return new Promise((resolve, reject) => {
+    let statement = db.prepare(query);
+    statement.all((err, rows) => {
+      if (err) {
+        console.error(err.message);
+        reject(err.message)
+      } else {
+        resolve(rows)
+      }
+      statement.finalize();
+    })
+  })
 }
 
 //deleting a posted item

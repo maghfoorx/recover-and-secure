@@ -105,12 +105,18 @@ export interface PostLostItemType {
   PhoneNumber: string;
   AimsID: string;
 }
+
+export type PostFoundItem = {
+  ItemName: String;
+  Details: String;
+  FoundArea: String;
+}
 contextBridge.exposeInMainWorld("ipcAPI", {
   getLostItemsReported: () => ipcRenderer.invoke("GET_LOST_ITEMS"),
   getFoundItemsReported: () => ipcRenderer.invoke("GET_FOUND_ITEMS"),
   getVersion: () => ipcRenderer.invoke("get-version"),
-  postLostItem: (data: PostLostItemType) =>
-    ipcRenderer.invoke("POST_LOST_ITEM", data),
+  postLostItem: (data: PostLostItemType) => ipcRenderer.invoke("POST_LOST_ITEM", data),
+  postFoundItem: (data: PostFoundItem) => ipcRenderer.invoke("POST_FOUND_ITEM", data),
   deleteLostItem: (ID: number) => ipcRenderer.invoke("DELETE_LOST_ITEM", ID),
   foundLostItem: (ID: number) => ipcRenderer.invoke("FOUND_LOST_ITEM", ID),
 });
