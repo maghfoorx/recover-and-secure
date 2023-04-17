@@ -8,3 +8,12 @@
     background: grey;
     font-family: 'Karla', sans-serif;
   }
+
+  input {
+    padding: 0.5rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: 'Karla', sans-serif;
+    width: 400px;
+    margin: 1rem 0 1rem;
+  }

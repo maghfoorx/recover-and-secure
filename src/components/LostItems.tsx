@@ -1,5 +1,5 @@
 import { LostItemType } from "@/data/Interfaces";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles/LostItems.css"
 import useFetchLostPropertyData from "@/customHooks/useFetchLostPropertyData";
 import { Box, Modal } from "@mui/material";
@@ -21,12 +21,15 @@ const modalStyle = {
 
 export default function LostItems(): JSX.Element {
 
-    //Popupstate declaration
+    const { lostItems, handleGetLostItems } = useFetchLostPropertyData();
+
+    const [searchBarValue, setSearchBarValue] = useState('')
 
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | LostItemType>(null);
 
-    const { lostItems, handleGetLostItems } = useFetchLostPropertyData();
+    const filteredItems = lostItems.filter(item => (item.ItemName || item.ID) && item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()) || item.ID.toString().includes(searchBarValue.toLocaleLowerCase()))
+
 
     function handleOpenModal() {
         console.log("trying to open modal")
@@ -70,9 +73,10 @@ export default function LostItems(): JSX.Element {
     return (
         <div className="lost-items-component">
             <h1>Lost Items</h1>
+            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="filter with Name or ID"/>
             <DataTable
                 columns={columns}
-                data={lostItems}
+                data={filteredItems}
                 onRowClicked={handleRowClicked}
                 customStyles={tableStyles}
                 pagination

@@ -22,10 +22,14 @@ const modalStyle = {
 
 
 export default function FoundItems(): JSX.Element {
+    const { foundItems, handleGetFoundItems } = useFetchLostPropertyData();
+
+    const [searchBarValue, setSearchBarValue] = useState('')
+    const filteredItems = foundItems.filter(item => (item.ItemName || item.ID) && item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()) || item.ID.toString().includes(searchBarValue.toLocaleLowerCase()))
+
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | FoundItemType>(null);
 
-    const { foundItems, handleGetFoundItems } = useFetchLostPropertyData();
 
     function handleOpenModal() {
         console.log("trying to open modal")
@@ -71,9 +75,10 @@ export default function FoundItems(): JSX.Element {
     return (
         <div className="found-items-component">
             <h1>Found Items</h1>
+            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="filter with Name or ID"/>
             <DataTable
                 columns={columns}
-                data={foundItems}
+                data={filteredItems}
                 onRowClicked={handleRowClicked}
                 customStyles={tableStyles}
                 pagination
