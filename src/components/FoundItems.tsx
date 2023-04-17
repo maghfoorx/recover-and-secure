@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import DataTable from "react-data-table-component";
 import { deleteFoundItem, returnFoundItem } from "@/data/IPC/IPCMessages";
+import { tableStyles } from "@/styles/tablesStyles";
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -18,20 +19,6 @@ const modalStyle = {
     boxShadow: 24,
     p: 4,
 };
-
-const DataStyles = {
-    rows: {
-        style: {
-            cursor: "pointer"
-        }
-    },
-    headCells: {
-        style: {
-            fontSize: "1.3rem",
-            fontWeight: "bold"
-        }
-    }
-}
 
 
 export default function FoundItems(): JSX.Element {
@@ -88,7 +75,7 @@ export default function FoundItems(): JSX.Element {
                 columns={columns}
                 data={foundItems}
                 onRowClicked={handleRowClicked}
-                customStyles={DataStyles}
+                customStyles={tableStyles}
                 pagination
             />
             {/* creating the modal */}
