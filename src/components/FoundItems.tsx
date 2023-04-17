@@ -107,8 +107,10 @@ export default function FoundItems(): JSX.Element {
                             <p><b>Date Found:</b> {modalData.FoundDate}</p>
                             <p><b>Found Area:</b> {modalData.FoundArea}</p>
                             <p><b>Returned:</b> {modalData.Returned}</p>
-                            <button onClick={() => handleDeletingFoundItem(modalData.ID)}>Delete</button>
-                            <button onClick={() => handleReturnFoundItem(modalData.ID)}>Return</button>
+                            <div className="modal-buttons">
+                            <button onClick={() => handleDeletingFoundItem(modalData.ID)} className="modal-button delete">Delete</button>
+                            <button onClick={() => handleReturnFoundItem(modalData.ID)} className="modal-button return">Return</button>
+                            </div>
                         </div>
                     }
                 </Box>
