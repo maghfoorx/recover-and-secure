@@ -1,6 +1,5 @@
 import { LostItemType } from "@/data/Interfaces";
 import { useState } from "react";
-import 'react-data-grid/lib/styles.css';
 import "../styles/LostItems.css"
 import useFetchLostPropertyData from "@/customHooks/useFetchLostPropertyData";
 import { Box, Modal } from "@mui/material";
