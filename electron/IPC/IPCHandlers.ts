@@ -7,6 +7,7 @@ import {
   postFoundItem,
   postLostItem,
   updateFoundColumn,
+  updateReturnColumn,
 } from "../models/databaseFunctions";
 import { PostFoundItem, PostLostItemType } from "../preload";
 
@@ -18,6 +19,11 @@ export const registerIPCHandlers = () => {
 
   ipcMain.handle("GET_LOST_ITEMS", async (event, args) => {
     const data = await getLostItemsReported();
+    return data;
+  });
+
+  ipcMain.handle("GET_FOUND_ITEMS", async (event, args) => {
+    const data = await getFoundItemsReported();
     return data;
   });
 
@@ -46,8 +52,9 @@ export const registerIPCHandlers = () => {
     return response;
   });
 
-  ipcMain.handle("GET_FOUND_ITEMS", async (event, args) => {
-    const data = await getFoundItemsReported();
-    return data;
-  });
+  ipcMain.handle("RETURN_FOUND_ITEM", async (event, args: number) => {
+    const response = await updateReturnColumn(args);
+    return response
+  })
+
 };

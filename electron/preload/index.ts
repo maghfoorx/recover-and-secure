@@ -120,4 +120,5 @@ contextBridge.exposeInMainWorld("ipcAPI", {
   deleteLostItem: (ID: number) => ipcRenderer.invoke("DELETE_LOST_ITEM", ID),
   deleteFoundItem: (ID: number) => ipcRenderer.invoke("DELETE_FOUND_ITEM", ID),
   foundLostItem: (ID: number) => ipcRenderer.invoke("FOUND_LOST_ITEM", ID),
+  returnFoundItem: (ID: number) => ipcRenderer.invoke("RETURN_FOUND_ITEM", ID)
 });

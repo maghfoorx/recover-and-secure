@@ -137,3 +137,20 @@ export function updateFoundColumn(id: number) {
     });
   });
 }
+
+//Returned a found item
+export function updateReturnColumn(id: number) {
+  const query = `UPDATE found_items SET Returned = 1 WHERE ID = ${id}`
+  return new Promise((resolve, reject) => {
+    let statement = db.prepare(query);
+    statement.all((err, rows) => {
+      if (err) {
+        console.error(err.message)
+        reject(err.message)
+      } else {
+        resolve(rows)
+      }
+      statement.finalize();
+    })
+  })
+}

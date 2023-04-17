@@ -5,7 +5,7 @@ import "../styles/FoundItems.css";
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import DataTable from "react-data-table-component";
-import { deleteFoundItem } from "@/data/IPC/IPCMessages";
+import { deleteFoundItem, returnFoundItem } from "@/data/IPC/IPCMessages";
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -74,6 +74,13 @@ export default function FoundItems(): JSX.Element {
         handleCloseModal()
     }
 
+    //function to handle returning a found item
+    async function handleReturnFoundItem(id: number) {
+        await returnFoundItem(id);
+        await handleGetFoundItems();
+        handleCloseModal();
+    }
+
     return (
         <div className="found-items-component">
             <h1>Found Items</h1>
@@ -101,6 +108,7 @@ export default function FoundItems(): JSX.Element {
                             <p><b>Found Area:</b> {modalData.FoundArea}</p>
                             <p><b>Returned:</b> {modalData.Returned}</p>
                             <button onClick={() => handleDeletingFoundItem(modalData.ID)}>Delete</button>
+                            <button onClick={() => handleReturnFoundItem(modalData.ID)}>Return</button>
                         </div>
                     }
                 </Box>
