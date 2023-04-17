@@ -83,7 +83,7 @@ export default function LostItems(): JSX.Element {
 
     return (
         <div className="lost-items-component">
-            <h2>Lost Items</h2>
+            <h1>Lost Items</h1>
             <DataTable
                 columns={columns}
                 data={lostItems}
