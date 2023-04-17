@@ -5,7 +5,7 @@ import "../styles/LostItems.css"
 import useFetchLostPropertyData from "@/customHooks/useFetchLostPropertyData";
 import { Box, Modal } from "@mui/material";
 import DataTable from "react-data-table-component";
-import { deleteLostItem } from "@/data/IPC/IPCMessages";
+import { deleteLostItem, foundLostItem } from "@/data/IPC/IPCMessages";
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -62,6 +62,12 @@ export default function LostItems(): JSX.Element {
         handleCloseModal()
     }
 
+    async function handleFoundLostItem(id: number) {
+        await foundLostItem(id);
+        await handleGetLostItems();
+        handleCloseModal();
+    }
+
     //creating columns
     const columns = [
         {
@@ -103,6 +109,7 @@ export default function LostItems(): JSX.Element {
                             <p><b>Lost Area:</b> {modalData.LostArea}</p>
                             <p><b>Found:</b> {modalData.ItemFound}</p>
                             <button onClick={() => handleDeletingLostItem(modalData.ID)}>Delete</button>
+                            <button onClick={() => handleFoundLostItem(modalData.ID)}>Found</button>
                         </div>
                     }
                 </Box>
