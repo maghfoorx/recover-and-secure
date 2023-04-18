@@ -73,7 +73,7 @@ export default function LostItems(): JSX.Element {
     return (
         <div className="lost-items-component">
             <h1>Lost Items</h1>
-            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="filter with Name or ID"/>
+            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Filter with Name or ID"/>
             <DataTable
                 columns={columns}
                 data={filteredItems}

@@ -75,7 +75,7 @@ export default function FoundItems(): JSX.Element {
     return (
         <div className="found-items-component">
             <h1>Found Items</h1>
-            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="filter with Name or ID"/>
+            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Filter with Name or ID"/>
             <DataTable
                 columns={columns}
                 data={filteredItems}
