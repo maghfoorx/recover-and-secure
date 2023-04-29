@@ -7,7 +7,7 @@ import "../styles/LostPropertPage.css"
 type ShowTableType = "LostItems" | "FoundItems"
 export default function LostPropertyPage(): JSX.Element {
 
-    const [showTable, setShowTable] = useState<ShowTableType>('LostItems')
+    const [showTable, setShowTable] = useState<ShowTableType>('FoundItems')
     return (
         <div>
             <div className="form-links">
