@@ -53,7 +53,6 @@ export const registerIPCHandlers = () => {
   });
 
   ipcMain.handle("RETURN_FOUND_ITEM", async (event, args: ReturnFormType) => {
-    console.log("The arguments are in RETURN_FOUND_ITEM", args)
     const response = await returnFoundItem(args)
     return response
   })
