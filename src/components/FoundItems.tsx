@@ -14,8 +14,6 @@ import { modalStyle } from "@/styles/modalStyle";
 export default function FoundItems(): JSX.Element {
     const { foundItems, handleGetFoundItems } = useFetchLostPropertyData();
 
-    console.log(foundItems)
-
     const [searchBarValue, setSearchBarValue] = useState('')
     const filteredItems = foundItems.filter(item => (item.ItemName || item.ID) && item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()) || item.ID.toString().includes(searchBarValue.toLocaleLowerCase()))
 

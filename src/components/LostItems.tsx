@@ -21,7 +21,6 @@ export default function LostItems(): JSX.Element {
 
 
     function handleOpenModal() {
-        console.log("trying to open modal")
         setOpenModal(true);
     }
 
