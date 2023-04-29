@@ -6,19 +6,7 @@ import { Box, Modal } from "@mui/material";
 import DataTable from "react-data-table-component";
 import { deleteLostItem, foundLostItem } from "@/data/IPC/IPCMessages";
 import { tableStyles } from "@/styles/tablesStyles";
-
-const modalStyle = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 500,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-    fontSize: "1.3rem"
-};
+import { modalStyle } from "@/styles/modalStyle";
 
 export default function LostItems(): JSX.Element {
 

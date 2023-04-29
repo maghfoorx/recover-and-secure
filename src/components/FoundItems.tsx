@@ -1,5 +1,5 @@
 import useFetchLostPropertyData from "@/customHooks/useFetchLostPropertyData";
-import { FoundItemType, ReturnFoundItemForm } from "@/data/Interfaces";
+import { FoundItemType } from "@/data/Interfaces";
 import { useEffect, useState } from "react";
 import "../styles/FoundItems.css";
 import Box from '@mui/material/Box';
@@ -7,24 +7,8 @@ import Modal from '@mui/material/Modal';
 import DataTable from "react-data-table-component";
 import { deleteFoundItem, returnFoundItem } from "@/data/IPC/IPCMessages";
 import { tableStyles } from "@/styles/tablesStyles";
-import ReturnItemForm from "./ReturnItemForm";
 import {useForm} from 'react-hook-form'
-
-const modalStyle = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 500,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-    '& p': {
-        fontSize: "1.3rem",
-        marginBottom: "1rem"
-    }
-};
+import { modalStyle } from "@/styles/modalStyle";
 
 
 export default function FoundItems(): JSX.Element {
