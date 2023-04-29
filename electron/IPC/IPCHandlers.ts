@@ -6,10 +6,10 @@ import {
   getLostItemsReported,
   postFoundItem,
   postLostItem,
+  returnFoundItem,
   updateFoundColumn,
-  updateReturnColumn,
 } from "../models/databaseFunctions";
-import { PostFoundItem, PostLostItemType } from "../preload";
+import { PostFoundItem, PostLostItemType, ReturnFormType } from "../preload";
 
 // function that exports all the IPCActions
 export const registerIPCHandlers = () => {
@@ -52,8 +52,9 @@ export const registerIPCHandlers = () => {
     return response;
   });
 
-  ipcMain.handle("RETURN_FOUND_ITEM", async (event, args: number) => {
-    const response = await updateReturnColumn(args);
+  ipcMain.handle("RETURN_FOUND_ITEM", async (event, args: ReturnFormType) => {
+    console.log("The arguments are in RETURN_FOUND_ITEM", args)
+    const response = await returnFoundItem(args)
     return response
   })
 
