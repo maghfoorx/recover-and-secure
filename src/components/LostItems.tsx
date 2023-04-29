@@ -12,11 +12,12 @@ const modalStyle = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: 500,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
     p: 4,
+    fontSize: "1.3rem"
 };
 
 export default function LostItems(): JSX.Element {
@@ -28,7 +29,7 @@ export default function LostItems(): JSX.Element {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | LostItemType>(null);
 
-    const filteredItems = lostItems.filter(item => (item.ItemName || item.ID) && item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()) || item.ID.toString().includes(searchBarValue.toLocaleLowerCase()))
+    const filteredItems = lostItems.filter(item => (item.ItemName || item.AimsID) && item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()) || item.AimsID.toString().includes(searchBarValue.toLocaleLowerCase()))
 
 
     function handleOpenModal() {
@@ -73,7 +74,7 @@ export default function LostItems(): JSX.Element {
     return (
         <div className="lost-items-component">
             <h1>Lost Items</h1>
-            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Filter with Name or ID"/>
+            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Item Name or AIMS ID"/>
             <DataTable
                 columns={columns}
                 data={filteredItems}
