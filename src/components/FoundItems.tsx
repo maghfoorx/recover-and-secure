@@ -1,5 +1,5 @@
 import useFetchLostPropertyData from "@/customHooks/useFetchLostPropertyData";
-import { FoundItemType } from "@/data/Interfaces";
+import { FoundItemType, ReturnFoundItemForm } from "@/data/Interfaces";
 import { useEffect, useState } from "react";
 import "../styles/FoundItems.css";
 import Box from '@mui/material/Box';
@@ -8,6 +8,7 @@ import DataTable from "react-data-table-component";
 import { deleteFoundItem, returnFoundItem } from "@/data/IPC/IPCMessages";
 import { tableStyles } from "@/styles/tablesStyles";
 import ReturnItemForm from "./ReturnItemForm";
+import {useForm} from 'react-hook-form'
 
 const modalStyle = {
     position: 'absolute' as 'absolute',
@@ -45,6 +46,8 @@ export default function FoundItems(): JSX.Element {
         }
     }, [openModal])
 
+    const {register, handleSubmit, formState: {errors}, reset} = useForm();
+
 
     function handleOpenModal() {
         setOpenModal(true);
@@ -75,16 +78,22 @@ export default function FoundItems(): JSX.Element {
     }
 
     //function to handle returning a found item
-    async function handleReturnFoundItem(id: number) {
-        await returnFoundItem(id);
-        await handleGetFoundItems();
-        handleCloseModal();
+    async function handleReturnFoundItem(data: unknown) {
+        try {
+            await returnFoundItem(data);
+            await handleGetFoundItems();
+            handleCloseModal();
+            reset();
+        }
+        catch (error) {
+            console.error(error)
+        }
     }
 
     return (
         <div className="found-items-component">
             <h1>Found Items</h1>
-            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Filter with Name or ID"/>
+            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Item Name or Aims ID"/>
             <DataTable
                 columns={columns}
                 data={filteredItems}
@@ -115,7 +124,17 @@ export default function FoundItems(): JSX.Element {
                             <button onClick={() => handleDeletingFoundItem(modalData.ID)} className="modal-button delete">Delete</button>
                             {!modalData.PersonName && !modalData.ReturnDate && <button onClick={() => setOpenReturnForm(true)} className="modal-button return">Return</button>}
                             </div>
-                            {openReturnForm && <ReturnItemForm ItemID={modalData.ID}/>}
+                            {openReturnForm && 
+                            <form onSubmit={handleSubmit((data) => handleReturnFoundItem({...data, itemID: modalData.ID}))}>
+                                <p>Person Name</p>
+                                <input {...register("PersonName", {required: true})}/>
+                                <p>AIMS number</p>
+                                <input {...register("AimsNumber", {required: true})}/>
+                                <p>Returned By</p>
+                                <input {...register("ReturnedBy", {required: true})}/>
+                                <br />
+                            <input type="submit"/>
+                            </form>}
                         </div>
                     }
                 </Box>
