@@ -1,4 +1,4 @@
-import { PostFoundItem, PostLostItemType } from "../preload";
+import { PostFoundItem, PostLostItemType, ReturnFormType } from "../preload";
 import { db } from "./dbConnection";
 
 // getting all lost items reported from lost_items table
@@ -27,7 +27,16 @@ export function getLostItemsReported() {
 
 //getting items from found_items table
 export function getFoundItemsReported() {
-  const qry = "SELECT * FROM found_items;";
+  const qry = `
+  SELECT
+    found_items.*,
+    returned_items.ReturnDate,
+    returned_items.PersonName,
+    returned_items.AimsNumber,
+    returned_items.ReturnedBy
+  FROM
+    found_items
+    LEFT JOIN returned_items ON found_items.ID = returned_items.ItemID;`;
   return new Promise((resolve, reject) => {
     let statement = db.prepare(qry);
     statement.all((err, rows) => {
@@ -35,14 +44,7 @@ export function getFoundItemsReported() {
         console.error(err.message);
         reject(err);
       } else {
-        const formattedData = rows.map((item) => {
-          if (item.Returned === 0) {
-            return { ...item, Returned: "No" };
-          } else {
-            return { ...item, Returned: "Yes" };
-          }
-        });
-        resolve(formattedData);
+        resolve(rows);
       }
       statement.finalize();
     });
@@ -139,8 +141,12 @@ export function updateFoundColumn(id: number) {
 }
 
 //Returned a found item
-export function updateReturnColumn(id: number) {
-  const query = `UPDATE found_items SET Returned = 1 WHERE ID = ${id}`
+export function returnFoundItem({itemID, PersonName, AimsNumber, ReturnedBy}: ReturnFormType) {
+  const query = `
+  INSERT INTO returned_items 
+  (ItemID, PersonName, AimsNumber, ReturnedBy)
+  VALUES
+  (${itemID}, "${PersonName}", "${AimsNumber}", "${ReturnedBy}")`
   return new Promise((resolve, reject) => {
     let statement = db.prepare(query);
     statement.all((err, rows) => {
