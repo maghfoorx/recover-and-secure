@@ -16,6 +16,7 @@ export interface FoundItemType {
   FoundDate: string;
   FoundArea: string;
   ReturnDate: string | null;
-  Returned: "Yes" | "No";
+  PersonName: string | null;
+  AimsNumber: string | null;
   ReturnedBy: string | null;
 }
