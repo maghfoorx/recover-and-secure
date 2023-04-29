@@ -108,7 +108,8 @@ export function deleteLostItem(id: number) {
 
 //deleting a Found Item
 export function deleteFoundItem(id: number) {
-  const query = `DELETE FROM found_items WHERE ID = ${id}`
+  deleteReturnedItem(id)
+  const query = `DELETE FROM found_items WHERE ID = ${id}; DELETE FROM returned_items WHERE ItemID = ${id};`
   return new Promise((resolve, reject) => {
     let statement = db.prepare(query)
     statement.all((err, rows) => {
@@ -117,6 +118,22 @@ export function deleteFoundItem(id: number) {
         reject(err.message)
       } else {
         resolve(rows);
+      }
+      statement.finalize();
+    })
+  })
+}
+
+function deleteReturnedItem(id: number) {
+  const query = `DELETE FROM returned_items WHERE ItemID = ${id}`
+  return new Promise((resolve, reject) => {
+    let statement = db.prepare(query);
+    statement.all((err, rows) => {
+      if (err) {
+        console.error(err.message)
+        reject(err.message)
+      } else {
+        resolve(rows)
       }
       statement.finalize();
     })
