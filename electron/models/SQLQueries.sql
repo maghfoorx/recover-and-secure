@@ -25,9 +25,6 @@ CREATE TABLE found_items (
   ItemName TEXT,
   Details TEXT,
   FoundArea TEXT,
-  Returned boolean default false,
-  ReturnedBy TEXT,
-  ReturnDate TEXT
 );
 
 -- mock data for found_items
@@ -35,3 +32,16 @@ INSERT INTO found_items (ItemName, Details, FoundArea) VALUES ('iPhone', 'Black 
 INSERT INTO found_items (ItemName, Details, FoundArea) VALUES ('Wallet', 'Brown leather, contains ID and credit cards', 'Central Park');
 INSERT INTO found_items (ItemName, Details, FoundArea) VALUES ('Keys', 'Gold keychain, includes house key and car key', 'Downtown');
 INSERT INTO found_items (ItemName, Details, FoundArea) VALUES ('Sunglasses', 'Aviator style, polarized lenses', 'Shopping Mall');
+
+-- creating returned_items table
+
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE returned_items (
+  ReturnID INTEGER PRIMARY KEY,
+  ItemID INTEGER REFERENCES found_items(ID),
+  ReturnDate TEXT DEFAULT CURRENT_DATE,
+  PersonName TEXT,
+  AimsNumber TEXT,
+	ReturnedBy TEXT
+);
