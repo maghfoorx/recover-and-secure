@@ -22,9 +22,9 @@ export default function FoundItemForm(): JSX.Element {
     }
     return (
         <div>
-            <Link to="/">Go Back</Link>
-            <h1>Submit a found item</h1>
+            <Link to="/" className="go-back">Go Back</Link>
             <form onSubmit={handleSubmit((data) => handlePostingForm(data))}>
+                <h1>Submit a found item</h1>
                 <p>Item Name</p>
                 <input {...register("ItemName", {required: true})}/>
                 <p>Item Details</p>

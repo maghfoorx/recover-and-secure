@@ -22,9 +22,9 @@ export default function LostItemForm(): JSX.Element {
     }
     return (
         <>
-            <Link to="/">Go Back</Link>
-            <h1>Submit a lost property</h1>
+            <Link to="/" className="go-back">Go Back</Link>
             <form onSubmit={handleSubmit((data) => handlePostingForm(data))}>
+                <h1>Submit a lost property</h1>
                 <p>Person Name</p>
                 <input {...register("PersonName", { required: true })} />
                 <p>Item Name</p>
