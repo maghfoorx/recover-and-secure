@@ -110,6 +110,8 @@ export type PostFoundItem = {
   ItemName: String;
   Details: String;
   FoundArea: String;
+  FinderName: String;
+  AIMSNumber: String;
 }
 
 export type ReturnFormType = {

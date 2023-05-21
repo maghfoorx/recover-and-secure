@@ -19,4 +19,6 @@ export interface FoundItemType {
   PersonName: string | null;
   AimsNumber: string | null;
   ReturnedBy: string | null;
+  FinderName: string | null;
+  AIMSNumber: string | null;
 }

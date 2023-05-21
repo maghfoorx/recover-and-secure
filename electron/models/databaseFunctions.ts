@@ -73,8 +73,10 @@ export function postLostItem(data: PostLostItemType) {
 
 //inserting a found item
 export function postFoundItem(data: PostFoundItem) {
-  const {ItemName, Details, FoundArea } = data;
-  const query = `INSERT INTO found_items (ItemName, Details, FoundArea) VALUES ('${ItemName}', '${Details}', '${FoundArea}')`;
+  let query = `INSERT INTO found_items (ItemName, Details, FoundArea) VALUES ('${data.ItemName}', '${data.Details}', '${data.FoundArea}')`;
+  if (data.FinderName && data.AIMSNumber) {
+    query = `INSERT INTO found_items (ItemName, Details, FoundArea, FinderName, AIMSNumber) VALUES ('${data.ItemName}', '${data.Details}', '${data.FoundArea}', '${data.FinderName}', '${data.AIMSNumber}')`
+  }
   return new Promise((resolve, reject) => {
     let statement = db.prepare(query);
     statement.all((err, rows) => {
