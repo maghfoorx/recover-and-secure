@@ -98,6 +98,8 @@ export default function FoundItems(): JSX.Element {
                             <p><b>Details:</b> {modalData.Details}</p>
                             <p><b>Date Found:</b> {modalData.FoundDate}</p>
                             <p><b>Found Area:</b> {modalData.FoundArea}</p>
+                            {modalData.FinderName && <p><b>Found By:</b> {modalData.FinderName}</p>}
+                            {modalData.AIMSNumber && <p><b>Founder's AIMS:</b>{modalData.AIMSNumber}</p>}
                             <hr />
                             {modalData.PersonName && <p><b>Returned To:</b> {modalData.PersonName}</p>}
                             {modalData.AimsNumber && <p><b>Returned Person Aims Number:</b> {modalData.AimsNumber}</p>}
