@@ -8,7 +8,7 @@ import {
   postLostItem,
   returnFoundItem,
   updateFoundColumn,
-} from "../models/databaseFunctions";
+} from "../database-functions/lost-property/databaseFunctions";
 import { PostFoundItem, PostLostItemType, ReturnFormType } from "../preload";
 
 // function that exports all the IPCActions

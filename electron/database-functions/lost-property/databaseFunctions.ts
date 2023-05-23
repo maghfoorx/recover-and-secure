@@ -1,5 +1,5 @@
-import { PostFoundItem, PostLostItemType, ReturnFormType } from "../preload";
-import { db } from "./dbConnection";
+import { PostFoundItem, PostLostItemType, ReturnFormType } from "../../preload";
+import { db } from "../dbConnection";
 
 // getting all lost items reported from lost_items table
 export function getLostItemsReported() {
