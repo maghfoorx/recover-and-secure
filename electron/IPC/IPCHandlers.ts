@@ -9,7 +9,8 @@ import {
   returnFoundItem,
   updateFoundColumn,
 } from "../database-functions/lost-property/databaseFunctions";
-import { PostFoundItem, PostLostItemType, ReturnFormType } from "../preload";
+import { getAllAmaanatUsers } from "../database-functions/amaanat/databaseFunctions";
+import { PostFoundItem, PostLostItemType, ReturnFormType } from "../database-functions/lost-property/lostPropertyTypes";
 
 // function that exports all the IPCActions
 export const registerIPCHandlers = () => {
@@ -55,6 +56,11 @@ export const registerIPCHandlers = () => {
   ipcMain.handle("RETURN_FOUND_ITEM", async (event, args: ReturnFormType) => {
     const response = await returnFoundItem(args)
     return response
+  })
+
+  ipcMain.handle("GET_AMAANAT_USERS", async (event, args) => {
+    const response = await getAllAmaanatUsers();
+    return response;
   })
 
 };

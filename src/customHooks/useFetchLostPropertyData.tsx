@@ -1,4 +1,4 @@
-import { FoundItemType, LostItemType } from "@/data/Interfaces";
+import { FoundItemType, LostItemType } from "@/data/dataType.lostProperty";
 import { getFoundItemsReported, getLostItemsReported } from "@/data/IPC/IPCMessages";
 import { useEffect, useState } from "react";
 

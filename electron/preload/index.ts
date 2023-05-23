@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
+import { PostFoundItem, PostLostItemType, ReturnFormType } from "../database-functions/lost-property/lostPropertyTypes";
 
 function domReady(
   condition: DocumentReadyState[] = ["complete", "interactive"]
@@ -96,30 +97,6 @@ window.onmessage = (ev) => {
 setTimeout(removeLoading, 4999);
 
 // setting up contextbridge
-
-export interface PostLostItemType {
-  PersonName: string;
-  ItemName: string;
-  Details: string;
-  LostArea: string;
-  PhoneNumber: string;
-  AimsID: string;
-}
-
-export type PostFoundItem = {
-  ItemName: String;
-  Details: String;
-  FoundArea: String;
-  FinderName: String;
-  AIMSNumber: String;
-}
-
-export type ReturnFormType = {
-  PersonName: string;
-  AimsNumber: string;
-  ReturnedBy: string;
-  itemID: number;
-}
 contextBridge.exposeInMainWorld("ipcAPI", {
   getLostItemsReported: () => ipcRenderer.invoke("GET_LOST_ITEMS"),
   getFoundItemsReported: () => ipcRenderer.invoke("GET_FOUND_ITEMS"),
@@ -129,5 +106,6 @@ contextBridge.exposeInMainWorld("ipcAPI", {
   deleteLostItem: (ID: number) => ipcRenderer.invoke("DELETE_LOST_ITEM", ID),
   deleteFoundItem: (ID: number) => ipcRenderer.invoke("DELETE_FOUND_ITEM", ID),
   foundLostItem: (ID: number) => ipcRenderer.invoke("FOUND_LOST_ITEM", ID),
-  returnFoundItem: (returnData: ReturnFormType) => ipcRenderer.invoke("RETURN_FOUND_ITEM", returnData)
+  returnFoundItem: (returnData: ReturnFormType) => ipcRenderer.invoke("RETURN_FOUND_ITEM", returnData),
+  getAmaanatUsers: () => ipcRenderer.invoke("GET_AMAANAT_USERS")
 });

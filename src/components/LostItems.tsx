@@ -1,4 +1,4 @@
-import { LostItemType } from "@/data/Interfaces";
+import { LostItemType } from "@/data/dataType.lostProperty";
 import { useState } from "react";
 import "../styles/LostItems.css"
 import useFetchLostPropertyData from "@/customHooks/useFetchLostPropertyData";
