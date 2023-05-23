@@ -1,0 +1,6 @@
+CREATE TABLE amaanat_users (
+  ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  Name TEXT,
+  AIMSNo TEXT,
+  PhoneNo TEXT
+);
