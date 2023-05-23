@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { PostFoundItem, PostLostItemType, ReturnFormType } from "../database-functions/lost-property/lostPropertyTypes";
+import { AmaanatUserType } from "../database-functions/amaanat/amaanatTypes";
 
 function domReady(
   condition: DocumentReadyState[] = ["complete", "interactive"]
@@ -107,5 +108,6 @@ contextBridge.exposeInMainWorld("ipcAPI", {
   deleteFoundItem: (ID: number) => ipcRenderer.invoke("DELETE_FOUND_ITEM", ID),
   foundLostItem: (ID: number) => ipcRenderer.invoke("FOUND_LOST_ITEM", ID),
   returnFoundItem: (returnData: ReturnFormType) => ipcRenderer.invoke("RETURN_FOUND_ITEM", returnData),
-  getAmaanatUsers: () => ipcRenderer.invoke("GET_AMAANAT_USERS")
+  getAmaanatUsers: () => ipcRenderer.invoke("GET_AMAANAT_USERS"),
+  addAmaanatUser: (data: AmaanatUserType) => ipcRenderer.invoke("REGISTER_AMAANAT_USER", data)
 });
