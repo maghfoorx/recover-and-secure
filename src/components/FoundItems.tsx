@@ -5,7 +5,7 @@ import "../styles/FoundItems.css";
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import DataTable from "react-data-table-component";
-import { deleteFoundItem, returnFoundItem } from "@/data/IPC/IPCMessages";
+import { deleteFoundItem, returnFoundItem } from "@/data/IPC/IPCMessages.lostProperty";
 import { tableStyles } from "@/styles/tablesStyles";
 import {useForm} from 'react-hook-form'
 import { modalStyle } from "@/styles/modalStyle";

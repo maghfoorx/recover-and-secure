@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import {useForm} from 'react-hook-form'
 import { useState } from "react";
-import { postFoundItem } from "@/data/IPC/IPCMessages";
+import { postFoundItem } from "@/data/IPC/IPCMessages.lostProperty";
 import '../styles/FoundItemForm.css'
 
 export default function FoundItemForm(): JSX.Element {

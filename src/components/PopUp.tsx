@@ -1,5 +1,5 @@
 import { FoundItemType, LostItemType } from "@/data/dataType.lostProperty";
-import { deleteLostItem, foundLostItem } from "@/data/IPC/IPCMessages";
+import { deleteLostItem, foundLostItem } from "@/data/IPC/IPCMessages.lostProperty";
 import "../styles/PopUp.css";
 
 interface PopUpProps {

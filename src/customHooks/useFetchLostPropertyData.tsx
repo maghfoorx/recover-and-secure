@@ -1,5 +1,5 @@
 import { FoundItemType, LostItemType } from "@/data/dataType.lostProperty";
-import { getFoundItemsReported, getLostItemsReported } from "@/data/IPC/IPCMessages";
+import { getFoundItemsReported, getLostItemsReported } from "@/data/IPC/IPCMessages.lostProperty";
 import { useEffect, useState } from "react";
 
 interface UseFetchLostItemsType {

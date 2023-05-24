@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { postLostItem } from "@/data/IPC/IPCMessages";
+import { postLostItem } from "@/data/IPC/IPCMessages.lostProperty";
 import { useState } from "react";
 
 export default function LostItemForm(): JSX.Element {
