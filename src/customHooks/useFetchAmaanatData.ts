@@ -1,8 +1,9 @@
 import { getAmaanatUsers } from "@/IPC/IPCMessages.amaanat";
+import { AmaanatUserType } from "@/type-definitions/types.amaanat";
 import { useEffect, useState } from "react";
 
 export default function useFetchAmaanatData() {
-    const [amaanatUsers, setAmaanatUsers] = useState([]);
+    const [amaanatUsers, setAmaanatUsers] = useState<AmaanatUserType[]>([]);
 
     useEffect(() => {
         handleGetAmaanatUsers();
