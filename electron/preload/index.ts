@@ -109,5 +109,6 @@ contextBridge.exposeInMainWorld("ipcAPI", {
   foundLostItem: (ID: number) => ipcRenderer.invoke("FOUND_LOST_ITEM", ID),
   returnFoundItem: (returnData: ReturnFormType) => ipcRenderer.invoke("RETURN_FOUND_ITEM", returnData),
   getAmaanatUsers: () => ipcRenderer.invoke("GET_AMAANAT_USERS"),
-  addAmaanatUser: (data: AmaanatUserType) => ipcRenderer.invoke("REGISTER_AMAANAT_USER", data)
+  addAmaanatUser: (data: AmaanatUserType) => ipcRenderer.invoke("REGISTER_AMAANAT_USER", data),
+  getUserAmaanatItems: (ID: number) => ipcRenderer.invoke("GET_USER_AMAANAT_ITEMS", ID),
 });
