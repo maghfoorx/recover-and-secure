@@ -1,11 +1,11 @@
 import UserInfoTile from "@/components/user-info-tile/UserInfoTile";
-import useFetchAmaanatData from "@/customHooks/useFetchAmaanatData";
+import useFetchAmaanatUsers from "@/customHooks/useFetchAmaanatUsers";
 import './amaanat-page.css'
 import { Link, useNavigate } from 'react-router-dom'
 
 export default function AmaanatPage(): JSX.Element {
 
-    const { amaanatUsers } = useFetchAmaanatData();
+    const { amaanatUsers } = useFetchAmaanatUsers();
 
     const navigate = useNavigate();
 
