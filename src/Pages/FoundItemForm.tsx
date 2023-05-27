@@ -13,7 +13,6 @@ export default function FoundItemForm(): JSX.Element {
     const {register, handleSubmit, formState: {errors}, reset} = useForm()
 
     async function handlePostingForm(data:unknown) {
-        console.log(data, 'is found Item data')
         try {
             await postFoundItem(data)
             setSuccess(true);
