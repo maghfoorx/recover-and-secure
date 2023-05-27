@@ -10,6 +10,7 @@ export type AmaanatUserItemType = {
     UserID: number;
     ItemName: string;
     ItemDetails: string;
+    StoredLocation: string;
     EntryDate: string;
     Returned: 0 | 1;
     ReturnedBy: string | null;
