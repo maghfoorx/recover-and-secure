@@ -1,5 +1,6 @@
 import UserInfoTile from "@/components/user-info-tile/UserInfoTile";
-import useFetchAmaanatData from "@/customHooks/useFetchAmaanatData"
+import useFetchAmaanatData from "@/customHooks/useFetchAmaanatData";
+import './amaanat-page.css'
 
 export default function AmaanatPage(): JSX.Element {
     const { amaanatUsers } = useFetchAmaanatData();
@@ -9,7 +10,7 @@ export default function AmaanatPage(): JSX.Element {
         <div>
             <h1>This is Amaanat Page</h1>
             <button>Sign Up User</button>
-            <div>
+            <div className="amaanat-users">
                 {amaanatUsers.map((user) => {
                     return (
                         <UserInfoTile {...user} key={user.ID}/>

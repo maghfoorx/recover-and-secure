@@ -1,0 +1,10 @@
+.amaanat-users {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background-color: red;
+    margin: 1rem;
+    padding: 1rem;
+}

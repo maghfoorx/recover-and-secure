@@ -1,0 +1,10 @@
+.user-info-tile {
+    background-color: aliceblue;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    width: 15%;
+    height: 15vh;
+}
