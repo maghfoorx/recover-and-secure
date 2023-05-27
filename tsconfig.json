@@ -20,7 +20,7 @@
       "@/*": [
         "src/*"
       ],
-      "IPC/*": ["./src/data/IPC/*"]
+      "IPC/*": ["src/IPC/*"]
     },
   },
   "include": ["src"],

@@ -4,7 +4,7 @@ import "../styles/LostItems.css"
 import useFetchLostPropertyData from "@/customHooks/useFetchLostPropertyData";
 import { Box, Modal } from "@mui/material";
 import DataTable from "react-data-table-component";
-import { deleteLostItem, foundLostItem } from "@/data/IPC/IPCMessages.lostProperty";
+import { deleteLostItem, foundLostItem } from "@/IPC/IPCMessages.lostProperty";
 import { tableStyles } from "@/styles/tablesStyles";
 import { modalStyle } from "@/styles/modalStyle";
 

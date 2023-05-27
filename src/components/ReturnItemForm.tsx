@@ -1,6 +1,6 @@
 import {useForm} from 'react-hook-form'
 import { useState } from "react";
-import { postFoundItem, returnFoundItem } from "@/data/IPC/IPCMessages.lostProperty";
+import { postFoundItem, returnFoundItem } from "@/IPC/IPCMessages.lostProperty";
 
 type ReturnItemFormProperties = {
     ItemID: number
