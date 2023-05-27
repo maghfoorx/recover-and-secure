@@ -1,4 +1,4 @@
-import useFetchLostPropertyData from "@/customHooks/useFetchLostPropertyData";
+import useFetchLostPropertyData from "@/custom-hooks/useFetchLostPropertyData";
 import { FoundItemType } from "@/type-definitions/types.lostProperty";
 import { useEffect, useState } from "react";
 import "../styles/FoundItems.css";

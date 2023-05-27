@@ -1,7 +1,7 @@
 import { getUserAmaanatItems } from '@/IPC/IPCMessages.amaanat';
 import UserInfoTile from '@/components/user-info-tile/UserInfoTile';
-import useFetchAmaanatUsers from '@/customHooks/useFetchAmaanatUsers';
-import useFetchUserAmaanatItems from '@/customHooks/useFetchUserAmaanatItems';
+import useFetchAmaanatUsers from '@/custom-hooks/useFetchAmaanatUsers';
+import useFetchUserAmaanatItems from '@/custom-hooks/useFetchUserAmaanatItems';
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom'
 

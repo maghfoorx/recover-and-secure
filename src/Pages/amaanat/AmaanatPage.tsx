@@ -1,5 +1,5 @@
 import UserInfoTile from "@/components/user-info-tile/UserInfoTile";
-import useFetchAmaanatUsers from "@/customHooks/useFetchAmaanatUsers";
+import useFetchAmaanatUsers from "@/custom-hooks/useFetchAmaanatUsers";
 import './amaanat-page.css'
 import { Link, useNavigate } from 'react-router-dom'
 
