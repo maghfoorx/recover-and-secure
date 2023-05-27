@@ -5,6 +5,7 @@ import LostPropertyPage from "./Pages/LostPropertyPage";
 import AmaanatPage from "./Pages/amaanat/AmaanatPage";
 import FoundItemForm from "./Pages/FoundItemForm";
 import "./styles/globals.css"
+import AmaanatUserPage from "./Pages/amaanat-user/AmaanatUserPage";
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
         <Route path="/amaanat" element={<AmaanatPage />} />
         <Route path="/lost-item-form" element={<LostItemForm />} />
         <Route path="/found-item-form" element={<FoundItemForm />} />
+        <Route path="/amaanat/:userId" element={<AmaanatUserPage />}/>
       </Routes>
     </div>
   );

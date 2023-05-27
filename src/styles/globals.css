@@ -25,8 +25,9 @@ nav {
 .go-back {
   background-color: red;
   padding: 0.5rem;
-  border-radius: 0.5rem;
+  border-radius: 10px;
   font-size: 1.2rem;
+  margin: 1rem;
 }
 
 form {
