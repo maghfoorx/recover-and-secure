@@ -9,7 +9,7 @@ import {
   returnFoundItem,
   updateFoundColumn,
 } from "../database-functions/lost-property/databaseFunctions";
-import { addAmaanatUser, getAllAmaanatUsers, getUserAmaanatItems } from "../database-functions/amaanat/databaseFunctions";
+import { addAmaanatUser, getAllAmaanatUsers, getAmaanatUser, getUserAmaanatItems } from "../database-functions/amaanat/databaseFunctions";
 import { PostFoundItem, PostLostItemType, ReturnFormType } from "../database-functions/lost-property/lostPropertyTypes";
 import { AmaanatUserType } from "../database-functions/amaanat/amaanatTypes";
 
@@ -69,7 +69,12 @@ export const registerIPCHandlers = () => {
     return response;
   })
 
-  ipcMain.handle("GET_USER_AMAANAT_ITEMS", async (event, args: number) => {
+  ipcMain.handle("GET_AMAANAT_USER", async (event, args: string) => {
+    const response = await getAmaanatUser(args);
+    return response;
+  })
+
+  ipcMain.handle("GET_USER_AMAANAT_ITEMS", async (event, args: string) => {
     const response = await getUserAmaanatItems(args)
     return response;
   })
