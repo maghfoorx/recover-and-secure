@@ -8,7 +8,7 @@ export default function AmaanatSignUpForm() {
 
     const [sucess, setSuccess] = useState<boolean>(false);
 
-    async function handlePostingForm(data:unknown) {
+    async function handleSignUpUser(data:unknown) {
         try {
             await addAmaanatUser(data)
             setSuccess(true);
@@ -25,10 +25,10 @@ export default function AmaanatSignUpForm() {
         <div>
             <Link to="/amaanat" className="go-back">Go Back</Link>
             <h1>Sign Up Amaanat User</h1>
-            <form onSubmit={handleSubmit((data) => handlePostingForm(data))}>
-                <p>Person Name</p>
+            <form onSubmit={handleSubmit((data) => handleSignUpUser(data))}>
+                <p>Person Name*</p>
                 <input {...register('Name', {required: true})}/>
-                <p>AIMS Number</p>
+                <p>AIMS Number*</p>
                 <input {...register('AIMSNo', {required: true})} />
                 <p>Phone Number</p>
                 <input {...register('PhoneNo')}/>
