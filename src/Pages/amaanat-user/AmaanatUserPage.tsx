@@ -7,6 +7,7 @@ import { modalStyle } from "@/styles/modalStyle";
 import { amaanatColumns } from '@/utils/amaanatItemsColumns';
 import { AmaanatUserItemType } from '@/type-definitions/types.amaanat';
 import { Box, Modal } from "@mui/material";
+import { formatBoolean } from '@/utils/formatBoolean';
 
 export default function AmaanatUserPage() {
     const { userId } = useParams();
@@ -61,7 +62,7 @@ export default function AmaanatUserPage() {
                             <p><b>Details:</b> {modalData.ItemDetails}</p>
                             <p><b>Date Received:</b> {modalData.EntryDate}</p>
                             <p><b>Location Stored</b> {modalData.StoredLocation}</p>
-                            <p><b>Returned:</b> {modalData.Returned}</p>
+                            <p><b>Returned:</b> {formatBoolean(modalData.Returned)}</p>
                             <div className="modal-buttons">
                             </div>
                         </div>

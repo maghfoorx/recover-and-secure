@@ -1,4 +1,5 @@
 import { AmaanatUserItemType } from "@/type-definitions/types.amaanat";
+import { formatBoolean } from "./formatBoolean";
 
 export const amaanatColumns = [
     {
@@ -11,6 +12,6 @@ export const amaanatColumns = [
     },
     {
         name: 'Returned',
-        selector: (row: AmaanatUserItemType) => row.Returned
+        selector: (row: AmaanatUserItemType) => formatBoolean(row.Returned)
     }
 ]
