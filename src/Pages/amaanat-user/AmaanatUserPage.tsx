@@ -1,6 +1,3 @@
-import { getUserAmaanatItems } from '@/IPC/IPCMessages.amaanat';
-import UserInfoTile from '@/components/user-info-tile/UserInfoTile';
-import useFetchAmaanatUsers from '@/custom-hooks/useFetchAmaanatUsers';
 import useFetchUserAmaanatItems from '@/custom-hooks/useFetchUserAmaanatItems';
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom'
@@ -15,11 +12,12 @@ export default function AmaanatUserPage() {
     useEffect(() => {
         handleGetAmaanatUser(userId);
     }, []);
-
+    console.log(amaanatItems)
     return (
         <div>
             <Link to="/amaanat" className="go-back">Go Back</Link>
             <h1>{`Amaanat Items for ${amaanatUser?.Name}`}</h1>
+            <Link to={`/amaanat/add-items/${userId}`}>Add Items</Link>
         </div>
     )
 }

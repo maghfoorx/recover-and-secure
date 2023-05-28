@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { PostFoundItem, PostLostItemType, ReturnFormType } from "../database-functions/lost-property/lostPropertyTypes";
-import { AmaanatUserType } from "../database-functions/amaanat/amaanatTypes";
+import { AddAmaanatItemType, AmaanatUserType } from "../database-functions/amaanat/amaanatTypes";
 
 function domReady(
   condition: DocumentReadyState[] = ["complete", "interactive"]
@@ -112,4 +112,5 @@ contextBridge.exposeInMainWorld("ipcAPI", {
   addAmaanatUser: (data: AmaanatUserType) => ipcRenderer.invoke("REGISTER_AMAANAT_USER", data),
   getUserAmaanatItems: (ID: string) => ipcRenderer.invoke("GET_USER_AMAANAT_ITEMS", ID),
   getAmaanatUser: (ID: string) => ipcRenderer.invoke("GET_AMAANAT_USER", ID),
+  addAmaanatItem: (data: AddAmaanatItemType) => ipcRenderer.invoke("ADD_AMAANAT_ITEM", data),
 });

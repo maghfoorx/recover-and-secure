@@ -3,3 +3,10 @@ export type AmaanatUserType = {
     AIMSNo: String;
     PhoneNo: String;
 }
+
+export type AddAmaanatItemType = {
+    ItemName: string;
+    ItemDetails: string;
+    StoredLocation: string;
+    UserID: string;
+}

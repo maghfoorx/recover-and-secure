@@ -7,6 +7,7 @@ import FoundItemForm from "./Pages/FoundItemForm";
 import "./styles/globals.css"
 import AmaanatUserPage from "./Pages/amaanat-user/AmaanatUserPage";
 import AmaanatSignUpForm from "./Pages/amaanat-sign-up/AmaanatSignUpForm";
+import AmaanatAddItemsForm from "./Pages/amaanat/amaanat-add-items/AmaanatAddItemsForm";
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/found-item-form" element={<FoundItemForm />} />
         <Route path="/amaanat/:userId" element={<AmaanatUserPage />}/>
         <Route path="/amaanat/sign-up" element={<AmaanatSignUpForm />}/>
+        <Route path="/amaanat/add-items/:userId" element={<AmaanatAddItemsForm />}/>
       </Routes>
     </div>
   );

@@ -2,5 +2,6 @@ export const {
     getAmaanatUsers,
     getAmaanatUser,
     addAmaanatUser,
-    getUserAmaanatItems
+    getUserAmaanatItems,
+    addAmaanatItem
 } = window["ipcAPI"]
