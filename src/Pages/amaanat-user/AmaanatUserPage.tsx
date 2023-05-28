@@ -8,6 +8,7 @@ import { amaanatColumns } from '@/utils/amaanatItemsColumns';
 import { AmaanatUserItemType } from '@/type-definitions/types.amaanat';
 import { Box, Modal } from "@mui/material";
 import { formatBoolean } from '@/utils/formatBoolean';
+import "./amaanat-user-page.css";
 
 export default function AmaanatUserPage() {
     const { userId } = useParams();
@@ -22,6 +23,7 @@ export default function AmaanatUserPage() {
 
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | AmaanatUserItemType>(null);
+    
 
     function handleOpenModal() {
         setOpenModal(true);
@@ -38,10 +40,12 @@ export default function AmaanatUserPage() {
     
     console.log(amaanatItems)
     return (
-        <div>
+        <div className='amaanat-user-page'>
+            <div className='links'>
             <Link to="/amaanat" className="go-back">Go Back</Link>
-            <h1>{`Amaanat Items for ${amaanatUser?.Name}`}</h1>
             <Link to={`/amaanat/add-items/${userId}`}>Add Items</Link>
+            </div>
+            <h1>{`Amaanat Items for ${amaanatUser?.Name}`}</h1>
             <DataTable 
                 columns={amaanatColumns}
                 data={amaanatItems}
@@ -61,7 +65,7 @@ export default function AmaanatUserPage() {
                             <h1>{modalData.ID}: {modalData.ItemName}</h1>
                             <p><b>Details:</b> {modalData.ItemDetails}</p>
                             <p><b>Date Received:</b> {modalData.EntryDate}</p>
-                            <p><b>Location Stored</b> {modalData.StoredLocation}</p>
+                            <p><b>Location Stored:</b> {modalData.StoredLocation}</p>
                             <p><b>Returned:</b> {formatBoolean(modalData.Returned)}</p>
                             <div className="modal-buttons">
                             </div>
