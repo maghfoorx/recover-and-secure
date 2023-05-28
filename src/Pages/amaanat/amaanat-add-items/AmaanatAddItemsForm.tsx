@@ -9,7 +9,7 @@ export default function AmaanatAddItemsForm() {
     const { userId } = useParams();
     if (!userId) return null;
 
-    const { amaanatUser, handleGetAmaanatUser } = useFetchUserAmaanatItems({ ID: userId});
+    const { amaanatUser, handleGetAmaanatUser, amaanatItems, handleGetUserAmaanatItems } = useFetchUserAmaanatItems({ ID: userId});
 
     useEffect(() => {
         handleGetAmaanatUser(userId);
@@ -25,6 +25,7 @@ export default function AmaanatAddItemsForm() {
             const response = await addAmaanatItem(data);
             console.log(response, 'is the response');
             setAddedItem(response[0])
+            handleGetUserAmaanatItems(userId!)
             setSuccess(true)
             reset();
             setTimeout(() => setSuccess(false), 2000)
@@ -50,6 +51,14 @@ export default function AmaanatAddItemsForm() {
                 <input type="submit"/>
                 {sucess && addedItem && <h3>Successfully added {addedItem.ItemName}!</h3>}
             </form>
+            <div>
+                <h2>Added Items for {amaanatUser?.Name}</h2>
+                {amaanatItems?.map((item) => {
+                    return (
+                        <p key={item.ID}>{item.ItemName}</p>
+                    )
+                })}
+            </div>
         </div>
     )
 }
