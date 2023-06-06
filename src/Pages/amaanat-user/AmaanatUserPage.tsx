@@ -22,7 +22,6 @@ export default function AmaanatUserPage() {
 
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | AmaanatUserItemType>(null);
-    const [selectedRows, setSelectedRows] = useState<AmaanatUserItemType[]>([]);
     
 
     function handleOpenModal() {
@@ -39,8 +38,8 @@ export default function AmaanatUserPage() {
     }
 
     const handleSelectedRows = (selectedRowsData: AmaanatSelectedRowsDataType) => {
-        console.log(selectedRowsData.selectedRows)
-        console.log('number of selected rows currently are', selectedRowsData.selectedCount)
+        const rowIDs = selectedRowsData.selectedRows.map(row => row.ID);
+        console.log('array of selected IDs are ', rowIDs)
       };
 
     const amaanatColumns = [
@@ -58,7 +57,6 @@ export default function AmaanatUserPage() {
         }
     ]
     
-    console.log(amaanatItems)
     return (
         <div className='amaanat-user-page'>
             <div className='links'>
