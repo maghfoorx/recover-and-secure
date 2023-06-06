@@ -22,6 +22,7 @@ export default function AmaanatUserPage() {
 
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | AmaanatUserItemType>(null);
+    const [selectedItems, setSelectedItems] = useState<AmaanatUserItemType[]>([])
     
 
     function handleOpenModal() {
@@ -37,10 +38,10 @@ export default function AmaanatUserPage() {
         handleOpenModal()
     }
 
-    const handleSelectedRows = (selectedRowsData: AmaanatSelectedRowsDataType) => {
-        const rowIDs = selectedRowsData.selectedRows.map(row => row.ID);
-        console.log('array of selected IDs are ', rowIDs)
-      };
+    console.log(selectedItems)
+    const handleReturnItemsClicked = () => {
+        handleOpenModal();
+    }
 
     const amaanatColumns = [
         {
@@ -64,6 +65,7 @@ export default function AmaanatUserPage() {
             <Link to={`/amaanat/add-items/${userId}`}>Add Items</Link>
             </div>
             <h1>{`Amaanat Items for ${amaanatUser?.Name}`}</h1>
+            <button onClick={handleReturnItemsClicked}>Return Selected Items</button>
             <DataTable 
                 columns={amaanatColumns}
                 data={amaanatItems}
@@ -71,7 +73,7 @@ export default function AmaanatUserPage() {
                 onRowClicked={handleRowClicked}
                 selectableRows
                 selectableRowsHighlight
-                onSelectedRowsChange={handleSelectedRows}
+                onSelectedRowsChange={({selectedRows}) => setSelectedItems(selectedRows)}
              />
             <Modal
                 open={openModal}
@@ -91,6 +93,17 @@ export default function AmaanatUserPage() {
                             <div className="modal-buttons">
                             </div>
                         </div>
+                    }
+                    {
+                        selectedItems.length > 0
+                        &&
+                        (
+                            <div>
+                                <h1>You have selected {selectedItems.length} items.</h1>
+                                {selectedItems.map(item => <p key={item.ID}>{item.ItemName}</p>)}
+                            </div>
+                        )
+
                     }
                 </Box>
             </Modal>
