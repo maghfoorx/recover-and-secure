@@ -4,8 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import DataTable from "react-data-table-component";
 import { tableStyles } from "@/styles/tablesStyles";
 import { modalStyle } from "@/styles/modalStyle";
-import { amaanatColumns } from '@/utils/amaanatItemsColumns';
-import { AmaanatUserItemType } from '@/type-definitions/types.amaanat';
+import { AmaanatSelectedRowsDataType, AmaanatUserItemType } from '@/type-definitions/types.amaanat';
 import { Box, Modal } from "@mui/material";
 import { formatBoolean } from '@/utils/formatBoolean';
 import "./amaanat-user-page.css";
@@ -23,6 +22,7 @@ export default function AmaanatUserPage() {
 
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | AmaanatUserItemType>(null);
+    const [selectedRows, setSelectedRows] = useState<AmaanatUserItemType[]>([]);
     
 
     function handleOpenModal() {
@@ -37,6 +37,26 @@ export default function AmaanatUserPage() {
         setModalData(row)
         handleOpenModal()
     }
+
+    const handleSelectedRows = (selectedRowsData: AmaanatSelectedRowsDataType) => {
+        console.log(selectedRowsData.selectedRows)
+        console.log('number of selected rows currently are', selectedRowsData.selectedCount)
+      };
+
+    const amaanatColumns = [
+        {
+            name: 'Name',
+            selector: (row: AmaanatUserItemType) => row.ItemName
+        },
+        {
+            name: 'Stored Location',
+            selector: (row: AmaanatUserItemType) => row.StoredLocation
+        },
+        {
+            name: 'Returned',
+            selector: (row: AmaanatUserItemType) => formatBoolean(row.Returned)
+        }
+    ]
     
     console.log(amaanatItems)
     return (
@@ -51,6 +71,9 @@ export default function AmaanatUserPage() {
                 data={amaanatItems}
                 customStyles={tableStyles}
                 onRowClicked={handleRowClicked}
+                selectableRows
+                selectableRowsHighlight
+                onSelectedRowsChange={handleSelectedRows}
              />
             <Modal
                 open={openModal}

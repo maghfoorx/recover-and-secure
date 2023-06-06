@@ -15,3 +15,9 @@ export type AmaanatUserItemType = {
     Returned: 0 | 1;
     ReturnedBy: string | null;
 }
+
+export type AmaanatSelectedRowsDataType = {
+    allSelected: boolean;
+    selectedCount: number;
+    selectedRows: AmaanatUserItemType[]
+}
