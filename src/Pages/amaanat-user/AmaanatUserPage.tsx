@@ -99,8 +99,9 @@ export default function AmaanatUserPage() {
                         &&
                         (
                             <div>
-                                <h1>You have selected {selectedItems.length} items.</h1>
+                                <h1>You are returning {selectedItems.length} items to {amaanatUser?.Name}.</h1>
                                 {selectedItems.map(item => <p key={item.ID}>{item.ItemName}</p>)}
+                                <button>Return Them Then</button>
                             </div>
                         )
 
