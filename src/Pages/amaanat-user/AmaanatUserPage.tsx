@@ -65,7 +65,7 @@ export default function AmaanatUserPage() {
             <Link to={`/amaanat/add-items/${userId}`}>Add Items</Link>
             </div>
             <h1>{`Amaanat Items for ${amaanatUser?.Name}`}</h1>
-            <button onClick={handleReturnItemsClicked}>Return Selected Items</button>
+            {selectedItems.length > 0 && <button onClick={handleReturnItemsClicked}>Return Selected Items</button>}
             <DataTable 
                 columns={amaanatColumns}
                 data={amaanatItems}
