@@ -14,6 +14,7 @@ export type AmaanatUserItemType = {
     EntryDate: string;
     Returned: 0 | 1;
     ReturnedBy: string | null;
+    ReturnedDate: string | null;
 }
 
 export type AmaanatSelectedRowsDataType = {

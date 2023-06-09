@@ -1,10 +1,10 @@
 import useFetchUserAmaanatItems from '@/custom-hooks/useFetchUserAmaanatItems';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import DataTable from "react-data-table-component";
 import { tableStyles } from "@/styles/tablesStyles";
 import { modalStyle } from "@/styles/modalStyle";
-import { AmaanatSelectedRowsDataType, AmaanatUserItemType } from '@/type-definitions/types.amaanat';
+import { AmaanatUserItemType } from '@/type-definitions/types.amaanat';
 import { Box, Modal } from "@mui/material";
 import { formatBoolean } from '@/utils/formatBoolean';
 import "./amaanat-user-page.css";
@@ -27,14 +27,14 @@ export default function AmaanatUserPage() {
     const [selectedItems, setSelectedItems] = useState<AmaanatUserItemType[]>([]);
     const [formOpen, setFormOpen] = useState(false);
     const [returnedByName, setReturnedByName] = useState("");
+    const [clearSelectedRows, setClearSelectedRows] = useState(false);
 
-    
     useEffect(() => {
-        if (selectedItems.length < 1) {
-            setFormOpen(false)
-        };
+        if(clearSelectedRows) {
+            setClearSelectedRows(false)
+        }
+    }, [clearSelectedRows])
 
-    }, [selectedItems])
 
     function handleOpenModal() {
         setOpenModal(true);
@@ -64,6 +64,7 @@ export default function AmaanatUserPage() {
         amaanatUser && handleGetUserAmaanatItems(amaanatUser?.ID);
         setSelectedItems([]);
         setFormOpen(false);
+        setClearSelectedRows(true);
     }
 
     const amaanatColumns = [
@@ -80,6 +81,7 @@ export default function AmaanatUserPage() {
             selector: (row: AmaanatUserItemType) => formatBoolean(row.Returned)
         }
     ]
+    console.log(clearSelectedRows, 'is the boolean value')
     
     return (
         <div className='amaanat-user-page'>
@@ -103,6 +105,8 @@ export default function AmaanatUserPage() {
                 selectableRows
                 selectableRowsHighlight
                 onSelectedRowsChange={({selectedRows}) => setSelectedItems(selectedRows)}
+                selectableRowDisabled={(row) => row.Returned === 1}
+                clearSelectedRows={clearSelectedRows}
              />
             <Modal
                 open={openModal}
@@ -119,6 +123,8 @@ export default function AmaanatUserPage() {
                             <p><b>Date Received:</b> {modalData.EntryDate}</p>
                             <p><b>Location Stored:</b> {modalData.StoredLocation}</p>
                             <p><b>Returned:</b> {formatBoolean(modalData.Returned)}</p>
+                            {modalData.ReturnedBy && <p><b>Returned By:</b> {modalData.ReturnedBy}</p>}
+                            {modalData.ReturnedDate && <p><b>Returned Date:</b> {modalData.ReturnedDate}</p>}
                             <div className="modal-buttons">
                             </div>
                         </div>
