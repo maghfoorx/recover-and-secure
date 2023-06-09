@@ -10,3 +10,8 @@ export type AddAmaanatItemType = {
     StoredLocation: string;
     UserID: string;
 }
+
+export type ReturnAmaanatType = {
+    id: number;
+    returnedBy: string;
+}

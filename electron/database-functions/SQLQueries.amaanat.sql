@@ -14,6 +14,7 @@ CREATE TABLE amaanat_items (
   EntryDate DATE DEFAULT (DATE('now')),
   ReturnedBy TEXT DEFAULT NULL,
   Returned BOOLEAN DEFAULT 0,
+  ReturnedDate DATE NULL,
   FOREIGN KEY (UserID) REFERENCES amaanat_users(ID)
 );
 

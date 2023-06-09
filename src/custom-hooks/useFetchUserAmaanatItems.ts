@@ -14,7 +14,7 @@ export default function useFetchUserAmaanatItems({ ID }: UseFetchAmaanatItemsTyp
         handleGetUserAmaanatItems(ID);
     }, [])
 
-    async function handleGetUserAmaanatItems(ID: string) {
+    async function handleGetUserAmaanatItems(ID: string | number) {
         const response = await getUserAmaanatItems(ID);
         setAmaanatItems(response)
     }

@@ -8,22 +8,33 @@ import { AmaanatSelectedRowsDataType, AmaanatUserItemType } from '@/type-definit
 import { Box, Modal } from "@mui/material";
 import { formatBoolean } from '@/utils/formatBoolean';
 import "./amaanat-user-page.css";
+import { returnAmaanatItem } from '@/IPC/IPCMessages.amaanat';
 
 export default function AmaanatUserPage() {
     const { userId } = useParams();
 
     if(!userId) return null;
 
-    const { amaanatItems, amaanatUser, handleGetAmaanatUser } = useFetchUserAmaanatItems({ ID: userId});
+    const { amaanatItems, amaanatUser, handleGetAmaanatUser, handleGetUserAmaanatItems } = useFetchUserAmaanatItems({ ID: userId});
 
     useEffect(() => {
         handleGetAmaanatUser(userId);
     }, []);
 
+    
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | AmaanatUserItemType>(null);
-    const [selectedItems, setSelectedItems] = useState<AmaanatUserItemType[]>([])
+    const [selectedItems, setSelectedItems] = useState<AmaanatUserItemType[]>([]);
+    const [formOpen, setFormOpen] = useState(false);
+    const [returnedByName, setReturnedByName] = useState("");
+
     
+    useEffect(() => {
+        if (selectedItems.length < 1) {
+            setFormOpen(false)
+        };
+
+    }, [selectedItems])
 
     function handleOpenModal() {
         setOpenModal(true);
@@ -40,7 +51,19 @@ export default function AmaanatUserPage() {
 
     console.log(selectedItems)
     const handleReturnItemsClicked = () => {
-        handleOpenModal();
+        setFormOpen(true)
+    }
+
+    const handleReturningItems = async () => {
+        for (const item of selectedItems) {
+            await returnAmaanatItem({
+                id: item.ID,
+                returnedBy: returnedByName
+            })
+        };
+        amaanatUser && handleGetUserAmaanatItems(amaanatUser?.ID);
+        setSelectedItems([]);
+        setFormOpen(false);
     }
 
     const amaanatColumns = [
@@ -65,7 +88,13 @@ export default function AmaanatUserPage() {
             <Link to={`/amaanat/add-items/${userId}`}>Add Items</Link>
             </div>
             <h1>{`Amaanat Items for ${amaanatUser?.Name}`}</h1>
-            {selectedItems.length > 0 && <button onClick={handleReturnItemsClicked}>Return Selected Items</button>}
+            {selectedItems.length > 0 && <button onClick={handleReturnItemsClicked}>{formOpen ? 'Cancel Returning' : 'Return Selected Items'}</button>}
+            {formOpen && 
+            <div>
+                <h1>this is form</h1>
+                <input value={returnedByName} onChange={(e) => setReturnedByName(e.target.value)} placeholder='Write your name' style={{ width: '300px'}}/>
+                <button onClick={handleReturningItems}>Returned Selected Items</button>
+            </div>}
             <DataTable 
                 columns={amaanatColumns}
                 data={amaanatItems}
@@ -93,18 +122,6 @@ export default function AmaanatUserPage() {
                             <div className="modal-buttons">
                             </div>
                         </div>
-                    }
-                    {
-                        selectedItems.length > 0
-                        &&
-                        (
-                            <div>
-                                <h1>You are returning {selectedItems.length} items to {amaanatUser?.Name}.</h1>
-                                {selectedItems.map(item => <p key={item.ID}>{item.ItemName}</p>)}
-                                <button>Return Them Then</button>
-                            </div>
-                        )
-
                     }
                 </Box>
             </Modal>

@@ -1,5 +1,5 @@
 import { db } from '../dbConnection'
-import { AddAmaanatItemType, AmaanatUserType } from './amaanatTypes';
+import { AddAmaanatItemType, AmaanatUserType, ReturnAmaanatType } from './amaanatTypes';
 
 //getting all the amaanat users
 export function getAllAmaanatUsers() {
@@ -74,7 +74,7 @@ export function getUserAmaanatItems(ID: string) {
 }
 
 //adding an amaanat item
-export function AddAmaanatItem(data: AddAmaanatItemType) {
+export function addAmaanatItem(data: AddAmaanatItemType) {
     const { UserID, ItemName, ItemDetails, StoredLocation} = data
     const query = 
     `INSERT INTO amaanat_items
@@ -94,4 +94,22 @@ export function AddAmaanatItem(data: AddAmaanatItemType) {
             statement.finalize();
         })
     });
+}
+
+//returning an amaanat item
+export function returnAmaanatItem({ id, returnedBy, }: ReturnAmaanatType) {
+    const query = `UPDATE amaanat_items SET Returned = 1, ReturnedBy = "${returnedBy}", ReturnedDate = DATE('now') WHERE ID = ${id}`;
+
+    return new Promise((resolve, reject) => {
+        let statement = db.prepare(query);
+        statement.all((err, rows) => {
+            if (err) {
+                console.error(err.message);
+                reject(err.message)
+            } else {
+                resolve(rows)
+            }
+            statement.finalize();
+        })
+    })
 }
