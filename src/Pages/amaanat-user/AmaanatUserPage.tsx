@@ -90,6 +90,8 @@ export default function AmaanatUserPage() {
             <Link to={`/amaanat/add-items/${userId}`}>Add Items</Link>
             </div>
             <h1>{`Amaanat Items for ${amaanatUser?.Name}`}</h1>
+            <p>AIMS: {amaanatUser?.AIMSNo}</p>
+            <p>Phone Number: {amaanatUser?.PhoneNo}</p>
             {selectedItems.length > 0 && <button onClick={handleReturnItemsClicked}>{formOpen ? 'Cancel Returning' : 'Return Selected Items'}</button>}
             {formOpen && 
             <div>
