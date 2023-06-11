@@ -4,6 +4,7 @@ import { AmaanatUserItemType } from "@/type-definitions/types.amaanat";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useParams } from "react-router-dom";
+import "./amaanat-add-items.css"
 
 export default function AmaanatAddItemsForm() {
     const { userId } = useParams();
@@ -38,8 +39,8 @@ export default function AmaanatAddItemsForm() {
     return (
         <div>
             <Link to={`/amaanat/${userId}`} className="go-back">Go back</Link>
-            <h1>{`Add items for ${amaanatUser?.Name}`}</h1>
             <form onSubmit={handleSubmit((data) => handleSubmitForm(data))}>
+                <h1>{`Add items for ${amaanatUser?.Name}`}</h1>
                 <p>Item Name</p>
                 <input {...register('ItemName', {required: true})}/>
                 <p>Item Details</p>
@@ -51,11 +52,11 @@ export default function AmaanatAddItemsForm() {
                 <input type="submit"/>
                 {sucess && addedItem && <h3>Successfully added {addedItem.ItemName}!</h3>}
             </form>
-            <div>
-                <h2>Added Items for {amaanatUser?.Name}</h2>
+                <h2>Added Items for {amaanatUser?.Name} ({amaanatItems.length})</h2>
+            <div className="added-items">
                 {amaanatItems?.map((item) => {
                     return (
-                        <p key={item.ID}>{item.ItemName}</p>
+                        <p key={item.ID} className="added-item">{item.ItemName}</p>
                     )
                 })}
             </div>

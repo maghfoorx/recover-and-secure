@@ -7,7 +7,7 @@ import FoundItemForm from "./Pages/FoundItemForm";
 import "./styles/globals.css"
 import AmaanatUserPage from "./Pages/amaanat-user/AmaanatUserPage";
 import AmaanatSignUpForm from "./Pages/amaanat-sign-up/AmaanatSignUpForm";
-import AmaanatAddItemsForm from "./Pages/amaanat/amaanat-add-items/AmaanatAddItemsForm";
+import AmaanatAddItemsForm from "./Pages/amaanat-add-items/AmaanatAddItemsForm";
 
 function App() {
 
