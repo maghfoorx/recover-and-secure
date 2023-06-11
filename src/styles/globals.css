@@ -28,6 +28,7 @@ input {
 
 input[type="submit"] {
   cursor: pointer;
+  background-color: var(--colour-button-active);
 }
 
 nav {
