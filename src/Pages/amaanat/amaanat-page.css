@@ -29,4 +29,7 @@ input {
 
 .link-sign-up {
     background-color: var(--colour-amaanat);
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px black solid;
 }

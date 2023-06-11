@@ -15,7 +15,6 @@ export default function AmaanatPage(): JSX.Element {
     return (
         <div className="amaanat-page">
             <div className="amaanat-page-navbar">
-            <h1>This is Amaanat Page</h1>
             <Link to="/amaanat/sign-up" className="link-sign-up">Sign Up User</Link>
             <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Search Person Name or AIMS ID"/>
             </div>
