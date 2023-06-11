@@ -1,4 +1,4 @@
-# Lost Property
+# Lost Property and Amaanat (Left Luggage)
 
 An offline desktop application made using Electron, React, TypeScript and Vite. All of the data is stored in the database.db file in the root of the directory. sqlite3 is used to modify the database.
 
