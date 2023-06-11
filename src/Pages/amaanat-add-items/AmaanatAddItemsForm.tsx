@@ -52,9 +52,21 @@ export default function AmaanatAddItemsForm() {
                 <input type="submit"/>
                 {sucess && addedItem && <h3>Successfully added {addedItem.ItemName}!</h3>}
             </form>
-                <h2>Added Items for {amaanatUser?.Name} ({amaanatItems.length})</h2>
+                <h2>{amaanatUser?.Name} items currently stored ({amaanatItems?.filter((item) => item.Returned === 0).length}):</h2>
             <div className="added-items">
-                {amaanatItems?.map((item) => {
+                {amaanatItems
+                ?.filter((item) => item.Returned === 0)
+                ?.map((item) => {
+                    return (
+                        <p key={item.ID} className="added-item">{item.ItemName}</p>
+                    )
+                })}
+            </div>
+            <h2>{amaanatUser?.Name} items returned ({amaanatItems?.filter((item) => item.Returned === 1).length}):</h2>
+            <div className="added-items">
+            {amaanatItems
+            ?.filter((item) => item.Returned === 1)
+            ?.map((item) => {
                     return (
                         <p key={item.ID} className="added-item">{item.ItemName}</p>
                     )
