@@ -8,7 +8,7 @@ export default function NavBar(): JSX.Element {
                 Lost Property
             </NavLink>
             <NavLink to="/amaanat" className="navbar-item">
-                Amaanat
+                {"Amaanat (Left Luggage)"}
             </NavLink>
         </div>
     )
