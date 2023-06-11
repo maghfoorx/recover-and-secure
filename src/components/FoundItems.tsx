@@ -9,6 +9,7 @@ import { deleteFoundItem, returnFoundItem } from "@/IPC/IPCMessages.lostProperty
 import { tableStyles } from "@/styles/tablesStyles";
 import {useForm} from 'react-hook-form'
 import { modalStyle } from "@/styles/modalStyle";
+import { formatDate } from "@/utils/formatDate";
 
 
 export default function FoundItems(): JSX.Element {
@@ -103,7 +104,7 @@ export default function FoundItems(): JSX.Element {
                         <div>
                             <h1>{modalData.ID}: {modalData.ItemName}</h1>
                             <p><b>Details:</b> {modalData.Details}</p>
-                            <p><b>Date Found:</b> {modalData.FoundDate}</p>
+                            <p><b>Date Found:</b> {formatDate(modalData.FoundDate)}</p>
                             <p><b>Found Area:</b> {modalData.FoundArea}</p>
                             {modalData.FinderName && <p><b>Found By:</b> {modalData.FinderName}</p>}
                             {modalData.AIMSNumber && <p><b>Founder's AIMS:</b>{modalData.AIMSNumber}</p>}
@@ -111,6 +112,7 @@ export default function FoundItems(): JSX.Element {
                             {modalData.PersonName && <p><b>Returned To:</b> {modalData.PersonName}</p>}
                             {modalData.AimsNumber && <p><b>Returned Person Aims Number:</b> {modalData.AimsNumber}</p>}
                             {modalData.ReturnedBy && <p><b>Returned By:</b> {modalData.ReturnedBy}</p>}
+                            {modalData.ReturnDate && <p><b>Returned Date:</b> {formatDate(modalData.ReturnDate)}</p>}
                             { !deleteConfirmation && <div className="modal-buttons">
                             <button onClick={() => setDeleteConfirmation(prev => !prev)} className="modal-button delete">Delete</button>
                             {!modalData.PersonName && !modalData.ReturnDate && <button onClick={() => setOpenReturnForm(true)} className="modal-button return">Return</button>}

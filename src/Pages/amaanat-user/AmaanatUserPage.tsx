@@ -9,6 +9,7 @@ import { Box, Modal } from "@mui/material";
 import { formatBoolean } from '@/utils/formatBoolean';
 import "./amaanat-user-page.css";
 import { returnAmaanatItem } from '@/IPC/IPCMessages.amaanat';
+import { formatDate } from '@/utils/formatDate';
 
 export default function AmaanatUserPage() {
     const { userId } = useParams();
@@ -122,13 +123,13 @@ export default function AmaanatUserPage() {
                     {modalData
                         &&
                         <div>
-                            <h1>{modalData.ID}: {modalData.ItemName}</h1>
+                            <h1>{modalData.ItemName}</h1>
                             <p><b>Details:</b> {modalData.ItemDetails}</p>
-                            <p><b>Date Received:</b> {modalData.EntryDate}</p>
+                            <p><b>Date Received:</b> {formatDate(modalData.EntryDate)}</p>
                             <p><b>Location Stored:</b> {modalData.StoredLocation}</p>
                             <p><b>Returned:</b> {formatBoolean(modalData.Returned)}</p>
                             {modalData.ReturnedBy && <p><b>Returned By:</b> {modalData.ReturnedBy}</p>}
-                            {modalData.ReturnedDate && <p><b>Returned Date:</b> {modalData.ReturnedDate}</p>}
+                            {modalData.ReturnedDate && <p><b>Returned Date:</b> {formatDate(modalData.ReturnedDate)}</p>}
                             <div className="modal-buttons">
                             </div>
                         </div>
