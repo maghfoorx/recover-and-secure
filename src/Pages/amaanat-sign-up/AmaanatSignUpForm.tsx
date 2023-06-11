@@ -24,8 +24,8 @@ export default function AmaanatSignUpForm() {
     return (
         <div>
             <Link to="/amaanat" className="go-back">Go Back</Link>
-            <h1>Sign Up Amaanat User</h1>
             <form onSubmit={handleSubmit((data) => handleSignUpUser(data))}>
+                <h1>Sign Up Amaanat User</h1>
                 <p>Person Name*</p>
                 <input {...register('Name', {required: true})}/>
                 <p>AIMS Number*</p>
@@ -34,7 +34,7 @@ export default function AmaanatSignUpForm() {
                 <input {...register('PhoneNo')}/>
                 <br />
                 <input type="submit"/>
-                {sucess && <h3>Successfully submitted the form!</h3>}
+                {sucess && <h3>Successfully added amaanat user!👍</h3>}
             </form>
         </div>
     )

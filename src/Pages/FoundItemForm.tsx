@@ -28,7 +28,7 @@ export default function FoundItemForm(): JSX.Element {
         <div>
             <Link to="/" className="go-back">Go Back</Link>
             <form onSubmit={handleSubmit((data) => handlePostingForm(data))}>
-                <h1>Submit a found item</h1>
+                <h1>Add a found item</h1>
                 <label>
                 <input
                 type="checkbox"
@@ -54,7 +54,7 @@ export default function FoundItemForm(): JSX.Element {
                 }
                 <br />
                 <input type="submit"/>
-                {sucess && <h3>Successfully submitted the form!</h3>}
+                {sucess && <h3>Successfully added found item!👍</h3>}
             </form>
         </div>
     )

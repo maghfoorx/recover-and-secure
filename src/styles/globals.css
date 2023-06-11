@@ -57,3 +57,7 @@ button {
 input {
   font-size: var(--font-size-normal);
 }
+
+label {
+  font-size: var(--font-size-normal);
+}
