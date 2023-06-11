@@ -1,5 +1,5 @@
 .found-items-component {
-  background-color: rgb(48, 84, 180);
+  background-color: var(--colour-lsp-found-items);
   padding: 1rem;
   border-radius: 10px;
 }

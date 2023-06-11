@@ -14,18 +14,17 @@
 }
 
 .form-links__lost-item {
-    background-color: rgb(7, 92, 92);
-    color: whitesmoke;
+    background-color: var(--colour-lsp-lost-items);
 }
 
 .form-links__found-item {
-    background-color: rgb(48, 84, 180);
-    color: whitesmoke;
+    background-color: var(--colour-lsp-found-items);
 }
 
 .form-links__found-item, .form-links__lost-item {
     padding: 1rem;
     border-radius: 10px;
+    border: 1px black solid;
 }
 a {
     text-decoration: none;
@@ -45,5 +44,5 @@ button:hover {
 }
 
 .live {
-    background-color: rgb(29, 206, 29);
+    background-color: var(--colour-button-active);
 }

@@ -5,7 +5,13 @@
 }
 
 :root {
-  background: grey;
+  --colour-background: #878787;
+  --colour-lsp-found-items: #12A592;
+  --colour-lsp-lost-items: #3C87CD;
+  --colour-amaanat: #FFB347;
+  --colour-button-active: #3E8914;
+
+  background: var(--colour-background);
   font-family: 'Karla', sans-serif;
 }
 

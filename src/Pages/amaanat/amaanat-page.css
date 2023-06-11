@@ -21,8 +21,12 @@ input {
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
-    background-color: red;
+    background-color: var(--colour-amaanat);
     margin: 1rem;
     padding: 1rem;
     border-radius: 10px;
+}
+
+.link-sign-up {
+    background-color: var(--colour-amaanat);
 }

@@ -1,5 +1,5 @@
 .lost-items-component {
-  background-color: rgb(7, 92, 92);
+  background-color: var(--colour-lsp-lost-items);
   padding: 1rem;
   border-radius: 10px;
 }
