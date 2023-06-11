@@ -52,7 +52,7 @@ export default function AmaanatUserPage() {
 
     console.log(selectedItems)
     const handleReturnItemsClicked = () => {
-        setFormOpen(true)
+        setFormOpen(prev => !prev)
     }
 
     const handleReturningItems = async () => {
@@ -96,9 +96,9 @@ export default function AmaanatUserPage() {
             <h2>Phone Number: {amaanatUser?.PhoneNo}</h2>
             </div>
             {selectedItems.length > 0 && <button onClick={handleReturnItemsClicked}>{formOpen ? 'Cancel Returning' : 'Return Selected Items'}</button>}
-            {formOpen && 
+            {formOpen && selectedItems.length > 0 &&
             <div>
-                <h1>this is form</h1>
+                <h1>Return selected items ({selectedItems.length})</h1>
                 <input value={returnedByName} onChange={(e) => setReturnedByName(e.target.value)} placeholder='Write your name' style={{ width: '300px'}}/>
                 <button onClick={handleReturningItems}>Returned Selected Items</button>
             </div>}
