@@ -11,8 +11,8 @@ export default function LostPropertyPage(): JSX.Element {
     return (
         <div>
             <div className="form-links">
-            <Link to="/lost-item-form" className="form-links__lost-item">Report Lost Item</Link>
-            <Link to="/found-item-form" className="form-links__found-item">Submit Found Item</Link>
+            <Link to="/lost-item-form" className="form-links__lost-item">Add Lost Item</Link>
+            <Link to="/found-item-form" className="form-links__found-item">Add Found Item</Link>
             </div>
             <div className="show-table-buttons">
                 <button onClick={() => setShowTable("LostItems")} className={showTable === "LostItems" ? "live" : ""}>Lost Items</button>
