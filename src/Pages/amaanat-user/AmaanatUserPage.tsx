@@ -87,7 +87,7 @@ export default function AmaanatUserPage() {
         <div className='amaanat-user-page'>
             <div className='links'>
             <Link to="/amaanat" className="go-back">Go Back</Link>
-            <Link to={`/amaanat/add-items/${userId}`}>Add Items</Link>
+            <Link to={`/amaanat/add-items/${userId}`} className='link-add-items'>Add Items</Link>
             </div>
             <div>
             <h1>{amaanatUser?.Name}</h1>
