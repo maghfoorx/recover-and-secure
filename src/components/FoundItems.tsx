@@ -14,11 +14,18 @@ import { modalStyle } from "@/styles/modalStyle";
 export default function FoundItems(): JSX.Element {
     const { foundItems, handleGetFoundItems } = useFetchLostPropertyData();
 
-    const [searchBarValue, setSearchBarValue] = useState('')
+    const [searchBarValue, setSearchBarValue] = useState('');
     const filteredItems = foundItems.filter(item => (item.ItemName || item.ID) && item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()) || item.ID.toString().includes(searchBarValue.toLocaleLowerCase()))
 
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | FoundItemType>(null);
+    const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+
+    useEffect(() => {
+        if (!openModal) {
+            setDeleteConfirmation(false)
+        }
+    }, [openModal]);
 
     const [openReturnForm, setOpenReturnForm] = useState(false);
 
@@ -104,10 +111,16 @@ export default function FoundItems(): JSX.Element {
                             {modalData.PersonName && <p><b>Returned To:</b> {modalData.PersonName}</p>}
                             {modalData.AimsNumber && <p><b>Returned Person Aims Number:</b> {modalData.AimsNumber}</p>}
                             {modalData.ReturnedBy && <p><b>Returned By:</b> {modalData.ReturnedBy}</p>}
-                            <div className="modal-buttons">
-                            <button onClick={() => handleDeletingFoundItem(modalData.ID)} className="modal-button delete">Delete</button>
+                            { !deleteConfirmation && <div className="modal-buttons">
+                            <button onClick={() => setDeleteConfirmation(prev => !prev)} className="modal-button delete">Delete</button>
                             {!modalData.PersonName && !modalData.ReturnDate && <button onClick={() => setOpenReturnForm(true)} className="modal-button return">Return</button>}
-                            </div>
+                            </div>}
+                            { deleteConfirmation &&
+                            <div className="modal-buttons-confirmation">
+                                <p>Are you sure you want to delete this item?</p>
+                                <button onClick={() => handleDeletingFoundItem(modalData.ID)} className="modal-button found">Yes</button>
+                                <button onClick={() => setDeleteConfirmation(false)} className="modal-button delete">No</button>
+                            </div>}
                             {openReturnForm && 
                             <form onSubmit={handleSubmit((data) => handleReturnFoundItem({...data, itemID: modalData.ID}))}>
                                 <p>Person Name</p>

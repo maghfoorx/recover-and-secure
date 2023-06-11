@@ -16,3 +16,9 @@
 .found {
   background-color: rgb(1, 196, 1);
 }
+
+.modal-buttons-confirmation {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
