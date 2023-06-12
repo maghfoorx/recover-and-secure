@@ -14,10 +14,15 @@ export async function printReceipt() {
     const data = [
         {
             type: 'image',
-            path: path.join(__dirname, '/receipt-logo.jpg'),     // file path
+            path: path.join(__dirname, '../assets/printing-logo.jpg'),     // file path
             position: 'center',                                  // position of image: 'left' | 'center' | 'right'
             width: '50px',                                           // width of image in px; default: auto
             height: '50px',                                          // width of image in px; default: 50 or '50px'
+        },
+        {
+            type: "text",
+            value: "Aims: 12345", //aims number for the future
+            style: { fontSize: "30px", fontWeight: "bold" }
         },
         {
             type: "text",
@@ -36,11 +41,6 @@ export async function printReceipt() {
         },
         {
             type: "text",
-            value: "Aims: 12345", //aims number for the future
-            style: { fontSize: "20px" }
-        },
-        {
-            type: "text",
             value: "3 items stored", //total item number in the future
             style: { fontSize: "20px" }
         }
@@ -55,6 +55,7 @@ export async function printReceipt() {
     } catch (e) {
         console.log(PosPrinter)
         console.log(e);
+        console.log(path.join(__dirname, '/receipt-logo.jpg'), 'is the path')
     }
 }
 
