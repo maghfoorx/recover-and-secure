@@ -1,4 +1,4 @@
-import { PosPrinter } from "electron-pos-printer";
+import { PosPrinter } from "electron-pos-printer-fork/dist";
 import * as path from "path";
 
 export async function printReceipt() {
