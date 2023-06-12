@@ -2,6 +2,7 @@ import { app, BrowserWindow, shell, ipcMain } from "electron";
 import { release } from "node:os";
 import { join } from "node:path";
 import { registerIPCHandlers } from "../IPC/IPCHandlers";
+import { printReceipt } from "../printing-functions/printer";
 
 // The built directory structure
 //

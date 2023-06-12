@@ -4,5 +4,6 @@ export const {
     addAmaanatUser,
     getUserAmaanatItems,
     addAmaanatItem,
-    returnAmaanatItem
+    returnAmaanatItem,
+    printAmaanatReceipt
 } = window["ipcAPI"]

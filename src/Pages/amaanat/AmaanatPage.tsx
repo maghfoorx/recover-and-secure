@@ -3,6 +3,7 @@ import useFetchAmaanatUsers from "@/custom-hooks/useFetchAmaanatUsers";
 import './amaanat-page.css'
 import { Link } from 'react-router-dom'
 import { useState } from "react";
+import { printAmaanatReceipt } from "@/IPC/IPCMessages.amaanat";
 
 export default function AmaanatPage(): JSX.Element {
 
@@ -12,8 +13,14 @@ export default function AmaanatPage(): JSX.Element {
 
     const filteredItems = amaanatUsers.filter(item => item.AIMSNo.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()) || item.Name.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()))
 
+    async function handlePrintReceipt() {
+        const response = await printAmaanatReceipt();
+        console.log(response)
+    }
+
     return (
         <div className="amaanat-page">
+            <button onClick={handlePrintReceipt}>Print Receipt</button>
             <div className="amaanat-page-navbar">
             <Link to="/amaanat/sign-up" className="link-sign-up">Sign Up User</Link>
             <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Search Person Name or AIMS ID"/>
