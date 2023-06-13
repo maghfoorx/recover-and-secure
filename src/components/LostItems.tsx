@@ -5,7 +5,7 @@ import useFetchLostPropertyData from "@/custom-hooks/useFetchLostPropertyData";
 import { Box, Modal } from "@mui/material";
 import DataTable from "react-data-table-component";
 import { deleteLostItem, foundLostItem } from "@/IPC/IPCMessages.lostProperty";
-import { tableStyles } from "@/styles/tablesStyles";
+import { lostConditionalRowStyles, tableStyles } from "@/styles/tablesStyles";
 import { modalStyle } from "@/styles/modalStyle";
 
 export default function LostItems(): JSX.Element {
@@ -74,6 +74,7 @@ export default function LostItems(): JSX.Element {
                 data={filteredItems}
                 onRowClicked={handleRowClicked}
                 customStyles={tableStyles}
+                conditionalRowStyles={lostConditionalRowStyles}
                 pagination
             />
             <Modal

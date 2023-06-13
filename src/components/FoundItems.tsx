@@ -6,10 +6,11 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import DataTable from "react-data-table-component";
 import { deleteFoundItem, returnFoundItem } from "@/IPC/IPCMessages.lostProperty";
-import { tableStyles } from "@/styles/tablesStyles";
+import { foundConditionalRowStyles, tableStyles } from "@/styles/tablesStyles";
 import {useForm} from 'react-hook-form'
 import { modalStyle } from "@/styles/modalStyle";
 import { formatDate } from "@/utils/formatDate";
+import { formatBoolean } from "@/utils/formatBoolean";
 
 
 export default function FoundItems(): JSX.Element {
@@ -55,6 +56,11 @@ export default function FoundItems(): JSX.Element {
         {
             name: "Date Found",
             selector: (row: FoundItemType) => formatDate(row.FoundDate)
+        },
+        {
+            name: "Returned",
+            selector: (row: FoundItemType) => formatBoolean(row.PersonName ? 1 : 0),
+            sortable: true
         }
     ]
 
@@ -93,6 +99,7 @@ export default function FoundItems(): JSX.Element {
                 data={filteredItems}
                 onRowClicked={handleRowClicked}
                 customStyles={tableStyles}
+                conditionalRowStyles={foundConditionalRowStyles}
                 pagination
             />
             {/* creating the modal */}
