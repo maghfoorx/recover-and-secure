@@ -16,7 +16,7 @@ export default function FoundItems(): JSX.Element {
     const { foundItems, handleGetFoundItems } = useFetchLostPropertyData();
 
     const [searchBarValue, setSearchBarValue] = useState('');
-    const filteredItems = foundItems.filter(item => (item.ItemName || item.ID) && item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()) || item.ID.toString().includes(searchBarValue.toLocaleLowerCase()))
+    const filteredItems = foundItems.filter(item => (item.ItemName) && item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()))
 
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | FoundItemType>(null);
@@ -51,6 +51,10 @@ export default function FoundItems(): JSX.Element {
         {
             name: "Name",
             selector: (row: FoundItemType) => row.ItemName
+        },
+        {
+            name: "Date Found",
+            selector: (row: FoundItemType) => formatDate(row.FoundDate)
         }
     ]
 
@@ -83,7 +87,7 @@ export default function FoundItems(): JSX.Element {
     return (
         <div className="found-items-component">
             <h1>Found Items</h1>
-            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Item Name or Aims ID"/>
+            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Item Name"/>
             <DataTable
                 columns={columns}
                 data={filteredItems}
