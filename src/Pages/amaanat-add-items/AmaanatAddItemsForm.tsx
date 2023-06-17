@@ -1,4 +1,4 @@
-import { addAmaanatItem } from "@/IPC/IPCMessages.amaanat";
+import { addAmaanatItem, printAmaanatReceipt } from "@/IPC/IPCMessages.amaanat";
 import useFetchUserAmaanatItems from "@/custom-hooks/useFetchUserAmaanatItems";
 import { AmaanatUserItemType } from "@/type-definitions/types.amaanat";
 import { useEffect, useState } from "react";
@@ -36,6 +36,17 @@ export default function AmaanatAddItemsForm({ computerName }: { computerName: st
         }
     }
     console.log(computerName)
+
+    async function handlePrintReceipt() {
+        const data = {
+            itemsNumber: amaanatItems?.filter((item) => item.Returned === 1).length,
+            aimsID: amaanatUser?.AIMSNo,
+            location: amaanatItems[0]?.StoredLocation ?? '',
+            computerName,
+        }
+        console.log(data)
+        await printAmaanatReceipt(data)
+    }
     
     return (
         <div>
@@ -53,6 +64,7 @@ export default function AmaanatAddItemsForm({ computerName }: { computerName: st
                 <input type="submit"/>
                 {sucess && addedItem && <h3>Successfully added {addedItem.ItemName}!</h3>}
             </form>
+                <button onClick={handlePrintReceipt}>Print Receipt</button>
                 <h2>{amaanatUser?.Name} items currently stored ({amaanatItems?.filter((item) => item.Returned === 0).length}):</h2>
             <div className="added-items">
                 {amaanatItems

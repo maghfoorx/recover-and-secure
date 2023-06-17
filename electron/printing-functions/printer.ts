@@ -1,9 +1,10 @@
 import { PosPrinter } from "electron-pos-printer-fork/dist";
 import * as path from "path";
+import { PrintReceiptDataType } from "../database-functions/amaanat/amaanatTypes";
 
-export async function printReceipt() {
+export async function printReceipt(printReceiptData: PrintReceiptDataType) {
     const options = {
-        preview: false,               //  width of content body
+        preview: true,               //  width of content body
         margin: 'auto',            // margin of content body
         copies: 2,                    // Number of copies to print
         printerName: 'ZDesigner GK420d',        // printerName: string, check with webContent.getPrinters()
@@ -31,7 +32,7 @@ export async function printReceipt() {
         },
         {
             type: "text",
-            value: "51155", //aims number for the future
+            value: printReceiptData.aimsID, //aims number for the future
             style: { fontSize: "45px", fontWeight: "bold", textAlign: 'center' }
         },
         {
@@ -41,22 +42,22 @@ export async function printReceipt() {
         },
         {
             type: "text",
-            value: "3 items stored", //total item number in the future
+            value: `${printReceiptData.itemsNumber} items stored`,
             style: { fontSize: "20px", textAlign: 'center', marginTop: '5px' }
         },
         {
             type: "text",
-            value: "For office use:", //total item number in the future
+            value: "For office use:",
             style: { fontSize: "20px", textAlign: 'left', marginTop: '5px' }
         },
         {
             type: "text",
-            value: "C1", //total item number in the future
+            value: `${printReceiptData.location}`,
             style: { fontSize: "30px", textAlign: 'center', fontWeight: 'bold' }
         },
         {
             type: "text",
-            value: "Masroor", //total item number in the future
+            value: `${printReceiptData.computerName}`,
             style: { fontSize: "30px", textAlign: 'center', fontWeight: 'bold' }
         },
         // {

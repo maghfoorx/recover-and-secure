@@ -16,3 +16,10 @@ export type ReturnAmaanatType = {
     id: number;
     returnedBy: string;
 }
+
+export type PrintReceiptDataType = {
+    itemsNumber: String;
+    aimsID: String;
+    location: String;
+    computerName: String;
+}

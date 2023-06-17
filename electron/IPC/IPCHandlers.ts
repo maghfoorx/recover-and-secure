@@ -12,7 +12,7 @@ import {
 } from "../database-functions/lost-property/databaseFunctions";
 import { addAmaanatItem, addAmaanatUser, getAllAmaanatUsers, getAmaanatUser, getUserAmaanatItems, returnAmaanatItem } from "../database-functions/amaanat/databaseFunctions";
 import { PostFoundItem, PostLostItemType, ReturnFormType } from "../database-functions/lost-property/lostPropertyTypes";
-import { AddAmaanatItemType, AmaanatUserType, ReturnAmaanatType } from "../database-functions/amaanat/amaanatTypes";
+import { AddAmaanatItemType, AmaanatUserType, PrintReceiptDataType, ReturnAmaanatType } from "../database-functions/amaanat/amaanatTypes";
 import { printReceipt } from "../printing-functions/printer";
 
 // function that exports all the IPCActions
@@ -96,8 +96,8 @@ export const registerIPCHandlers = () => {
     return response;
   })
 
-  ipcMain.handle("PRINT_AMAANAT_RECEIPT", async (event, args) => {
-    const response = await printReceipt();
+  ipcMain.handle("PRINT_AMAANAT_RECEIPT", async (event, args: PrintReceiptDataType) => {
+    const response = await printReceipt(args);
     return response;
   })
 
