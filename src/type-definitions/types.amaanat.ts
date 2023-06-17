@@ -1,6 +1,7 @@
 export type AmaanatUserType = {
     ID: number;
     AIMSNo: string;
+    Jamaat: string;
     Name: string;
     PhoneNo: string;
 }

@@ -1,6 +1,7 @@
 export type AmaanatUserType = {
     Name: String;
     AIMSNo: String;
+    Jamaat: String;
     PhoneNo: String;
 }
 

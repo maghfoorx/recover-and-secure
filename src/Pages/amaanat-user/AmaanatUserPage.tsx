@@ -93,6 +93,7 @@ export default function AmaanatUserPage() {
             <div>
             <h1>{amaanatUser?.Name}</h1>
             <h2>AIMS: {amaanatUser?.AIMSNo}</h2>
+            {amaanatUser?.Jamaat && <h2>Jamaat: {amaanatUser?.Jamaat}</h2>}
             <h2>Phone Number: {amaanatUser?.PhoneNo}</h2>
             </div>
             {selectedItems.length > 0 && <button onClick={handleReturnItemsClicked}>{formOpen ? 'Cancel Returning' : 'Return Selected Items'}</button>}

@@ -38,9 +38,9 @@ export function getAmaanatUser(ID: string) {
 
 //to register a new user
 export function addAmaanatUser(data: AmaanatUserType) {
-    const { Name, AIMSNo, PhoneNo } = data
-    const query = `INSERT INTO amaanat_users (Name, AIMSNo, PhoneNo) VALUES
-    ("${Name}", "${AIMSNo}", "${PhoneNo}") RETURNING *;`
+    const { Name, AIMSNo, PhoneNo, Jamaat } = data
+    const query = `INSERT INTO amaanat_users (Name, AIMSNo, PhoneNo, Jamaat) VALUES
+    ("${Name}", "${AIMSNo}", "${PhoneNo}", "${Jamaat}") RETURNING *;`
     return new Promise((resolve, reject) => {
         let statement = db.prepare(query);
         statement.all((err, rows) => {

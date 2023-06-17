@@ -30,6 +30,8 @@ export default function AmaanatSignUpForm() {
                 <input {...register('Name', {required: true})}/>
                 <p>AIMS Number*</p>
                 <input {...register('AIMSNo', {required: true})} />
+                <p>Jamaat</p>
+                <input {...register('Jamaat')}/>
                 <p>Phone Number</p>
                 <input {...register('PhoneNo')}/>
                 <br />
