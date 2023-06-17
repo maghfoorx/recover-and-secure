@@ -50,6 +50,8 @@ export default function FoundItemForm(): JSX.Element {
                 <input {...register("FinderName")}/>
                 <p>Finder's AIMS: </p>
                 <input {...register("AIMSNumber")}/>
+                <p>Receiver Name: </p>
+                <input {...register("ReceivedBy")}/>
                 </div>
                 }
                 <br />

@@ -13,6 +13,7 @@ export interface PostLostItemType {
     FoundArea: String;
     FinderName: String;
     AIMSNumber: String;
+    ReceivedBy: String;
   }
   
   export type ReturnFormType = {

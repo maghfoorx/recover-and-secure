@@ -21,4 +21,5 @@ export interface FoundItemType {
   ReturnedBy: string | null;
   FinderName: string | null;
   AIMSNumber: string | null;
+  ReceivedBy: string | null;
 }

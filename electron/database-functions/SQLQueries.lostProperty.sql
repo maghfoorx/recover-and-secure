@@ -26,7 +26,8 @@ CREATE TABLE found_items (
   Details TEXT,
   FoundArea TEXT,
   FinderName DEFAULT NULL,
-  AIMSNumber DEFAULT NULL
+  AIMSNumber DEFAULT NULL,
+  ReceivedBy DEFAULT NULL
 );
 
 -- mock data for found_items
