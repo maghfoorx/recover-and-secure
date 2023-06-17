@@ -17,6 +17,7 @@ export default function LostItems(): JSX.Element {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | LostItemType>(null);
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+    const [unFoundConfirmation, setUnFoundConfirmation] = useState(false);
 
     useEffect(() => {
         if (!openModal) {
@@ -106,13 +107,19 @@ export default function LostItems(): JSX.Element {
                             <p><b>Found:</b> {modalData.ItemFound}</p>
                             { !deleteConfirmation && <div className="modal-buttons">
                             <button onClick={() => setDeleteConfirmation(prev => !prev)} className="modal-button delete">Delete</button>
-                            <button onClick={() => handleFoundLostItem(modalData.ID)} className="modal-button found">{modalData.ItemFound === 'Yes' ? 'Found' : 'UnFound'}</button>
+                            <button onClick={() => setUnFoundConfirmation(prev => !prev)} className="modal-button found">{modalData.ItemFound === 'Yes' ? 'Found' : 'UnFound'}</button>
                             </div>}
                             {deleteConfirmation && 
                             <div className="modal-buttons-confirmation">
                                 <p>Are you sure you want to delete this item?</p>
                                 <button onClick={() => handleDeletingLostItem(modalData.ID)} className="modal-button found">Yes</button>
                                 <button onClick={() => setDeleteConfirmation(false)} className="modal-button delete">No</button>
+                            </div>}
+                            {unFoundConfirmation && 
+                            <div className="modal-buttons-confirmation">
+                                <p>Are you sure you want to un find this item?</p>
+                                <button onClick={() => handleFoundLostItem(modalData.ID)} className="modal-button found">Yes</button>
+                                <button onClick={() => setUnFoundConfirmation(false)} className="modal-button delete">No</button>
                             </div>}
                         </div>
                     }
