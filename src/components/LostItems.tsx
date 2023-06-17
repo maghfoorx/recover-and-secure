@@ -4,7 +4,7 @@ import "../styles/LostItems.css"
 import useFetchLostPropertyData from "@/custom-hooks/useFetchLostPropertyData";
 import { Box, Modal } from "@mui/material";
 import DataTable from "react-data-table-component";
-import { deleteLostItem, foundLostItem } from "@/IPC/IPCMessages.lostProperty";
+import { deleteLostItem, foundLostItem, unFoundLostItem } from "@/IPC/IPCMessages.lostProperty";
 import { lostConditionalRowStyles, tableStyles } from "@/styles/tablesStyles";
 import { modalStyle } from "@/styles/modalStyle";
 
@@ -47,9 +47,15 @@ export default function LostItems(): JSX.Element {
     }
 
     async function handleFoundLostItem(id: number) {
-        await foundLostItem(id);
-        await handleGetLostItems();
-        handleCloseModal();
+        if (modalData?.ItemFound === 'No') {
+            await foundLostItem(id);
+            await handleGetLostItems();
+            handleCloseModal();
+        } else if (modalData?.ItemFound === 'Yes') {
+            await unFoundLostItem(id);
+            await handleGetLostItems();
+            handleCloseModal();
+        }
     }
 
     //creating columns
@@ -100,7 +106,7 @@ export default function LostItems(): JSX.Element {
                             <p><b>Found:</b> {modalData.ItemFound}</p>
                             { !deleteConfirmation && <div className="modal-buttons">
                             <button onClick={() => setDeleteConfirmation(prev => !prev)} className="modal-button delete">Delete</button>
-                            <button onClick={() => handleFoundLostItem(modalData.ID)} className="modal-button found">Found</button>
+                            <button onClick={() => handleFoundLostItem(modalData.ID)} className="modal-button found">{modalData.ItemFound === 'Yes' ? 'Found' : 'UnFound'}</button>
                             </div>}
                             {deleteConfirmation && 
                             <div className="modal-buttons-confirmation">

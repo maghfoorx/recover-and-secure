@@ -7,6 +7,7 @@ import {
   postFoundItem,
   postLostItem,
   returnFoundItem,
+  unFoundLostItem,
   updateFoundColumn,
 } from "../database-functions/lost-property/databaseFunctions";
 import { addAmaanatItem, addAmaanatUser, getAllAmaanatUsers, getAmaanatUser, getUserAmaanatItems, returnAmaanatItem } from "../database-functions/amaanat/databaseFunctions";
@@ -54,6 +55,11 @@ export const registerIPCHandlers = () => {
     const response = await updateFoundColumn(args);
     return response;
   });
+
+  ipcMain.handle("UNFOUND_LOST_ITEM", async (event, args: number) => {
+    const response = await unFoundLostItem(args);
+    return response;
+  })
 
   ipcMain.handle("RETURN_FOUND_ITEM", async (event, args: ReturnFormType) => {
     const response = await returnFoundItem(args)

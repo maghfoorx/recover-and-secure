@@ -107,6 +107,7 @@ contextBridge.exposeInMainWorld("ipcAPI", {
   deleteLostItem: (ID: number) => ipcRenderer.invoke("DELETE_LOST_ITEM", ID),
   deleteFoundItem: (ID: number) => ipcRenderer.invoke("DELETE_FOUND_ITEM", ID),
   foundLostItem: (ID: number) => ipcRenderer.invoke("FOUND_LOST_ITEM", ID),
+  unFoundLostItem: (ID: number) => ipcRenderer.invoke("UNFOUND_LOST_ITEM", ID),
   returnFoundItem: (returnData: ReturnFormType) => ipcRenderer.invoke("RETURN_FOUND_ITEM", returnData),
   getAmaanatUsers: () => ipcRenderer.invoke("GET_AMAANAT_USERS"),
   addAmaanatUser: (data: AmaanatUserType) => ipcRenderer.invoke("REGISTER_AMAANAT_USER", data),
@@ -114,5 +115,5 @@ contextBridge.exposeInMainWorld("ipcAPI", {
   getAmaanatUser: (ID: string) => ipcRenderer.invoke("GET_AMAANAT_USER", ID),
   addAmaanatItem: (data: AddAmaanatItemType) => ipcRenderer.invoke("ADD_AMAANAT_ITEM", data),
   returnAmaanatItem: (data: ReturnAmaanatType) => ipcRenderer.invoke("RETURN_AMAANAT_ITEM", data),
-  printAmaanatReceipt: () => ipcRenderer.invoke("PRINT_AMAANAT_RECEIPT")
+  printAmaanatReceipt: () => ipcRenderer.invoke("PRINT_AMAANAT_RECEIPT"),
 });

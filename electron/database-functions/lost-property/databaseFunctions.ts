@@ -159,6 +159,23 @@ export function updateFoundColumn(id: number) {
   });
 }
 
+//unFound a lost reported item
+export function unFoundLostItem(id: number) {
+  const query = `UPDATE lost_items SET ItemFound = 0 WHERE ID = ${id}`;
+  return new Promise((resolve, reject) => {
+    let statement = db.prepare(query);
+    statement.all((err, rows) => {
+      if (err) {
+        console.error(err.message);
+        reject(err.message);
+      } else {
+        resolve(rows);
+      }
+      statement.finalize();
+    });
+  });
+}
+
 //Returned a found item
 export function returnFoundItem({itemID, PersonName, AimsNumber, ReturnedBy}: ReturnFormType) {
   const query = `
