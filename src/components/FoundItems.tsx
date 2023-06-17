@@ -54,6 +54,10 @@ export default function FoundItems(): JSX.Element {
             selector: (row: FoundItemType) => row.ItemName
         },
         {
+            name: "Detail",
+            selector: (row: FoundItemType) => row.Details
+        },
+        {
             name: "Date Found",
             selector: (row: FoundItemType) => formatDate(row.FoundDate)
         },

@@ -5,10 +5,10 @@ export async function printReceipt() {
     const options = {
         preview: true,               //  width of content body
         margin: 'auto',            // margin of content body
-        copies: 1,                    // Number of copies to print
-        printerName: 'XP-80C',        // printerName: string, check with webContent.getPrinters()
+        copies: 2,                    // Number of copies to print
+        printerName: 'ZDesigner GK420d',        // printerName: string, check with webContent.getPrinters()
         timeOutPerLine: 1000,
-        pageSize: '70mm'  // page size
+        pageSize: '80mm'  // page size
     }
 
     const data = [
@@ -21,18 +21,18 @@ export async function printReceipt() {
         // },
         {
             type: "text",
-            value: "51155", //aims number for the future
-            style: { fontSize: "45px", fontWeight: "bold", textAlign: 'center' }
-        },
-        {
-            type: "text",
             value: "JALSA SALANA UK",
-            style: { fontSize: "17px", fontWeight: "bold", textAlign: 'center', marginBottom: '5px' }
+            style: { fontSize: "25px", fontWeight: "bold", textAlign: 'center', marginBottom: '5px' }
         },
         {
             type: "text",
             value: "Amanat Department",
-            style: { fontSize: "20px", textAlign: 'center' }
+            style: { fontSize: "20px", textAlign: 'center', marginBottom: '5px' }
+        },
+        {
+            type: "text",
+            value: "51155", //aims number for the future
+            style: { fontSize: "45px", fontWeight: "bold", textAlign: 'center' }
         },
         {
             type: "text",
@@ -42,8 +42,25 @@ export async function printReceipt() {
         {
             type: "text",
             value: "3 items stored", //total item number in the future
-            style: { fontSize: "20px", textAlign: 'center' }
+            style: { fontSize: "20px", textAlign: 'center', marginTop: '5px' }
         },
+        {
+            type: "text",
+            value: "For office use:", //total item number in the future
+            style: { fontSize: "20px", textAlign: 'left', marginTop: '5px' }
+        },
+        {
+            type: "text",
+            value: "C1", //total item number in the future
+            style: { fontSize: "30px", textAlign: 'center', fontWeight: 'bold' }
+        },
+        // {
+        //     type: 'qrCode',
+        //     value: '51155',
+        //     height: 70,
+        //     width: 70,
+        //     style: { margin: '0 auto' }
+        // }
     ]
 
     try {

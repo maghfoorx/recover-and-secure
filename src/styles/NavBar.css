@@ -7,6 +7,9 @@
   text-decoration: none;
   text-align: center;
   color: black;
+  font-size: 2rem;
+  font-weight: bold;
+  font-style: italic;
 }
 
 .active {

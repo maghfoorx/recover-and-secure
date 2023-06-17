@@ -59,6 +59,10 @@ export default function LostItems(): JSX.Element {
             selector: (row: LostItemType) => row.ItemName
         },
         {
+            name: 'Details',
+            selector: (row: LostItemType) => row.Details
+        },
+        {
             name: 'Found',
             selector: (row: LostItemType) => row.ItemFound,
             sortable: true

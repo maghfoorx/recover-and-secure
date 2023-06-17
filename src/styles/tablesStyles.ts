@@ -4,7 +4,7 @@ export const tableStyles = {
     rows: {
         style: {
             cursor: "pointer",
-            fontSize: '1.2rem',
+            fontSize: '1.8rem',
             '&:hover': {
                 backgroundColor: '#f5f5f5'
             }

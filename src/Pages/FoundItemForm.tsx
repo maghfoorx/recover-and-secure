@@ -29,6 +29,12 @@ export default function FoundItemForm(): JSX.Element {
             <Link to="/" className="go-back">Go Back</Link>
             <form onSubmit={handleSubmit((data) => handlePostingForm(data))}>
                 <h1>Add a found item</h1>
+                <p>Item Name</p>
+                <input {...register("ItemName", {required: true})}/>
+                <p>Item Details</p>
+                <input {...register("Details", {required: true})}/>
+                <p>Found Area</p>
+                <input {...register("FoundArea")}/>
                 <label>
                 <input
                 type="checkbox"
@@ -37,12 +43,6 @@ export default function FoundItemForm(): JSX.Element {
                 />
                 <span>Item includes Cash</span>
                 </label>
-                <p>Item Name</p>
-                <input {...register("ItemName", {required: true})}/>
-                <p>Item Details</p>
-                <input {...register("Details", {required: true})}/>
-                <p>Found Area</p>
-                <input {...register("FoundArea")}/>
                 {
                 isCash &&
                 <div>

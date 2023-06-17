@@ -9,7 +9,7 @@ export const modalStyle = {
     boxShadow: 24,
     p: 4,
     '& p': {
-        fontSize: "1.3rem",
+        fontSize: "2rem",
         marginBottom: "1rem"
     }
 };
