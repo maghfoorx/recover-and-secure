@@ -22,6 +22,7 @@ export default function LostItems(): JSX.Element {
     useEffect(() => {
         if (!openModal) {
             setDeleteConfirmation(false)
+            setUnFoundConfirmation(false)
         }
     }, [openModal]);
 
@@ -105,7 +106,7 @@ export default function LostItems(): JSX.Element {
                             <p><b>Aims ID:</b> {modalData.AimsID}</p>
                             <p><b>Lost Area:</b> {modalData.LostArea}</p>
                             <p><b>Found:</b> {modalData.ItemFound}</p>
-                            { !deleteConfirmation && <div className="modal-buttons">
+                            { !deleteConfirmation && !unFoundConfirmation && <div className="modal-buttons">
                             <button onClick={() => setDeleteConfirmation(prev => !prev)} className="modal-button delete">Delete</button>
                             <button onClick={() => setUnFoundConfirmation(prev => !prev)} className="modal-button found">{modalData.ItemFound === 'Yes' ? 'Found' : 'UnFound'}</button>
                             </div>}
