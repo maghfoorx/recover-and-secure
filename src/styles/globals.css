@@ -70,3 +70,11 @@ input {
 label {
   font-size: var(--font-size-normal);
 }
+
+.laptop-name {
+  font-size: 2rem;
+  text-align: center;
+  background-color: var(--colour-background);
+  border: 0px solid var(--colour-background);
+  margin-left: 1rem;
+}

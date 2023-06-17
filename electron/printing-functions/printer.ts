@@ -3,7 +3,7 @@ import * as path from "path";
 
 export async function printReceipt() {
     const options = {
-        preview: true,               //  width of content body
+        preview: false,               //  width of content body
         margin: 'auto',            // margin of content body
         copies: 2,                    // Number of copies to print
         printerName: 'ZDesigner GK420d',        // printerName: string, check with webContent.getPrinters()
@@ -52,6 +52,11 @@ export async function printReceipt() {
         {
             type: "text",
             value: "C1", //total item number in the future
+            style: { fontSize: "30px", textAlign: 'center', fontWeight: 'bold' }
+        },
+        {
+            type: "text",
+            value: "Masroor", //total item number in the future
             style: { fontSize: "30px", textAlign: 'center', fontWeight: 'bold' }
         },
         // {

@@ -8,11 +8,25 @@ import "./styles/globals.css"
 import AmaanatUserPage from "./Pages/amaanat-user/AmaanatUserPage";
 import AmaanatSignUpForm from "./Pages/amaanat-sign-up/AmaanatSignUpForm";
 import AmaanatAddItemsForm from "./Pages/amaanat-add-items/AmaanatAddItemsForm";
+import { useState } from "react";
 
 function App() {
+  const [computerName, setComputerName] = useState('');
+
+  const handleSelectChange = (event: any) => {
+    setComputerName(event.target.value);
+  };
 
   return (
     <div className="App">
+      <div>
+      <select value={computerName} onChange={handleSelectChange} className="laptop-name">
+        <option value="">Name The Computer</option>
+        <option value="Masroor">Masroor</option>
+        <option value="Tahir">Tahir</option>
+        <option value="Nasir">Nasir</option>
+      </select>
+    </div>
       <NavBar />
       <Routes>
         <Route path="/" element={<LostPropertyPage />} />
@@ -21,7 +35,7 @@ function App() {
         <Route path="/found-item-form" element={<FoundItemForm />} />
         <Route path="/amaanat/:userId" element={<AmaanatUserPage />}/>
         <Route path="/amaanat/sign-up" element={<AmaanatSignUpForm />}/>
-        <Route path="/amaanat/add-items/:userId" element={<AmaanatAddItemsForm />}/>
+        <Route path="/amaanat/add-items/:userId" element={<AmaanatAddItemsForm computerName={computerName}/>}/>
       </Routes>
     </div>
   );

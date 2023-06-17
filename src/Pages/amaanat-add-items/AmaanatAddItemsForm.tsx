@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { Link, useParams } from "react-router-dom";
 import "./amaanat-add-items.css"
 
-export default function AmaanatAddItemsForm() {
+export default function AmaanatAddItemsForm({ computerName }: { computerName: string}) {
     const { userId } = useParams();
     if (!userId) return null;
 
@@ -35,6 +35,7 @@ export default function AmaanatAddItemsForm() {
             console.error(error)
         }
     }
+    console.log(computerName)
     
     return (
         <div>
