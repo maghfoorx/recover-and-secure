@@ -106,6 +106,8 @@ export default function FoundItems(): JSX.Element {
                 conditionalRowStyles={foundConditionalRowStyles}
                 pagination
             />
+            <p>Total Found Items: {foundItems.length}</p>
+            <p>Total Items Returned: {foundItems.filter((item) => item.ReturnDate).length}</p>
             {/* creating the modal */}
             <Modal
                 open={openModal}
