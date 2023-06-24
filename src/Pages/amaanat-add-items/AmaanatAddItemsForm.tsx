@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useParams } from "react-router-dom";
 import "./amaanat-add-items.css"
+import { dialog } from 'electron'
 
 export default function AmaanatAddItemsForm({ computerName }: { computerName: string}) {
     const { userId } = useParams();
@@ -35,17 +36,22 @@ export default function AmaanatAddItemsForm({ computerName }: { computerName: st
             console.error(error)
         }
     }
-    console.log(computerName)
+    console.log(amaanatItems)
 
     async function handlePrintReceipt() {
+        const storedItems = amaanatItems?.filter(item => item.Returned === 0)
+        if (storedItems.length < 1) {
+            window.alert(`${amaanatUser?.Name} currently has no stored items.`)
+        }
+        else {
         const data = {
-            itemsNumber: amaanatItems?.filter((item) => item.Returned === 1).length,
+            itemsNumber: storedItems.length,
             aimsID: amaanatUser?.AIMSNo,
-            location: amaanatItems?.filter(item => item.Returned === 0)[0].StoredLocation ?? '',
+            location: storedItems[0]?.StoredLocation ?? '',
             computerName,
         }
-        console.log(data)
         await printAmaanatReceipt(data)
+        }
     }
     
     return (
