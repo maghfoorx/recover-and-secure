@@ -41,7 +41,7 @@ export default function AmaanatAddItemsForm({ computerName }: { computerName: st
         const data = {
             itemsNumber: amaanatItems?.filter((item) => item.Returned === 1).length,
             aimsID: amaanatUser?.AIMSNo,
-            location: amaanatItems[0]?.StoredLocation ?? '',
+            location: amaanatItems?.filter(item => item.Returned === 0)[0].StoredLocation ?? '',
             computerName,
         }
         console.log(data)
