@@ -78,3 +78,9 @@ label {
   border: 0px solid var(--colour-background);
   margin-left: 1rem;
 }
+
+.settings {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
