@@ -7,11 +7,11 @@ export default function Dashboard() {
     const { foundItems, lostItems } = useFetchLostPropertyData()
     return (
         <div className="dashboard">
-        <h1>Lost Items Reported: {lostItems.length}</h1>
-        <h1>Reported Lost Items Found: {lostItems.filter(item => item.ItemFound === 'Yes').length}</h1>
-        <h1>Found Items: {foundItems.length}</h1>
-        <h1>Returned Items: {foundItems.filter(item => item.ReturnDate).length}</h1>
-        <h1>Amanat Users: {amaanatUsers.length}</h1>
+        <p>Lost Items Reported: <b>{lostItems.length}</b></p>
+        <p>Reported Lost Items Found:<b> {lostItems.filter(item => item.ItemFound === 'Yes').length}</b></p>
+        <p>Found Items:<b> {foundItems.length}</b></p>
+        <p>Returned Items:<b> {foundItems.filter(item => item.ReturnDate).length}</b></p>
+        <p>Amanat Users:<b> {amaanatUsers.length}</b></p>
         </div>
     )
 }
