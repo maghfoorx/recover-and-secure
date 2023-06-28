@@ -74,12 +74,17 @@ export default function AmaanatUserPage() {
             selector: (row: AmaanatUserItemType) => row.ItemName
         },
         {
+            name: 'Details',
+            selector: (row: AmaanatUserItemType) => row.ItemDetails
+        },
+        {
             name: 'Stored Location',
             selector: (row: AmaanatUserItemType) => row.StoredLocation
         },
         {
             name: 'Returned',
-            selector: (row: AmaanatUserItemType) => formatBoolean(row.Returned)
+            selector: (row: AmaanatUserItemType) => formatBoolean(row.Returned),
+            sortable: true
         }
     ]
     console.log(clearSelectedRows, 'is the boolean value')
