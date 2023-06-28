@@ -116,4 +116,5 @@ contextBridge.exposeInMainWorld("ipcAPI", {
   addAmaanatItem: (data: AddAmaanatItemType) => ipcRenderer.invoke("ADD_AMAANAT_ITEM", data),
   returnAmaanatItem: (data: ReturnAmaanatType) => ipcRenderer.invoke("RETURN_AMAANAT_ITEM", data),
   printAmaanatReceipt: (data: any) => ipcRenderer.invoke("PRINT_AMAANAT_RECEIPT", data),
+  getAmaanatItems: () => ipcRenderer.invoke("GET_AMAANAT_ITEMS")
 });

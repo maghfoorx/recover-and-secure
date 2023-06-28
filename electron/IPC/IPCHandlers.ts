@@ -10,7 +10,7 @@ import {
   unFoundLostItem,
   updateFoundColumn,
 } from "../database-functions/lost-property/databaseFunctions";
-import { addAmaanatItem, addAmaanatUser, getAllAmaanatUsers, getAmaanatUser, getUserAmaanatItems, returnAmaanatItem } from "../database-functions/amaanat/databaseFunctions";
+import { addAmaanatItem, addAmaanatUser, getAllAmaanatUsers, getAmaanatUser, getTotalAmaanatItems, getUserAmaanatItems, returnAmaanatItem } from "../database-functions/amaanat/databaseFunctions";
 import { PostFoundItem, PostLostItemType, ReturnFormType } from "../database-functions/lost-property/lostPropertyTypes";
 import { AddAmaanatItemType, AmaanatUserType, PrintReceiptDataType, ReturnAmaanatType } from "../database-functions/amaanat/amaanatTypes";
 import { printReceipt } from "../printing-functions/printer";
@@ -98,6 +98,11 @@ export const registerIPCHandlers = () => {
 
   ipcMain.handle("PRINT_AMAANAT_RECEIPT", async (event, args: PrintReceiptDataType) => {
     const response = await printReceipt(args);
+    return response;
+  })
+
+  ipcMain.handle("GET_AMAANAT_ITEMS", async (event, args) => {
+    const response = await getTotalAmaanatItems();
     return response;
   })
 

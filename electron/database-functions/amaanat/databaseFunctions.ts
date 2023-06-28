@@ -113,3 +113,20 @@ export function returnAmaanatItem({ id, returnedBy, }: ReturnAmaanatType) {
         })
     })
 }
+
+export function getTotalAmaanatItems() {
+    const query = `SELECT * FROM amaanat_items;`
+
+    return new Promise((resolve, reject) => {
+        let statement = db.prepare(query);
+        statement.all((err, rows) => {
+            if (err) {
+                console.error(err.message);
+                reject(err.message)
+            } else {
+                resolve(rows)
+            }
+            statement.finalize();
+        })
+    });
+}
