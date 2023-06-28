@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useParams } from "react-router-dom";
 import "./amaanat-add-items.css"
-import { dialog } from 'electron'
 
 export default function AmaanatAddItemsForm({ computerName }: { computerName: string}) {
     const { userId } = useParams();
@@ -36,7 +35,6 @@ export default function AmaanatAddItemsForm({ computerName }: { computerName: st
             console.error(error)
         }
     }
-    console.log(amaanatItems)
 
     async function handlePrintReceipt() {
         const storedItems = amaanatItems?.filter(item => item.Returned === 0)
@@ -53,6 +51,9 @@ export default function AmaanatAddItemsForm({ computerName }: { computerName: st
         await printAmaanatReceipt(data)
         }
     }
+
+    const returnedItems = amaanatItems.filter(item => item.Returned === 1)
+    const storedItems = amaanatItems.filter(item => item.Returned === 0)
     
     return (
         <div>
@@ -73,8 +74,8 @@ export default function AmaanatAddItemsForm({ computerName }: { computerName: st
                 <button onClick={handlePrintReceipt}>Print Receipt</button>
                 <h2>{amaanatUser?.Name} items currently stored ({amaanatItems?.filter((item) => item.Returned === 0).length}):</h2>
             <div className="added-items">
-                {amaanatItems
-                ?.filter((item) => item.Returned === 0)
+                {storedItems.length < 1 && <p>No items stored.</p>}
+                {storedItems
                 ?.map((item) => {
                     return (
                         <p key={item.ID} className="added-item">{item.ItemName}</p>
@@ -83,8 +84,8 @@ export default function AmaanatAddItemsForm({ computerName }: { computerName: st
             </div>
             <h2>{amaanatUser?.Name} items returned ({amaanatItems?.filter((item) => item.Returned === 1).length}):</h2>
             <div className="added-items">
-            {amaanatItems
-            ?.filter((item) => item.Returned === 1)
+                {returnedItems.length < 1 && <p>No items returned yet.</p>}
+            {returnedItems
             ?.map((item) => {
                     return (
                         <p key={item.ID} className="added-item">{item.ItemName}</p>

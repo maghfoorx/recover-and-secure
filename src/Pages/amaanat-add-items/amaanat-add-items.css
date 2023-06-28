@@ -3,6 +3,8 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
+    text-align: center;
+    margin: 1rem;
 }
 
 .added-item {
@@ -10,4 +12,8 @@
     padding: 1rem;
     margin: 1rem;
     border-radius: 10px;
+}
+
+h2 {
+    text-align: center;
 }
