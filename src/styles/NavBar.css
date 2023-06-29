@@ -10,6 +10,8 @@
   font-size: 2rem;
   font-weight: bold;
   font-style: italic;
+  background-color: white;
+  border: 1px solid black;
 }
 
 .active {
