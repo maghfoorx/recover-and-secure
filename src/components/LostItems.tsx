@@ -108,7 +108,7 @@ export default function LostItems(): JSX.Element {
                             <p><b>Found:</b> {modalData.ItemFound}</p>
                             { !deleteConfirmation && !unFoundConfirmation && <div className="modal-buttons">
                             <button onClick={() => setDeleteConfirmation(prev => !prev)} className="modal-button delete">Delete</button>
-                            <button onClick={() => setUnFoundConfirmation(prev => !prev)} className="modal-button found">{modalData.ItemFound === 'Yes' ? 'Found' : 'UnFound'}</button>
+                            <button onClick={() => setUnFoundConfirmation(prev => !prev)} className="modal-button found">{modalData.ItemFound === 'Yes' ? 'UnFound' : 'Found'}</button>
                             </div>}
                             {deleteConfirmation && 
                             <div className="modal-buttons-confirmation">
