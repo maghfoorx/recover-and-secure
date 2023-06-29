@@ -19,7 +19,8 @@ export default function AmaanatAddItemsForm({ computerName }: { computerName: st
     const {register, handleSubmit, formState: {errors}, reset} = useForm();
 
     const [sucess, setSuccess] = useState<boolean>(false);
-    const [addedItem, setAddedItem] = useState<AmaanatUserItemType | null>(null)
+    const [addedItem, setAddedItem] = useState<AmaanatUserItemType | null>(null);
+    const [showPrintError, setShowPrintError] = useState(false)
 
     async function handleSubmitForm(data: unknown) {
         try {
@@ -39,7 +40,8 @@ export default function AmaanatAddItemsForm({ computerName }: { computerName: st
     async function handlePrintReceipt() {
         const storedItems = amaanatItems?.filter(item => item.Returned === 0)
         if (storedItems.length < 1) {
-            window.alert(`${amaanatUser?.Name} currently has no stored items.`)
+            setShowPrintError(true)
+            setTimeout(() => setShowPrintError(false), 3000)
         }
         else {
         const data = {
@@ -71,7 +73,8 @@ export default function AmaanatAddItemsForm({ computerName }: { computerName: st
                 <input type="submit"/>
                 {sucess && addedItem && <h3>Successfully added {addedItem.ItemName}!</h3>}
             </form>
-                <button onClick={handlePrintReceipt}>Print Receipt</button>
+            <button onClick={handlePrintReceipt}>Print Receipt</button>
+                {showPrintError && <p>Sorry! {amaanatUser?.Name} does not have any items stored.</p>}
                 <h2>{amaanatUser?.Name} items currently stored ({amaanatItems?.filter((item) => item.Returned === 0).length}):</h2>
             <div className="added-items">
                 {storedItems.length < 1 && <p>No items stored.</p>}
