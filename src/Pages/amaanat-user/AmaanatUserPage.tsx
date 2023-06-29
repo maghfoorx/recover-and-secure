@@ -95,11 +95,11 @@ export default function AmaanatUserPage() {
             <Link to="/amaanat" className="go-back">Go Back</Link>
             <Link to={`/amaanat/add-items/${userId}`} className='link-add-items'>Add Items</Link>
             </div>
-            <div>
+            <div className='user-details'>
             <h1>{amaanatUser?.Name}</h1>
-            <h2>AIMS: {amaanatUser?.AIMSNo}</h2>
-            {amaanatUser?.Jamaat && <h2>Jamaat: {amaanatUser?.Jamaat}</h2>}
-            <h2>Phone Number: {amaanatUser?.PhoneNo}</h2>
+            <p>AIMS: {amaanatUser?.AIMSNo}</p>
+            {amaanatUser?.Jamaat && <p>Jamaat: {amaanatUser?.Jamaat}</p>}
+            <p>Phone Number: {amaanatUser?.PhoneNo}</p>
             </div>
             {selectedItems.length > 0 && <button onClick={handleReturnItemsClicked}>{formOpen ? 'Cancel Returning' : 'Return Selected Items'}</button>}
             {formOpen && selectedItems.length > 0 &&

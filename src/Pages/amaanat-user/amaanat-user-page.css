@@ -21,3 +21,12 @@
     border-radius: 10px;
     border: 1px black solid;
 }
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    align-items: flex-start;
+    gap: 0.2rem;
+    margin-right: auto;
+}
