@@ -3,7 +3,7 @@ import { AddAmaanatItemType, AmaanatUserType, ReturnAmaanatType } from './amaana
 
 //getting all the amaanat users
 export function getAllAmaanatUsers() {
-    const query = "SELECT * FROM amaanat_users;";
+    const query = "SELECT * FROM amaanat_users ORDER BY ID DESC;";
     return new Promise((resolve, reject) => {
         let statement = db.prepare(query);
         statement.all((err, rows) => {

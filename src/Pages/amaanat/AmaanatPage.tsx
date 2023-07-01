@@ -21,7 +21,7 @@ export default function AmaanatPage({ computerName }: AmaanatPageProperties): JS
     return (
         <div className="amaanat-page">
             <div className="amaanat-page-navbar">
-                {!computerName && <p style={{ color: 'red'}}>☝️☝️PLEASE NAME YOUR COMPUTER TOP LEFT OF SCREEN☝️☝️</p>}
+                {!computerName && <p style={{ color: 'red', fontWeight: 'bold'}}>☝️☝️PLEASE NAME YOUR COMPUTER TOP LEFT OF SCREEN☝️☝️</p>}
             <Link to="/amaanat/sign-up" className="link-sign-up">Sign Up User</Link>
             <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Search Person Name or AIMS ID"/>
             </div>
