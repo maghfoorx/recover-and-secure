@@ -45,7 +45,7 @@ export default function AmaanatPage({ computerName }: AmaanatPageProperties): JS
                 checked={isFilteredByStored}
                 onChange={() => setIsFilterByStored(!isFilteredByStored)}
                 />
-                <span>Show users with only items stored.</span>
+                <span>Display users with stored items only</span>
                 </label>
             </div>
             <div className="amaanat-users">
