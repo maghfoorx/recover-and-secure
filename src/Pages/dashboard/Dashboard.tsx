@@ -4,6 +4,7 @@ import "./dashboard.css"
 import { useEffect, useState } from "react"
 import { getAmaanatItems } from "@/IPC/IPCMessages.amaanat"
 import { AmaanatUserItemType } from "@/type-definitions/types.amaanat"
+import { filterByStoredItems } from "@/utils/filterByStoredItems"
 
 export default function Dashboard() {
     const { amaanatUsers } = useFetchAmaanatUsers()
@@ -17,7 +18,9 @@ export default function Dashboard() {
 
     useEffect(() => {
         handleGetAmaanatItems();
-    }, [])
+    }, []);
+
+    const storedItemUsers = filterByStoredItems(amaanatUsers, amaanatItems)
     return (
         <div className="dashboard">
             <h1>DASHBOARD</h1>
@@ -30,6 +33,7 @@ export default function Dashboard() {
         <p>Amanat users served:<b> {amaanatUsers.length}</b></p>
         <p>Total amanat items handled:<b> {amaanatItems.length}</b></p>
         <p>Total amanat items currently stored:<b> {amaanatItems.filter(item => item.Returned === 0).length}</b></p>
+        <p>Total Amanat users that have items stored: <b>{storedItemUsers.length}</b></p>
         </div>
     )
 }
