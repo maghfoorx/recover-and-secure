@@ -32,7 +32,7 @@ function App() {
       <NavBar />
       <Routes>
         <Route path="/" element={<LostPropertyPage />} />
-        <Route path="/amaanat" element={<AmaanatPage />} />
+        <Route path="/amaanat" element={<AmaanatPage computerName={computerName}/>} />
         <Route path="/lost-item-form" element={<LostItemForm />} />
         <Route path="/found-item-form" element={<FoundItemForm />} />
         <Route path="/amaanat/:userId" element={<AmaanatUserPage />}/>
