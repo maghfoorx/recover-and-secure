@@ -17,7 +17,11 @@ export default function FoundItems(): JSX.Element {
     const { foundItems, handleGetFoundItems } = useFetchLostPropertyData();
 
     const [searchBarValue, setSearchBarValue] = useState('');
-    const filteredItems = foundItems.filter(item => (item.ItemName) && item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()))
+
+    const includesItemName = foundItems.filter(item => item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()))
+    const includesItemDetails = foundItems.filter(item => item.Details.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()))
+    const filteredItemsSet = new Set([...includesItemName, ...includesItemDetails])
+    const filteredItems = Array.from(filteredItemsSet)
 
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [modalData, setModalData] = useState<null | FoundItemType>(null);

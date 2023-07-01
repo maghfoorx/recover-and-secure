@@ -26,8 +26,11 @@ export default function LostItems(): JSX.Element {
         }
     }, [openModal]);
 
-    const filteredItems = lostItems.filter(item => (item.ItemName || item.AimsID) && item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()) || item.AimsID.toString().includes(searchBarValue.toLocaleLowerCase()))
-
+    const includesAimsID = lostItems.filter(item => item.AimsID.toString().toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()))
+    const includesItemName = lostItems.filter(item => item.ItemName.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()))
+    const includesItemDetails = lostItems.filter(item => item.Details.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()))
+    const filteredItemsSet = new Set([...includesAimsID, ...includesItemName, ...includesItemDetails])
+    const filteredItems = Array.from(filteredItemsSet);
 
     function handleOpenModal() {
         setOpenModal(true);
@@ -80,7 +83,7 @@ export default function LostItems(): JSX.Element {
     return (
         <div className="lost-items-component">
             <h1>Lost Items</h1>
-            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Item Name or AIMS ID"/>
+            <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Item Name or AIMS ID or Item Details"/>
             <DataTable
                 columns={columns}
                 data={filteredItems}
