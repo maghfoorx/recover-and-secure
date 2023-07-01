@@ -4,6 +4,10 @@ export type AmaanatUserType = {
     Jamaat: string;
     Name: string;
     PhoneNo: string;
+    itemsData: {
+        storedNumber: number;
+        returnedNumber: number;
+    }
 }
 
 export type AmaanatUserItemType = {

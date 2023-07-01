@@ -6,17 +6,22 @@ export default function UserInfoTile({
     ID,
     Name,
     AIMSNo,
-    PhoneNo
+    PhoneNo,
+    itemsData
 }: AmaanatUserType) {
     const navigate = useNavigate();
 
     function handleUserClick() {
         navigate(`/amaanat/${ID}`)
     }
+
+    const storedClassName = itemsData.storedNumber > 0 ? '' : 'none-stored'
     return(
-        <div className="user-info-tile" onClick={handleUserClick}>
-        <h2>{Name}</h2>
-        <p>{AIMSNo}</p>
+        <div className={`user-info-tile ${storedClassName}`} onClick={handleUserClick}>
+        <h1>{Name}</h1>
+        <p>Aims: <b>{AIMSNo}</b></p>
+        {itemsData && <p>{itemsData.storedNumber} stored</p>}
+        {itemsData && <p>{itemsData.returnedNumber} returned</p>}
         </div>
     )
 }

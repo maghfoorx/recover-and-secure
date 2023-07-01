@@ -23,6 +23,7 @@ export default function Dashboard() {
             <h1>DASHBOARD</h1>
         <p>Reported lost items: <b>{lostItems.length}</b></p>
         <p>Reported lost items found:<b> {lostItems.filter(item => item.ItemFound === 'Yes').length}</b></p>
+        <hr/>
         <p>Found items:<b> {foundItems.length}</b></p>
         <p>Found items returned:<b> {foundItems.filter(item => item.ReturnDate).length}</b></p>
         <hr/>

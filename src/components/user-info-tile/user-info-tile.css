@@ -11,3 +11,7 @@
     cursor: pointer;
     text-align: center;
 }
+
+.none-stored {
+    background-color: green;
+}
