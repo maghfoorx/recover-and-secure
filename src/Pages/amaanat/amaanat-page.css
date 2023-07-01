@@ -25,6 +25,7 @@ input {
     margin: 1rem;
     padding: 1rem;
     border-radius: 10px;
+    min-height: 200px;
 }
 
 .link-sign-up {

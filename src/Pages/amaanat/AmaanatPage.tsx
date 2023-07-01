@@ -26,6 +26,8 @@ export default function AmaanatPage({ computerName }: AmaanatPageProperties): JS
             <input value={searchBarValue} onChange={(event) => setSearchBarValue(event.target.value)} placeholder="Search Person Name or AIMS ID"/>
             </div>
             <div className="amaanat-users">
+                {amaanatUsers.length < 1 && <p>No Amanat users added yet!</p>}
+                {amaanatUsers.length >= 1 && filteredItems.length < 1 && <p>No users match this search!</p>}
                 {filteredItems.map((user) => {
                     return (
                         <UserInfoTile {...user} key={user.ID}/>
