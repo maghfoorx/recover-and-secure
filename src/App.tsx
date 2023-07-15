@@ -26,6 +26,8 @@ function App() {
         <option value="Masroor">Masroor</option>
         <option value="Tahir">Tahir</option>
         <option value="Nasir">Nasir</option>
+        <option value="Basheer">Basheer</option>
+        <option value="Noor">Noor</option>
       </select>
       <Link to={"/dashboard"}>📊</Link>
     </div>
