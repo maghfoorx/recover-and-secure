@@ -1,8 +1,10 @@
 import { PosPrinter } from "../../../packages/electron-pos-printer/src/main/index";
 
 export async function printReceipt(printReceiptData: any) {
+  const environment = process.env.NODE_ENV;
+  console.log(environment, "environemtn");
   const options = {
-    preview: true, //  width of content body
+    preview: process.env.NODE_ENV === "development", //  width of content body
     margin: "auto", // margin of content body
     copies: 2, // Number of copies to print
     printerName: "ZDesigner GK420d", // printerName: string, check with webContent.getPrinters()
