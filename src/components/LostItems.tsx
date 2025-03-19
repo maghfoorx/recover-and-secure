@@ -120,7 +120,7 @@ export default function LostItems(): JSX.Element {
       <Input
         value={searchBarValue}
         onChange={(e) => setSearchBarValue(e.target.value)}
-        placeholder="Search by Item Name, AIMS ID or Details"
+        placeholder="Search by item name, AIMS id or details"
         className="max-w-md"
       />
       <Table>
