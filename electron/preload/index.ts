@@ -1,9 +1,34 @@
-import { contextBridge, ipcRenderer } from "electron";
-import { PostFoundItem, PostLostItemType, ReturnFormType } from "../database-functions/lost-property/lostPropertyTypes";
-import { AddAmaanatItemType, AmaanatUserType, ReturnAmaanatType } from "../database-functions/amaanat/amaanatTypes";
+import { ipcRenderer, contextBridge } from "electron";
+import ipcApiToMainWorld from "../ipc/ipcApiToMainWorld";
 
+// --------- Expose some API to the Renderer process ---------
+contextBridge.exposeInMainWorld("ipcRenderer", {
+  on(...args: Parameters<typeof ipcRenderer.on>) {
+    const [channel, listener] = args;
+    return ipcRenderer.on(channel, (event, ...args) =>
+      listener(event, ...args),
+    );
+  },
+  off(...args: Parameters<typeof ipcRenderer.off>) {
+    const [channel, ...omit] = args;
+    return ipcRenderer.off(channel, ...omit);
+  },
+  send(...args: Parameters<typeof ipcRenderer.send>) {
+    const [channel, ...omit] = args;
+    return ipcRenderer.send(channel, ...omit);
+  },
+  invoke(...args: Parameters<typeof ipcRenderer.invoke>) {
+    const [channel, ...omit] = args;
+    return ipcRenderer.invoke(channel, ...omit);
+  },
+
+  // You can expose other APTs you need here.
+  // ...
+});
+
+// --------- Preload scripts loading ---------
 function domReady(
-  condition: DocumentReadyState[] = ["complete", "interactive"]
+  condition: DocumentReadyState[] = ["complete", "interactive"],
 ) {
   return new Promise((resolve) => {
     if (condition.includes(document.readyState)) {
@@ -96,25 +121,4 @@ window.onmessage = (ev) => {
 };
 
 setTimeout(removeLoading, 4999);
-
-// setting up contextbridge
-contextBridge.exposeInMainWorld("ipcAPI", {
-  getLostItemsReported: () => ipcRenderer.invoke("GET_LOST_ITEMS"),
-  getFoundItemsReported: () => ipcRenderer.invoke("GET_FOUND_ITEMS"),
-  getVersion: () => ipcRenderer.invoke("get-version"),
-  postLostItem: (data: PostLostItemType) => ipcRenderer.invoke("POST_LOST_ITEM", data),
-  postFoundItem: (data: PostFoundItem) => ipcRenderer.invoke("POST_FOUND_ITEM", data),
-  deleteLostItem: (ID: number) => ipcRenderer.invoke("DELETE_LOST_ITEM", ID),
-  deleteFoundItem: (ID: number) => ipcRenderer.invoke("DELETE_FOUND_ITEM", ID),
-  foundLostItem: (ID: number) => ipcRenderer.invoke("FOUND_LOST_ITEM", ID),
-  unFoundLostItem: (ID: number) => ipcRenderer.invoke("UNFOUND_LOST_ITEM", ID),
-  returnFoundItem: (returnData: ReturnFormType) => ipcRenderer.invoke("RETURN_FOUND_ITEM", returnData),
-  getAmaanatUsers: () => ipcRenderer.invoke("GET_AMAANAT_USERS"),
-  addAmaanatUser: (data: AmaanatUserType) => ipcRenderer.invoke("REGISTER_AMAANAT_USER", data),
-  getUserAmaanatItems: (ID: string) => ipcRenderer.invoke("GET_USER_AMAANAT_ITEMS", ID),
-  getAmaanatUser: (ID: string) => ipcRenderer.invoke("GET_AMAANAT_USER", ID),
-  addAmaanatItem: (data: AddAmaanatItemType) => ipcRenderer.invoke("ADD_AMAANAT_ITEM", data),
-  returnAmaanatItem: (data: ReturnAmaanatType) => ipcRenderer.invoke("RETURN_AMAANAT_ITEM", data),
-  printAmaanatReceipt: (data: any) => ipcRenderer.invoke("PRINT_AMAANAT_RECEIPT", data),
-  getAmaanatItems: () => ipcRenderer.invoke("GET_AMAANAT_ITEMS")
-});
+contextBridge.exposeInMainWorld("ipcApi", ipcApiToMainWorld);

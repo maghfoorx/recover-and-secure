@@ -1,49 +1,44 @@
-import NavBar from "./components/NavBar";
-import { Routes, Route, Link } from "react-router-dom"
-import LostItemForm from "./Pages/LostItemForm";
-import LostPropertyPage from "./Pages/LostPropertyPage";
-import AmaanatPage from "./Pages/amaanat/AmaanatPage";
-import FoundItemForm from "./Pages/FoundItemForm";
-import "./styles/globals.css"
-import AmaanatUserPage from "./Pages/amaanat-user/AmaanatUserPage";
-import AmaanatSignUpForm from "./Pages/amaanat-sign-up/AmaanatSignUpForm";
-import AmaanatAddItemsForm from "./Pages/amaanat-add-items/AmaanatAddItemsForm";
-import { useState } from "react";
-import Dashboard from "./Pages/dashboard/Dashboard";
+import { Routes, Route } from "react-router-dom";
+import LostItemForm from "./pages/LostItemForm";
+import AmaanatPage from "./pages/AmaanatPage";
+import FoundItemForm from "./pages/FoundItemForm";
+import AmaanatUserPage from "./pages/AmaanatUserPage";
+import AmaanatSignUpForm from "./pages/AmaanatSignUpForm";
+import AmaanatAddItemsForm from "./pages/AmaanatAddItemsForm";
+import Dashboard from "./pages/Dashboard";
+import Layout from "./components/Layout";
+import LostItems from "./components/LostItems";
+import FoundItems from "./components/FoundItems";
+import SettingsPage from "./pages/SettingsPage";
 
 function App() {
-  const [computerName, setComputerName] = useState('');
-
-  const handleSelectChange = (event: any) => {
-    setComputerName(event.target.value);
-  };
-
   return (
-    <div className="App">
-      <div className="settings">
-      <select value={computerName} onChange={handleSelectChange} className="laptop-name">
-        <option value="">Name The Computer</option>
-        <option value="Masroor">Masroor</option>
-        <option value="Tahir">Tahir</option>
-        <option value="Nasir">Nasir</option>
-        <option value="Basheer">Basheer</option>
-        <option value="Noor">Noor</option>
-      </select>
-      <Link to={"/dashboard"}>📊</Link>
-    </div>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<LostPropertyPage />} />
-        <Route path="/amaanat" element={<AmaanatPage computerName={computerName}/>} />
-        <Route path="/lost-item-form" element={<LostItemForm />} />
-        <Route path="/found-item-form" element={<FoundItemForm />} />
-        <Route path="/amaanat/:userId" element={<AmaanatUserPage />}/>
-        <Route path="/amaanat/sign-up" element={<AmaanatSignUpForm />}/>
-        <Route path="/amaanat/add-items/:userId" element={<AmaanatAddItemsForm computerName={computerName}/>}/>
-        <Route path="/dashboard" element={<Dashboard />}/>
-      </Routes>
-    </div>
+    <Layout>
+      <AllRoutes />
+    </Layout>
   );
 }
+
+const AllRoutes = () => {
+  const computerName = localStorage.getItem("computerName") || "";
+
+  return (
+    <Routes>
+      <Route path="/" element={<AmaanatPage />} />
+      <Route path="/lost-items-list" element={<LostItems />} />
+      <Route path="/found-items-list" element={<FoundItems />} />
+      <Route path="/lost-item-form" element={<LostItemForm />} />
+      <Route path="/found-item-form" element={<FoundItemForm />} />
+      <Route path="/amaanat/:userId" element={<AmaanatUserPage />} />
+      <Route path="/amaanat/sign-up" element={<AmaanatSignUpForm />} />
+      <Route
+        path="/amaanat/add-items/:userId"
+        element={<AmaanatAddItemsForm computerName={computerName} />}
+      />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/settings" element={<SettingsPage />} />
+    </Routes>
+  );
+};
 
 export default App;
