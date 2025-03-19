@@ -1,5 +1,5 @@
 {
-  "name": "Amaanat & Lost Property",
+  "name": "amaanat-lost-property",
   "version": "2.2.0",
   "main": "dist-electron/main/index.js",
   "description": "Electron Vite React boilerplate.",
