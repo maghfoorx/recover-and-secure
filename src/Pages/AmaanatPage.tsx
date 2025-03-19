@@ -62,13 +62,13 @@ export default function AmaanatPage(): JSX.Element {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
+              <TableHead>Id</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>AIMS No</TableHead>
+              <TableHead>AIMS number</TableHead>
               <TableHead>Jamaat</TableHead>
-              <TableHead>Phone No</TableHead>
-              <TableHead>Stored Items</TableHead>
-              <TableHead>Returned Items</TableHead>
+              <TableHead>Phone number</TableHead>
+              <TableHead>Stored items</TableHead>
+              <TableHead>Returned items</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -81,10 +81,10 @@ export default function AmaanatPage(): JSX.Element {
             ) : (
               filteredUsers.map((user) => {
                 const storedItems = amaanatItems.filter(
-                  (item) => item.user_id === user.id && item.returned === 0,
+                  (item) => item.user_id === user.id && item.is_returned === 0,
                 ).length;
                 const returnedItems = amaanatItems.filter(
-                  (item) => item.user_id === user.id && item.returned === 1,
+                  (item) => item.user_id === user.id && item.is_returned === 1,
                 ).length;
 
                 return (
@@ -95,9 +95,9 @@ export default function AmaanatPage(): JSX.Element {
                   >
                     <TableCell>{user.id}</TableCell>
                     <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.aims_no}</TableCell>
+                    <TableCell>{user.aims_number}</TableCell>
                     <TableCell>{user.jamaat}</TableCell>
-                    <TableCell>{user.phone_no}</TableCell>
+                    <TableCell>{user.phone_number}</TableCell>
                     <TableCell>{storedItems}</TableCell>
                     <TableCell>{returnedItems}</TableCell>
                   </TableRow>

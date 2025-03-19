@@ -17,7 +17,8 @@
     "build": "tsc && vite build && electron-builder",
     "preview": "vite preview",
     "pretest": "vite build --mode=test",
-    "test": "vitest run"
+    "test": "vitest run",
+    "migrate:list": "knex migrate:list"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

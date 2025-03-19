@@ -9,13 +9,13 @@ export function up(knex: Knex) {
       .references("id")
       .inTable("amaanat_users")
       .onDelete("CASCADE");
-    table.string("item_name").notNullable();
-    table.text("item_details");
-    table.string("stored_location");
+    table.string("name").notNullable();
+    table.text("details");
+    table.string("location");
     table.date("entry_date").defaultTo(knex.fn.now());
     table.string("returned_by").nullable();
-    table.boolean("returned").defaultTo(false);
-    table.date("returned_date").nullable();
+    table.boolean("is_returned").defaultTo(false);
+    table.date("returned_at").nullable();
   });
 }
 

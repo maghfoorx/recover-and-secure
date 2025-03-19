@@ -52,7 +52,7 @@ export default function AmaanatUserPage() {
   }, [userId]);
 
   const handlePrint = async () => {
-    const storedItems = amaanatItems.filter((item) => !item.returned);
+    const storedItems = amaanatItems.filter((item) => item.is_returned === 0);
     if (storedItems.length === 0) {
       toast.error("No items to print", {
         style: { backgroundColor: "red", color: "white" },
@@ -64,8 +64,8 @@ export default function AmaanatUserPage() {
       computerName.charAt(0).toUpperCase() + computerName.slice(1);
     const printData = {
       itemsNumber: storedItems.length,
-      aimsID: amaanatUser?.aims_no || "",
-      location: storedItems[0]?.stored_location || "",
+      aimsID: amaanatUser?.aims_number || "",
+      location: storedItems[0]?.location || "",
       computerName: capitalizedComputerName,
     };
 
@@ -106,10 +106,10 @@ function Header({ onPrint, userId, onItemAdded }: HeaderProps) {
         </Button>
         <div className="flex flex-row gap-2">
           <Button size="sm" onClick={onPrint} variant="secondary">
-            Print Receipt
+            Print receipt
           </Button>
           <Button size="sm" onClick={() => setOpenAddDialog(true)}>
-            Add New Items
+            Add new items
           </Button>
         </div>
       </div>
@@ -137,16 +137,16 @@ function UserInfoCard({ user }: UserInfoCardProps) {
         <table className="min-w-full table-auto">
           <thead>
             <tr>
-              <th className="border-b px-2 py-1 text-left">Aims Number</th>
+              <th className="border-b px-2 py-1 text-left">AIMS number</th>
               <th className="border-b px-2 py-1 text-left">Jamaat</th>
-              <th className="border-b px-2 py-1 text-left">Phone Number</th>
+              <th className="border-b px-2 py-1 text-left">Phone number</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td className="border-b px-2 py-1">{user.aims_no}</td>
+              <td className="border-b px-2 py-1">{user.aims_number}</td>
               <td className="border-b px-2 py-1">{user.jamaat || "N/A"}</td>
-              <td className="border-b px-2 py-1">{user.phone_no}</td>
+              <td className="border-b px-2 py-1">{user.phone_number}</td>
             </tr>
           </tbody>
         </table>
@@ -170,9 +170,9 @@ function AddItemDialog({
 }: AddItemDialogProps) {
   const addForm = useForm({
     defaultValues: {
-      item_name: "",
-      item_details: "",
-      stored_location: "",
+      name: "",
+      details: "",
+      location: "",
     },
   });
 
@@ -199,7 +199,7 @@ function AddItemDialog({
         aria-describedby="Add a new item to your Amaanat"
         overlayClassName="backdrop-blur-sm"
       >
-        <DialogTitle>Add Item</DialogTitle>
+        <DialogTitle>Add item</DialogTitle>
         <div className="mb-10 flex flex-col gap-4">
           <Form {...addForm}>
             <form
@@ -208,7 +208,7 @@ function AddItemDialog({
             >
               <FormField
                 control={addForm.control}
-                name="item_name"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
@@ -222,7 +222,7 @@ function AddItemDialog({
 
               <FormField
                 control={addForm.control}
-                name="item_details"
+                name="details"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Details</FormLabel>
@@ -236,7 +236,7 @@ function AddItemDialog({
 
               <FormField
                 control={addForm.control}
-                name="stored_location"
+                name="location"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Stored Location</FormLabel>
@@ -248,7 +248,7 @@ function AddItemDialog({
                 )}
               />
 
-              <Button type="submit">Add Item</Button>
+              <Button type="submit">Add item</Button>
             </form>
           </Form>
         </div>
@@ -270,16 +270,16 @@ function ItemsTabs({ items, refreshItems }: ItemsTabsProps) {
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
 
-  const storedItems = items.filter((item) => !item.returned);
-  const returnedItems = items.filter((item) => item.returned);
+  const storedItems = items.filter((item) => item.is_returned === 0);
+  const returnedItems = items.filter((item) => item.is_returned === 1);
 
   const selectedItemsDetails = storedItems.filter((item) =>
     selectedItems.includes(item.id),
   );
 
-  const handleReturnItemsSubmit = async (returnedBy: string) => {
+  const handleReturnItemsSubmit = async (returned_by: string) => {
     await Promise.all(
-      selectedItems.map((id) => returnAmaanatItem({ id, returnedBy })),
+      selectedItems.map((id) => returnAmaanatItem({ id, returned_by })),
     );
     refreshItems();
     toast.success("Items returned successfully", {
@@ -318,10 +318,10 @@ function ItemsTabs({ items, refreshItems }: ItemsTabsProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Select</TableHead>
-                <TableHead>Item Name</TableHead>
+                <TableHead>Item name</TableHead>
                 <TableHead>Details</TableHead>
                 <TableHead>Location</TableHead>
-                <TableHead>Date Stored</TableHead>
+                <TableHead>Date stored</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -352,13 +352,13 @@ function ItemsTabs({ items, refreshItems }: ItemsTabsProps) {
                       }
                     />
                   </TableCell>
-                  <TableCell>{item.item_name}</TableCell>
+                  <TableCell>{item.name}</TableCell>
                   <TableCell>
-                    {item.item_details.length > 30
-                      ? `${item.item_details.slice(0, 45)}...`
-                      : item.item_details}
+                    {(item?.details?.length ?? 0) > 30
+                      ? `${item?.details?.slice(0, 45)}...`
+                      : item.details}
                   </TableCell>
-                  <TableCell>{item.stored_location}</TableCell>
+                  <TableCell>{item.location}</TableCell>
                   <TableCell>{formatDate(item.entry_date)}</TableCell>
                 </TableRow>
               ))}
@@ -369,10 +369,10 @@ function ItemsTabs({ items, refreshItems }: ItemsTabsProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Item Name</TableHead>
+                <TableHead>Item name</TableHead>
                 <TableHead>Details</TableHead>
-                <TableHead>Returned By</TableHead>
-                <TableHead>Returned Date</TableHead>
+                <TableHead>Returned by</TableHead>
+                <TableHead>Returned date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -391,16 +391,16 @@ function ItemsTabs({ items, refreshItems }: ItemsTabsProps) {
                     setDetailDialogOpen(true);
                   }}
                 >
-                  <TableCell>{item.item_name}</TableCell>
+                  <TableCell>{item.name}</TableCell>
                   <TableCell>
-                    {item.item_details.length > 30
-                      ? `${item.item_details.slice(0, 45)}...`
-                      : item.item_details}
+                    {(item?.details?.length ?? 0) > 30
+                      ? `${item?.details?.slice(0, 45)}...`
+                      : item.details}
                   </TableCell>
                   <TableCell>{item.returned_by}</TableCell>
                   <TableCell>
-                    {item.returned_date != null
-                      ? formatDate(item.returned_date)
+                    {item.returned_at != null
+                      ? formatDate(item.returned_at)
                       : "N/A"}
                   </TableCell>
                 </TableRow>
@@ -437,13 +437,13 @@ function ItemDetailDialog({ item, open, onClose }: ItemDetailDialogProps) {
           <>
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-gray-900">
-                {item.item_name}
+                {item.name}
               </DialogTitle>
             </DialogHeader>
             <dl className="mt-4 space-y-3">
               <div className="flex justify-between">
                 <dt className="text-sm font-medium text-gray-500">Details</dt>
-                <dd className="text-sm text-gray-900">{item.item_details}</dd>
+                <dd className="text-sm text-gray-900">{item.details}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-sm font-medium text-gray-500">Stored</dt>
@@ -453,15 +453,13 @@ function ItemDetailDialog({ item, open, onClose }: ItemDetailDialogProps) {
               </div>
               <div className="flex justify-between">
                 <dt className="text-sm font-medium text-gray-500">Location</dt>
-                <dd className="text-sm text-gray-900">
-                  {item.stored_location}
-                </dd>
+                <dd className="text-sm text-gray-900">{item.location}</dd>
               </div>
-              {item.returned && (
+              {item.is_returned === 1 && (
                 <>
                   <div className="flex justify-between">
                     <dt className="text-sm font-medium text-gray-500">
-                      Returned By
+                      Returned by
                     </dt>
                     <dd className="text-sm text-gray-900">
                       {item.returned_by}
@@ -469,10 +467,10 @@ function ItemDetailDialog({ item, open, onClose }: ItemDetailDialogProps) {
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-sm font-medium text-gray-500">
-                      Return Date
+                      Return date
                     </dt>
                     <dd className="text-sm text-gray-900">
-                      {formatDate(item.returned_date!)}
+                      {formatDate(item.returned_at!)}
                     </dd>
                   </div>
                 </>
@@ -518,12 +516,12 @@ function ReturnItemsDialog({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Return Items</DialogTitle>
+          <DialogTitle>Return items</DialogTitle>
         </DialogHeader>
         <p>You are about to return:</p>
         <ul className="mb-4 list-disc pl-5">
           {selectedItemsDetails.map((item) => (
-            <li key={item.id}>{item.item_name}</li>
+            <li key={item.id}>{item.name}</li>
           ))}
         </ul>
         <Form {...returnForm}>
@@ -536,7 +534,7 @@ function ReturnItemsDialog({
               name="returned_by"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Returned By</FormLabel>
+                  <FormLabel>Returned by</FormLabel>
                   <FormControl>
                     <Input {...field} required />
                   </FormControl>
@@ -552,7 +550,7 @@ function ReturnItemsDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit">Return Items</Button>
+              <Button type="submit">Return items</Button>
             </div>
           </form>
         </Form>

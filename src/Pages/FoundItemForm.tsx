@@ -40,18 +40,18 @@ export default function FoundItemForm() {
 
   return (
     <div className="max-w-lg p-6">
-      <h1 className="text-3xl font-bold">Add a Found Item</h1>
+      <h1 className="text-3xl font-bold">Add a found item</h1>
       <form onSubmit={handleSubmit(handlePostingForm)} className="space-y-2">
         <div>
-          <Label htmlFor="item_name">Item Name*</Label>
+          <Label htmlFor="name">Item name*</Label>
           <Input
             className="my-0"
-            id="item_name"
-            {...register("item_name", { required: "Item name is required" })}
+            id="name"
+            {...register("name", { required: "Item name is required" })}
           />
         </div>
         <div>
-          <Label htmlFor="details">Item Details*</Label>
+          <Label htmlFor="details">Item details*</Label>
           <Input
             className="my-0"
             id="details"
@@ -59,11 +59,15 @@ export default function FoundItemForm() {
           />
         </div>
         <div>
-          <Label htmlFor="found_area">Found Area</Label>
-          <Input className="my-0" id="found_area" {...register("found_area")} />
+          <Label htmlFor="location_found">Found area</Label>
+          <Input
+            className="my-0"
+            id="location_found"
+            {...register("location_found")}
+          />
         </div>
         <div className="flex items-center space-x-2">
-          <Label htmlFor="includes_cash">Item includes Cash</Label>
+          <Label htmlFor="includes_cash">Item includes cash</Label>
           <Switch
             id="includes_cash"
             checked={isCash}
@@ -72,9 +76,9 @@ export default function FoundItemForm() {
         </div>
         {isCash && (
           <div className="border rounded-md space-y-2">
-            <h2 className="text-lg font-semibold">Cash Details</h2>
+            <h2 className="text-lg font-semibold">Cash details</h2>
             <div>
-              <Label htmlFor="finder_name">Found By</Label>
+              <Label htmlFor="finder_name">Found by</Label>
               <Input
                 className="my-0"
                 id="finder_name"
@@ -82,15 +86,15 @@ export default function FoundItemForm() {
               />
             </div>
             <div>
-              <Label htmlFor="aims_number">Finder's AIMS</Label>
+              <Label htmlFor="finder_aims_number">Finder's aims number</Label>
               <Input
                 className="my-0"
-                id="aims_number"
-                {...register("aims_number")}
+                id="finder_aims_number"
+                {...register("finder_aims_number")}
               />
             </div>
             <div>
-              <Label htmlFor="received_by">Receiver Name</Label>
+              <Label htmlFor="received_by">Receiver name</Label>
               <Input
                 className="my-0"
                 id="received_by"

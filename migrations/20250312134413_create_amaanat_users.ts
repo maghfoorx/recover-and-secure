@@ -4,9 +4,9 @@ export function up(knex: Knex) {
   return knex.schema.createTable("amaanat_users", (table) => {
     table.increments("id").primary();
     table.string("name").notNullable();
-    table.string("aims_no");
+    table.string("aims_number");
     table.string("jamaat");
-    table.string("phone_no");
+    table.string("phone_number");
   });
 }
 

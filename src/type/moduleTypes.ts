@@ -1,25 +1,21 @@
 export type AmaanatUserType = {
   id: number;
-  aims_no: string;
-  jamaat: string;
   name: string;
-  phone_no: string;
-  itemsData: {
-    storedNumber: number;
-    returnedNumber: number;
-  };
+  aims_number: string | null;
+  jamaat: string | null;
+  phone_number: string | null;
 };
 
 export type AmaanatUserItemType = {
   id: number;
   user_id: number;
-  item_name: string;
-  item_details: string;
-  stored_location: string;
+  name: string;
+  details: string | null;
+  location: string | null;
   entry_date: string;
-  returned: 0 | 1;
   returned_by: string | null;
-  returned_date: string | null;
+  is_returned: 0 | 1;
+  returned_at: string | null;
 };
 
 export type AmaanatSelectedRowsDataType = {
@@ -30,26 +26,32 @@ export type AmaanatSelectedRowsDataType = {
 
 export interface LostItemType {
   id: number;
-  item_name: string;
-  details: string;
-  lost_area: string;
-  person_name: string;
-  phone_number: string;
-  aims_id: number;
-  item_found: "Yes" | "No";
+  date_reported: string;
+  name: string;
+  details: string | null;
+  location_lost: string | null;
+  reporter_name: string | null;
+  aims_number: string | null;
+  phone_number: string | null;
+  is_found: 0 | 1;
 }
 
 export interface FoundItemType {
   id: number;
-  item_name: string;
-  details: string;
   found_date: string;
-  found_area: string;
-  returned_date: string | null;
-  person_name: string | null;
-  aims_number: string | null;
-  returned: 0 | 1;
-  returned_by: string | null;
+  name: string;
+  details: string | null;
+  location_found: string | null;
+
   finder_name: string | null;
+  finder_aims_number: string | null;
+
+  returned_to_aims_number: string | null;
+  returned_to_name: string | null;
+
   received_by: string | null;
+  is_returned: 0 | 1;
+  returned_at: string | null;
+  returned_by: string | null;
+  lost_item_id: number | null;
 }

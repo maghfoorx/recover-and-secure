@@ -12,32 +12,48 @@ export default function AmaanatSignUpForm() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      name: "",
+      aims_number: "",
+      jamaat: "",
+      phone_number: "",
+    },
+  });
 
   const navigate = useNavigate();
 
   async function handleSignUpUser(data: any) {
     try {
       const newUser = await addAmaanatUser(data);
-      console.log(newUser, "is the newUser");
-      toast.success("Successfully created user!");
+      toast.success("Successfully created user!", {
+        style: {
+          background: "green",
+          color: "white",
+        },
+      });
       reset();
       if (newUser?.id != null) {
         navigate(`/amaanat/${newUser.id}`);
       }
     } catch (error) {
-      toast.error("Failed to create user. Please try again.");
+      toast.error("Failed to create user. Please try again.", {
+        style: {
+          background: "red",
+          color: "white",
+        },
+      });
       console.error(error);
     }
   }
 
   return (
     <div className="max-w-lg p-6">
-      <h1 className="text-3xl font-bold">Sign Up Amaanat User</h1>
+      <h1 className="text-3xl font-bold">Sign up amaanat user</h1>
       <div>
         <form onSubmit={handleSubmit(handleSignUpUser)} className="space-y-2">
           <div>
-            <Label htmlFor="name">Person Name*</Label>
+            <Label htmlFor="name">Person name*</Label>
             <Input
               className="my-0"
               id="name"
@@ -45,11 +61,13 @@ export default function AmaanatSignUpForm() {
             />
           </div>
           <div>
-            <Label htmlFor="aims_no">AIMS Number*</Label>
+            <Label htmlFor="aims_number">AIMS number*</Label>
             <Input
               className="my-0"
-              id="aims_no"
-              {...register("aims_no", { required: "AIMS Number is required" })}
+              id="aims_number"
+              {...register("aims_number", {
+                required: "AIMS Number is required",
+              })}
             />
           </div>
           <div>
@@ -57,8 +75,12 @@ export default function AmaanatSignUpForm() {
             <Input className="my-0" id="jamaat" {...register("jamaat")} />
           </div>
           <div>
-            <Label htmlFor="phone_no">Phone Number</Label>
-            <Input className="my-0" id="phone_no" {...register("phone_no")} />
+            <Label htmlFor="phone_number">Phone number</Label>
+            <Input
+              className="my-0"
+              id="phone_number"
+              {...register("phone_number")}
+            />
           </div>
           <div>
             <Button type="submit" className="w-full">

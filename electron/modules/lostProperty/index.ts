@@ -1,4 +1,5 @@
 import db from "../../database";
+import { PostLostItemType, ReturnFormType } from "../types";
 
 // Getting all lost items reported
 export async function getLostItemsReported() {
@@ -7,7 +8,6 @@ export async function getLostItemsReported() {
 
     return rows.map((item) => ({
       ...item,
-      item_found: item.item_found ? "Yes" : "No",
     }));
   } catch (error) {
     console.error(error);
@@ -26,7 +26,7 @@ export async function getFoundItemsReported() {
 }
 
 // Inserting a lost item
-export async function postLostItem(data: any) {
+export async function postLostItem(data: PostLostItemType) {
   try {
     return await db("lost_items").insert(data);
   } catch (error) {
@@ -68,7 +68,7 @@ export async function deleteFoundItem(id: number) {
 // Updating lost item as found
 export async function updateFoundColumn(id: number) {
   try {
-    return await db("lost_items").where({ id }).update({ item_found: true });
+    return await db("lost_items").where({ id }).update({ is_found: true });
   } catch (error) {
     console.error(error);
     throw error;
@@ -78,7 +78,7 @@ export async function updateFoundColumn(id: number) {
 // Marking a lost item as not found
 export async function unFoundLostItem(id: number) {
   try {
-    return await db("lost_items").where({ id }).update({ item_found: false });
+    return await db("lost_items").where({ id }).update({ is_found: false });
   } catch (error) {
     console.error(error);
     throw error;
@@ -87,17 +87,18 @@ export async function unFoundLostItem(id: number) {
 
 // Returning a found item
 export async function returnFoundItem({
-  itemID,
   returned_by,
-}: {
-  itemID: number;
-  returned_by: string;
-}) {
+  returned_to_name,
+  returned_to_aims_number,
+  id,
+}: ReturnFormType) {
   try {
-    return await db("found_items").where({ id: itemID }).update({
-      returned: true,
-      returned_date: db.fn.now(),
+    return await db("found_items").where({ id }).update({
+      is_returned: true,
+      returned_at: db.fn.now(),
       returned_by,
+      returned_to_name,
+      returned_to_aims_number,
     });
   } catch (error) {
     console.error(error);

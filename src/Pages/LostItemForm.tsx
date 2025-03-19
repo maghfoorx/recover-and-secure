@@ -13,67 +13,81 @@ export default function LostItemForm() {
     reset,
   } = useForm({
     defaultValues: {
-      person_name: "",
-      item_name: "",
+      reporter_name: "",
+      name: "",
       details: "",
-      lost_area: "",
-      aims_id: "",
+      location_lost: "",
+      aims_number: "",
       phone_number: "",
     },
   });
 
   async function handlePostingForm(data: any) {
     try {
-      await postLostItem(data);
+      await postLostItem({ ...data, is_found: false });
       reset();
-      toast.success("Successfully added a lost item!");
+      toast.success("Successfully added a lost item!", {
+        style: {
+          background: "green",
+          color: "white",
+        },
+      });
     } catch (error) {
-      toast.error("Failed to add lost item! Please try again.");
+      toast.error("Failed to add lost item! Please try again.", {
+        style: {
+          background: "red",
+          color: "white",
+        },
+      });
       console.error(error);
     }
   }
 
   return (
     <div className="max-w-lg p-6">
-      <h1 className="text-3xl font-bold">Add a Lost Item</h1>
+      <h1 className="text-3xl font-bold">Add a lost item</h1>
       <form onSubmit={handleSubmit(handlePostingForm)} className="space-y-2">
         <div>
-          <Label htmlFor="person_name">Person Name*</Label>
+          <Label htmlFor="reporter_name">Person name*</Label>
           <Input
             className="my-0"
-            id="person_name"
-            {...register("person_name", {
+            id="reporter_name"
+            {...register("reporter_name", {
               required: "Person name is required",
             })}
           />
         </div>
         <div>
-          <Label htmlFor="item_name">Item Name*</Label>
+          <Label htmlFor="name">Item name*</Label>
           <Input
             className="my-0"
-            id="item_name"
-            {...register("item_name", { required: "Item name is required" })}
+            id="name"
+            {...register("name", { required: "Item name is required" })}
           />
         </div>
         <div>
-          <Label htmlFor="details">Item Details</Label>
+          <Label htmlFor="details">Item details</Label>
           <Input className="my-0" id="details" {...register("details")} />
         </div>
         <div>
-          <Label htmlFor="lost_area">Lost Area</Label>
-          <Input className="my-0" id="lost_area" {...register("lost_area")} />
-        </div>
-        <div>
-          <Label htmlFor="aims_id">AIMS ID</Label>
+          <Label htmlFor="location_lost">Lost area</Label>
           <Input
             className="my-0"
-            id="aims_id"
-            type="number"
-            {...register("aims_id")}
+            id="location_lost"
+            {...register("location_lost")}
           />
         </div>
         <div>
-          <Label htmlFor="phone_number">Phone Number</Label>
+          <Label htmlFor="aims_number">AIMS number</Label>
+          <Input
+            className="my-0"
+            id="aims_number"
+            type="number"
+            {...register("aims_number")}
+          />
+        </div>
+        <div>
+          <Label htmlFor="phone_number">Phone number</Label>
           <Input
             className="my-0"
             id="phone_number"

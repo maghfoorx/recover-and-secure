@@ -18,12 +18,7 @@ export function getAmaanatUser(id: number) {
 // Register a new amaanat user
 export function addAmaanatUser(data: any) {
   return db("amaanat_users")
-    .insert({
-      name: data.name,
-      aims_no: data.aims_no,
-      phone_no: data.phone_no,
-      jamaat: data.jamaat,
-    })
+    .insert(data)
     .returning("*")
     .then((result: any[]) => result[0]);
 }
@@ -38,9 +33,9 @@ export function addAmaanatItem(data: any) {
   return db("amaanat_items")
     .insert({
       user_id: data.user_id,
-      item_name: data.item_name,
-      item_details: data.item_details,
-      stored_location: data.stored_location,
+      name: data.name,
+      details: data.details,
+      location: data.location,
       entry_date: db.fn.now(),
     })
     .returning("*")
@@ -54,9 +49,9 @@ export function returnAmaanatItem(data: ReturnAmaanatType) {
   return db("amaanat_items")
     .where({ id: data.id })
     .update({
-      returned: true,
-      returned_by: data.returnedBy,
-      returned_date: db.fn.now(),
+      is_returned: true,
+      returned_by: data.returned_by,
+      returned_at: db.fn.now(),
     })
     .returning("*");
 }

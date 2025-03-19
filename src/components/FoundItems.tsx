@@ -16,11 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { FoundItemType } from "@/type/moduleTypes";
 import useFetchLostPropertyData from "@/hooks/useFetchLostPropertyData";
 import { formatDate } from "@/utils/formatDate";
@@ -41,6 +36,7 @@ import {
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
 import { Badge } from "./ui/badge";
+import { toast } from "sonner";
 
 export default function FoundItems(): JSX.Element {
   const { foundItems, handleGetFoundItems } = useFetchLostPropertyData();
@@ -48,13 +44,11 @@ export default function FoundItems(): JSX.Element {
   const [searchBarValue, setSearchBarValue] = useState("");
   // Filter found items by either name or details.
   const includesItemName = foundItems.filter((item) =>
-    item.item_name
-      .toLocaleLowerCase()
-      .includes(searchBarValue.toLocaleLowerCase()),
+    item.name.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()),
   );
   const includesItemDetails = foundItems.filter((item) =>
-    item.details
-      .toLocaleLowerCase()
+    item?.details
+      ?.toLocaleLowerCase()
       .includes(searchBarValue.toLocaleLowerCase()),
   );
   const filteredItemsSet = new Set([
@@ -105,14 +99,26 @@ export default function FoundItems(): JSX.Element {
       await handleGetFoundItems();
       handleCloseDialog();
       reset();
+      toast.success("Item returned successfully", {
+        style: {
+          backgroundColor: "green",
+          color: "white",
+        },
+      });
     } catch (error) {
+      toast.error("Failed to return item", {
+        style: {
+          backgroundColor: "red",
+          color: "white",
+        },
+      });
       console.error(error);
     }
   }
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Found Items</h1>
+      <h1 className="text-3xl font-bold">Found items</h1>
 
       {/* Totals displayed right after the title */}
       <div className="flex gap-4">
@@ -121,7 +127,7 @@ export default function FoundItems(): JSX.Element {
         </Badge>
         <Badge className="rounded-sm bg-teal-600 text-white font-normal px-2 py-1">
           Items returned:{" "}
-          {foundItems.filter((item) => item.returned_date).length}
+          {foundItems.filter((item) => !!item.returned_at).length}
         </Badge>
       </div>
 
@@ -137,7 +143,7 @@ export default function FoundItems(): JSX.Element {
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Detail</TableHead>
-            <TableHead>Date Found</TableHead>
+            <TableHead>Date found</TableHead>
             <TableHead>Returned</TableHead>
           </TableRow>
         </TableHeader>
@@ -155,10 +161,10 @@ export default function FoundItems(): JSX.Element {
                 onClick={() => handleRowClick(item)}
                 className="cursor-pointer hover:bg-gray-100"
               >
-                <TableCell>{item.item_name}</TableCell>
-                <TableCell>{item.details}</TableCell>
+                <TableCell>{item.name}</TableCell>
+                <TableCell>{item?.details}</TableCell>
                 <TableCell>{formatDate(item.found_date)}</TableCell>
-                <TableCell>{formatBoolean(item.returned)}</TableCell>
+                <TableCell>{formatBoolean(item.is_returned)}</TableCell>
               </TableRow>
             ))
           )}
@@ -172,7 +178,7 @@ export default function FoundItems(): JSX.Element {
             <>
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold text-gray-900">
-                  {modalData.id}: {modalData.item_name}
+                  {modalData.id}: {modalData.name}
                 </DialogTitle>
               </DialogHeader>
               <dl className="mt-4 space-y-3">
@@ -182,7 +188,7 @@ export default function FoundItems(): JSX.Element {
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">
-                    Date Found
+                    Date found
                   </dt>
                   <dd className="text-sm text-gray-900">
                     {formatDate(modalData.found_date)}
@@ -190,36 +196,36 @@ export default function FoundItems(): JSX.Element {
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">
-                    Found Area
+                    Found area
                   </dt>
                   <dd className="text-sm text-gray-900">
-                    {modalData.found_area}
+                    {modalData.location_found}
                   </dd>
                 </div>
                 {modalData.finder_name && (
                   <div className="flex justify-between">
                     <dt className="text-sm font-medium text-gray-500">
-                      Found By
+                      Found by
                     </dt>
                     <dd className="text-sm text-gray-900">
                       {modalData.finder_name}
                     </dd>
                   </div>
                 )}
-                {modalData.aims_number && (
+                {modalData.finder_aims_number && (
                   <div className="flex justify-between">
                     <dt className="text-sm font-medium text-gray-500">
-                      Founder's AIMS
+                      Finder's AIMS
                     </dt>
                     <dd className="text-sm text-gray-900">
-                      {modalData.aims_number}
+                      {modalData.finder_aims_number}
                     </dd>
                   </div>
                 )}
                 {modalData.received_by && (
                   <div className="flex justify-between">
                     <dt className="text-sm font-medium text-gray-500">
-                      Received By
+                      Received by
                     </dt>
                     <dd className="text-sm text-gray-900">
                       {modalData.received_by}
@@ -228,47 +234,47 @@ export default function FoundItems(): JSX.Element {
                 )}
               </dl>
               <hr className="my-0" />
-              {(modalData.person_name ||
+              {(modalData.returned_to_name ||
                 modalData.returned_by ||
-                modalData.returned_date) && (
+                modalData.returned_at) && (
                 <dl className="mt-4 space-y-1">
-                  {modalData.person_name && (
+                  {modalData.returned_to_name && (
                     <div className="flex justify-between">
                       <dt className="text-sm font-medium text-gray-500">
-                        Returned To
+                        Returned to
                       </dt>
                       <dd className="text-sm text-gray-900">
-                        {modalData.person_name}
+                        {modalData.returned_to_name}
                       </dd>
                     </div>
                   )}
-                  {modalData.aims_number && (
+                  {modalData.returned_to_aims_number && (
                     <div className="flex justify-between">
                       <dt className="text-sm font-medium text-gray-500">
-                        Returned Person AIMS Number
+                        Returned person AIMS number
                       </dt>
                       <dd className="text-sm text-gray-900">
-                        {modalData.aims_number}
+                        {modalData.returned_to_aims_number}
                       </dd>
                     </div>
                   )}
                   {modalData.returned_by && (
                     <div className="flex justify-between">
                       <dt className="text-sm font-medium text-gray-500">
-                        Returned By
+                        Returned by
                       </dt>
                       <dd className="text-sm text-gray-900">
                         {modalData.returned_by}
                       </dd>
                     </div>
                   )}
-                  {modalData.returned_date && (
+                  {modalData.returned_at && (
                     <div className="flex justify-between">
                       <dt className="text-sm font-medium text-gray-500">
-                        Returned Date
+                        Returned date
                       </dt>
                       <dd className="text-sm text-gray-900">
-                        {formatDate(modalData.returned_date)}
+                        {formatDate(modalData.returned_at)}
                       </dd>
                     </div>
                   )}
@@ -309,7 +315,7 @@ export default function FoundItems(): JSX.Element {
                   variant="secondary"
                   size={"sm"}
                   onClick={() => setOpenReturnForm(true)}
-                  disabled={modalData.returned === 1}
+                  disabled={modalData.is_returned === 1}
                 >
                   Return
                 </Button>
@@ -318,31 +324,33 @@ export default function FoundItems(): JSX.Element {
               {openReturnForm && (
                 <form
                   onSubmit={handleSubmit((data) =>
-                    handleReturnFoundItem({ ...data, itemID: modalData.id }),
+                    handleReturnFoundItem({ ...data, id: modalData.id }),
                   )}
                   className="space-y-2"
                 >
                   <div>
                     <label className="block text-sm font-medium">
-                      Person Name
+                      Person name
                     </label>
                     <Input
                       className="my-0"
-                      {...register("person_name", { required: true })}
+                      {...register("returned_to_name", { required: true })}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium">
-                      AIMS Number
+                      AIMS number
                     </label>
                     <Input
                       className="my-0"
-                      {...register("aims_number", { required: true })}
+                      {...register("returned_to_aims_number", {
+                        required: true,
+                      })}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium">
-                      Returned By
+                      Returned by
                     </label>
                     <Input
                       className="my-0"
@@ -351,7 +359,7 @@ export default function FoundItems(): JSX.Element {
                   </div>
                   <div className="flex justify-end">
                     <Button size={"sm"} type="submit">
-                      Submit Return
+                      Submit return
                     </Button>
                   </div>
                 </form>

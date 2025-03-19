@@ -34,6 +34,8 @@ import {
   unFoundLostItem,
 } from "@/apiApi/modules/lostProperty";
 import { Badge } from "./ui/badge";
+import { formatBoolean } from "@/utils/formatBoolean";
+import { toast } from "sonner";
 
 export default function LostItems(): JSX.Element {
   const { lostItems, handleGetLostItems } = useFetchLostPropertyData();
@@ -50,16 +52,16 @@ export default function LostItems(): JSX.Element {
 
   // Filter items based on AIMS ID, Item Name or Details
   const includesAimsID = lostItems.filter((item) =>
-    item.aims_id
-      .toString()
+    item?.aims_number
+      ?.toString()
       .toLowerCase()
       .includes(searchBarValue.toLowerCase()),
   );
   const includesItemName = lostItems.filter((item) =>
-    item.item_name.toLowerCase().includes(searchBarValue.toLowerCase()),
+    item.name.toLowerCase().includes(searchBarValue.toLowerCase()),
   );
   const includesItemDetails = lostItems.filter((item) =>
-    item.details.toLowerCase().includes(searchBarValue.toLowerCase()),
+    item?.details?.toLowerCase().includes(searchBarValue.toLowerCase()),
   );
   const filteredItemsSet = new Set([
     ...includesAimsID,
@@ -80,10 +82,22 @@ export default function LostItems(): JSX.Element {
   }
 
   async function handleToggleFoundItem(id: number) {
-    if (modalData?.item_found === "No") {
+    if (modalData?.is_found === 0) {
       await foundLostItem(id);
-    } else if (modalData?.item_found === "Yes") {
+      toast.success("Item marked as found", {
+        style: {
+          background: "green",
+          color: "white",
+        },
+      });
+    } else if (modalData?.is_found === 1) {
       await unFoundLostItem(id);
+      toast.success("Item marked as lost", {
+        style: {
+          background: "green",
+          color: "white",
+        },
+      });
     }
     await handleGetLostItems();
     setOpenDialog(false);
@@ -91,7 +105,7 @@ export default function LostItems(): JSX.Element {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Lost Items</h1>
+      <h1 className="text-3xl font-bold">Lost items</h1>
       {/* Totals displayed right after the title */}
       <div className="flex gap-4">
         <Badge className="rounded-sm bg-sky-600 text-white font-normal px-2 py-1">
@@ -99,7 +113,7 @@ export default function LostItems(): JSX.Element {
         </Badge>
         <Badge className="rounded-sm bg-sky-600 text-white font-normal px-2 py-1">
           Lost items found:{" "}
-          {lostItems.filter((item) => item.item_found === "Yes").length}
+          {lostItems.filter((item) => item.is_found === 1).length}
         </Badge>
       </div>
 
@@ -132,10 +146,10 @@ export default function LostItems(): JSX.Element {
                 onClick={() => handleRowClick(item)}
                 className="cursor-pointer hover:bg-gray-100"
               >
-                <TableCell>{item.aims_id}</TableCell>
-                <TableCell>{item.item_name}</TableCell>
+                <TableCell>{item.aims_number}</TableCell>
+                <TableCell>{item.name}</TableCell>
                 <TableCell>{item.details}</TableCell>
-                <TableCell>{item.item_found}</TableCell>
+                <TableCell>{formatBoolean(item.is_found)}</TableCell>
               </TableRow>
             ))
           )}
@@ -149,7 +163,7 @@ export default function LostItems(): JSX.Element {
             <>
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold">
-                  {modalData.id}: {modalData.item_name}
+                  {modalData.id}: {modalData.name}
                 </DialogTitle>
               </DialogHeader>
               <dl className="mt-4 space-y-3">
@@ -162,7 +176,7 @@ export default function LostItems(): JSX.Element {
                     Person Name
                   </dt>
                   <dd className="text-sm text-gray-900">
-                    {modalData.person_name}
+                    {modalData.reporter_name}
                   </dd>
                 </div>
                 <div className="flex justify-between">
@@ -175,20 +189,22 @@ export default function LostItems(): JSX.Element {
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">AIMS ID</dt>
-                  <dd className="text-sm text-gray-900">{modalData.aims_id}</dd>
+                  <dd className="text-sm text-gray-900">
+                    {modalData.aims_number}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">
                     Lost Area
                   </dt>
                   <dd className="text-sm text-gray-900">
-                    {modalData.lost_area}
+                    {modalData.location_lost}
                   </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">Found</dt>
                   <dd className="text-sm text-gray-900">
-                    {modalData.item_found}
+                    {formatBoolean(modalData.is_found)}
                   </dd>
                 </div>
               </dl>
@@ -224,15 +240,15 @@ export default function LostItems(): JSX.Element {
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button size="sm" variant="secondary">
-                      {modalData.item_found === "Yes" ? "UnFound" : "Found"}
+                      {modalData.is_found === 1 ? "UnFound" : "Found"}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>
                         Are you sure you want to{" "}
-                        {modalData.item_found === "Yes" ? "un-find" : "find"}{" "}
-                        this item?
+                        {modalData.is_found === 1 ? "un-find" : "find"} this
+                        item?
                       </AlertDialogTitle>
                       <AlertDialogDescription>
                         This will toggle the found status of the lost item.

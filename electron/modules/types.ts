@@ -1,10 +1,11 @@
 export type PostLostItemType = {
-  PersonName: string;
-  ItemName: string;
-  Details: string;
-  LostArea: string;
-  PhoneNumber: string;
-  AimsID: string;
+  reporter_name: string;
+  name: string;
+  details: string;
+  location_lost: string;
+  aims_number: string;
+  phone_number: string;
+  is_found: boolean;
 };
 
 export type PostFoundItem = {
@@ -17,10 +18,10 @@ export type PostFoundItem = {
 };
 
 export type ReturnFormType = {
-  PersonName: string;
-  AimsNumber: string;
-  ReturnedBy: string;
-  itemID: number;
+  id: number;
+  returned_by: string;
+  returned_to_name: string;
+  returned_to_aims_number: string;
 };
 
 export type AmaanatUserType = {
@@ -39,7 +40,7 @@ export type AddAmaanatItemType = {
 
 export type ReturnAmaanatType = {
   id: number;
-  returnedBy: string;
+  returned_by: string;
 };
 
 export type PrintReceiptDataType = {

@@ -3,14 +3,14 @@ import type { Knex } from "knex";
 export function up(knex: Knex) {
   return knex.schema.createTable("lost_items", (table) => {
     table.increments("id").primary();
-    table.date("date").defaultTo(knex.fn.now());
-    table.string("item_name").notNullable();
+    table.date("date_reported").defaultTo(knex.fn.now());
+    table.string("name").notNullable();
     table.text("details");
-    table.string("lost_area");
-    table.string("person_name");
-    table.string("aims_id");
+    table.string("location_lost");
+    table.string("reporter_name");
+    table.string("aims_number");
     table.string("phone_number");
-    table.boolean("item_found").defaultTo(false);
+    table.boolean("is_found").defaultTo(false);
   });
 }
 

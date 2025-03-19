@@ -26,14 +26,14 @@ import { cn } from "@/lib/utils";
 
 const amaanatRoutes = [
   { title: "Amaanat", path: "/", icon: Box },
-  { title: "Sign up Amaanat", path: "/amaanat/sign-up", icon: Users },
+  { title: "Sign up amaanat", path: "/amaanat/sign-up", icon: Users },
 ];
 
 const lostFoundRoutes = [
-  { title: "Lost Items", path: "/lost-items-list", icon: ClipboardList },
-  { title: "Found Items", path: "/found-items-list", icon: PackageCheck },
-  { title: "Lost Item Form", path: "/lost-item-form", icon: FilePlus },
-  { title: "Found Item Form", path: "/found-item-form", icon: Calendar },
+  { title: "Lost items", path: "/lost-items-list", icon: ClipboardList },
+  { title: "Found items", path: "/found-items-list", icon: PackageCheck },
+  { title: "Lost item form", path: "/lost-item-form", icon: FilePlus },
+  { title: "Found item form", path: "/found-item-form", icon: Calendar },
 ];
 
 const generalRoutes = [
@@ -50,7 +50,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-gray-400">
-            Computer Name
+            Computer name
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
