@@ -35,15 +35,15 @@ export default function Dashboard(): JSX.Element {
     <div className="p-6 space-y-6">
       <h1 className="text-3xl font-bold">Dashboard</h1>
 
-      {/* Lost Items Section */}
+      {/* Lost items section */}
       <section>
-        <h2 className="text-xl">Lost Items</h2>
+        <h2 className="text-xl">Lost items</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardHeader className="flex items-center space-x-2">
               <ClipboardList className="w-5 h-5 text-gray-500" />
               <CardTitle className="text-sm text-gray-500">
-                Reported Lost Items
+                Reported lost items
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -57,7 +57,7 @@ export default function Dashboard(): JSX.Element {
             <CardHeader className="flex items-center space-x-2">
               <PackageCheck className="w-5 h-5 text-gray-500" />
               <CardTitle className="text-sm text-gray-500">
-                Lost Items Found
+                Lost items found
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -69,15 +69,15 @@ export default function Dashboard(): JSX.Element {
         </div>
       </section>
 
-      {/* Found Items Section */}
+      {/* Found items section */}
       <section>
-        <h2 className="text-xl">Found Items</h2>
+        <h2 className="text-xl">Found items</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardHeader className="flex items-center space-x-2">
               <Inbox className="w-5 h-5 text-gray-500" />
               <CardTitle className="text-sm text-gray-500">
-                Found Items
+                Found items
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -91,7 +91,7 @@ export default function Dashboard(): JSX.Element {
             <CardHeader className="flex items-center space-x-2">
               <Calendar className="w-5 h-5 text-gray-500" />
               <CardTitle className="text-sm text-gray-500">
-                Found Items Returned
+                Found items returned
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -103,7 +103,7 @@ export default function Dashboard(): JSX.Element {
         </div>
       </section>
 
-      {/* Amanat Section */}
+      {/* Amaanat section */}
       <section>
         <h2 className="text-xl">Amaanat</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
@@ -111,7 +111,7 @@ export default function Dashboard(): JSX.Element {
             <CardHeader className="flex items-center space-x-2">
               <Users className="w-5 h-5 text-gray-500" />
               <CardTitle className="text-sm text-gray-500">
-                Amanat Users Served
+                Amanat users served
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -125,7 +125,7 @@ export default function Dashboard(): JSX.Element {
             <CardHeader className="flex items-center space-x-2">
               <FilePlus className="w-5 h-5 text-gray-500" />
               <CardTitle className="text-sm text-gray-500">
-                Total Amanat Items Handled
+                Total amanat items handled
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -139,7 +139,7 @@ export default function Dashboard(): JSX.Element {
             <CardHeader className="flex items-center space-x-2">
               <Box className="w-5 h-5 text-gray-500" />
               <CardTitle className="text-sm text-gray-500">
-                Amanat Items Currently Stored
+                Amanat items currently stored
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -153,7 +153,7 @@ export default function Dashboard(): JSX.Element {
             <CardHeader className="flex items-center space-x-2">
               <Users className="w-5 h-5 text-gray-500" />
               <CardTitle className="text-sm text-gray-500">
-                Amanat Users with Items Stored
+                Amanat users with items stored
               </CardTitle>
             </CardHeader>
             <CardContent>
