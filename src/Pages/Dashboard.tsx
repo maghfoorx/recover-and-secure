@@ -38,7 +38,7 @@ export default function Dashboard(): JSX.Element {
       {/* Lost items section */}
       <section>
         <h2 className="text-xl">Lost items</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <Card>
             <CardHeader className="flex items-center space-x-2">
               <ClipboardList className="w-5 h-5 text-gray-500" />
@@ -72,7 +72,7 @@ export default function Dashboard(): JSX.Element {
       {/* Found items section */}
       <section>
         <h2 className="text-xl">Found items</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <Card>
             <CardHeader className="flex items-center space-x-2">
               <Inbox className="w-5 h-5 text-gray-500" />
@@ -106,7 +106,7 @@ export default function Dashboard(): JSX.Element {
       {/* Amaanat section */}
       <section>
         <h2 className="text-xl">Amaanat</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2">
           <Card>
             <CardHeader className="flex items-center space-x-2">
               <Users className="w-5 h-5 text-gray-500" />

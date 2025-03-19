@@ -155,7 +155,7 @@ export default function LostItems(): JSX.Element {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>AIMS ID</TableHead>
+            <TableHead>AIMS id</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Details</TableHead>
             <TableHead>Found</TableHead>
@@ -202,7 +202,7 @@ export default function LostItems(): JSX.Element {
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">
-                    Person Name
+                    Person name
                   </dt>
                   <dd className="text-sm text-gray-900">
                     {modalData.reporter_name}
@@ -210,21 +210,21 @@ export default function LostItems(): JSX.Element {
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">
-                    Contact No
+                    Contact number
                   </dt>
                   <dd className="text-sm text-gray-900">
                     {modalData.phone_number}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-sm font-medium text-gray-500">AIMS ID</dt>
+                  <dt className="text-sm font-medium text-gray-500">AIMS id</dt>
                   <dd className="text-sm text-gray-900">
                     {modalData.aims_number}
                   </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">
-                    Lost Area
+                    Lost area
                   </dt>
                   <dd className="text-sm text-gray-900">
                     {modalData.location_lost}

@@ -200,7 +200,7 @@ function AddItemDialog({
         overlayClassName="backdrop-blur-sm"
       >
         <DialogTitle>Add item</DialogTitle>
-        <div className="mb-10 flex flex-col gap-4">
+        <div className="mb-10 flex flex-col gap-2">
           <Form {...addForm}>
             <form
               onSubmit={addForm.handleSubmit(handleAddItem)}
@@ -213,7 +213,12 @@ function AddItemDialog({
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} required />
+                      <Input
+                        className="my-0"
+                        {...field}
+                        required
+                        placeholder="phone"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -227,7 +232,12 @@ function AddItemDialog({
                   <FormItem>
                     <FormLabel>Details</FormLabel>
                     <FormControl>
-                      <Input {...field} required />
+                      <Input
+                        className="my-0"
+                        {...field}
+                        required
+                        placeholder="black iphone 6"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -241,14 +251,21 @@ function AddItemDialog({
                   <FormItem>
                     <FormLabel>Stored Location</FormLabel>
                     <FormControl>
-                      <Input {...field} required />
+                      <Input
+                        className="my-0"
+                        {...field}
+                        required
+                        placeholder="A1"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <Button type="submit">Add item</Button>
+              <div className="flex justify-end">
+                <Button type="submit">Add item</Button>
+              </div>
             </form>
           </Form>
         </div>
