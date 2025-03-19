@@ -20,7 +20,9 @@ export default function AmaanatPage(): JSX.Element {
   const { amaanatUsers } = useFetchAmaanatUsers();
   const [searchBarValue, setSearchBarValue] = useState<string>("");
   const [amaanatItems, setAmaanatItems] = useState<AmaanatUserItemType[]>([]);
-  const [isFilteredByStored, setIsFilteredByStored] = useState(false);
+  const [isFilteredByStored, setIsFilteredByStored] = useState(
+    localStorage.getItem("filterAmaanatUsersWithStoredItemsOnly") === "true",
+  );
 
   useEffect(() => {
     async function fetchAmaanatItems() {
@@ -52,7 +54,15 @@ export default function AmaanatPage(): JSX.Element {
         <label className="flex items-center gap-2 text-sm">
           <Checkbox
             checked={isFilteredByStored}
-            onCheckedChange={() => setIsFilteredByStored(!isFilteredByStored)}
+            onCheckedChange={() => {
+              const updatedValue = !isFilteredByStored;
+              const stringToStore = updatedValue.toString();
+              localStorage.setItem(
+                "filterAmaanatUsersWithStoredItemsOnly",
+                stringToStore,
+              );
+              setIsFilteredByStored(updatedValue);
+            }}
           />
           <span>Show users with stored items only</span>
         </label>

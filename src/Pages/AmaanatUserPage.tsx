@@ -344,7 +344,7 @@ function ItemsTabs({ items, refreshItems }: ItemsTabsProps) {
             <TableBody>
               {storedItems.length === 0 && (
                 <TableRow>
-                  <TableCell className="text-center" colSpan={5}>
+                  <TableCell className="text-center" colSpan={7}>
                     No items stored for this user
                   </TableCell>
                 </TableRow>
