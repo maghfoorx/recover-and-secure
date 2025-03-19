@@ -35,3 +35,4 @@ yarn.lock
 #database
 database.db
 empty-database.db
+database.sqlite3
