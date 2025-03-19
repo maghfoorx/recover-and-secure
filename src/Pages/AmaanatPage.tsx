@@ -35,7 +35,7 @@ export default function AmaanatPage(): JSX.Element {
 
   const filteredUsers = usersToShow.filter(
     (user) =>
-      user.aims_no?.toLowerCase()?.includes(searchBarValue.toLowerCase()) ||
+      user.aims_number?.toLowerCase()?.includes(searchBarValue.toLowerCase()) ||
       user.name?.toLowerCase()?.includes(searchBarValue.toLowerCase()),
   );
 

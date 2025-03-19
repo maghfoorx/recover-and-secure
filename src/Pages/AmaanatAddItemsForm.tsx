@@ -52,23 +52,23 @@ export default function AmaanatAddItemsForm({
   }
 
   async function handlePrintReceipt() {
-    const storedItems = amaanatItems?.filter((item) => item.returned === 0);
+    const storedItems = amaanatItems?.filter((item) => item.is_returned === 0);
     if (storedItems.length < 1) {
       setShowPrintError(true);
       setTimeout(() => setShowPrintError(false), 3000);
     } else {
       const data = {
         itemsNumber: storedItems.length,
-        aimsID: amaanatUser?.aims_no,
-        location: storedItems[0]?.stored_location ?? "",
+        aimsID: amaanatUser?.aims_number,
+        location: storedItems[0]?.location ?? "",
         computerName,
       };
       await printAmaanatReceipt(data);
     }
   }
 
-  const returnedItems = amaanatItems.filter((item) => item.returned === 1);
-  const storedItems = amaanatItems.filter((item) => item.returned === 0);
+  const returnedItems = amaanatItems.filter((item) => item.is_returned === 1);
+  const storedItems = amaanatItems.filter((item) => item.is_returned === 0);
 
   return (
     <div className="space-y-4 p-6">
@@ -86,24 +86,19 @@ export default function AmaanatAddItemsForm({
         >
           <Input
             placeholder="Item Name"
-            {...register("item_name", { required: true })}
+            {...register("name", { required: true })}
           />
-          {errors.item_name && (
-            <p className="text-red-500">Item Name is required</p>
-          )}
+          {errors.name && <p className="text-red-500">Item Name is required</p>}
 
-          <Input placeholder="Item Details" {...register("item_details")} />
-          <Input
-            placeholder="Storing Location"
-            {...register("stored_location")}
-          />
+          <Input placeholder="Item Details" {...register("details")} />
+          <Input placeholder="Storing Location" {...register("location")} />
           <input type="hidden" {...register("user_id", { value: userId })} />
 
           <Button type="submit">Add Item</Button>
           {success && addedItem && (
             <Alert className="mt-2">
               <AlertDescription>
-                Successfully added {addedItem.item_name}!
+                Successfully added {addedItem.name}!
               </AlertDescription>
             </Alert>
           )}
@@ -130,7 +125,7 @@ export default function AmaanatAddItemsForm({
         ) : (
           storedItems.map((item) => (
             <p key={item.id} className="border p-2 rounded-md">
-              {item.item_name}
+              {item.name}
             </p>
           ))
         )}
@@ -145,7 +140,7 @@ export default function AmaanatAddItemsForm({
         ) : (
           returnedItems.map((item) => (
             <p key={item.id} className="border p-2 rounded-md">
-              {item.item_name}
+              {item.name}
             </p>
           ))
         )}

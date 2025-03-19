@@ -62,7 +62,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {lostItems.filter((item) => item.item_found === "Yes").length}
+                {lostItems.filter((item) => item.is_found === 1).length}
               </p>
             </CardContent>
           </Card>
@@ -96,7 +96,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {foundItems.filter((item) => item.returned === 1).length}
+                {foundItems.filter((item) => item.is_returned === 1).length}
               </p>
             </CardContent>
           </Card>
@@ -144,7 +144,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {amaanatItems.filter((item) => item.returned === 0).length}
+                {amaanatItems.filter((item) => item.is_returned === 0).length}
               </p>
             </CardContent>
           </Card>
