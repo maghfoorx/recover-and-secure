@@ -22,6 +22,7 @@ import { formatDate } from "@/utils/formatDate";
 import { formatBoolean } from "@/utils/formatBoolean";
 import {
   deleteFoundItem,
+  matchLostItemWithFoundItem,
   returnFoundItem,
 } from "@/apiApi/modules/lostProperty";
 import {
@@ -37,9 +38,11 @@ import {
 } from "./ui/alert-dialog";
 import { Badge } from "./ui/badge";
 import { toast } from "sonner";
+import MatchItemDialog from "./MatchItemDialog";
 
 export default function FoundItems(): JSX.Element {
-  const { foundItems, handleGetFoundItems } = useFetchLostPropertyData();
+  const { foundItems, lostItems, handleGetFoundItems } =
+    useFetchLostPropertyData();
 
   const [searchBarValue, setSearchBarValue] = useState("");
   // Filter found items by either name or details.
@@ -60,6 +63,17 @@ export default function FoundItems(): JSX.Element {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [modalData, setModalData] = useState<FoundItemType | null>(null);
   const [openReturnForm, setOpenReturnForm] = useState(false);
+
+  useEffect(() => {
+    if (modalData?.id != null) {
+      const refreshedModalData = foundItems.find(
+        (item) => item.id === modalData.id,
+      );
+      if (refreshedModalData != null) {
+        setModalData(refreshedModalData);
+      }
+    }
+  }, [foundItems]);
 
   useEffect(() => {
     if (!openDialog) {
@@ -115,6 +129,11 @@ export default function FoundItems(): JSX.Element {
       console.error(error);
     }
   }
+
+  const [matchingDialogOpen, setMatchingDialogOpen] = useState(false);
+  const lostItemsToMatchWith = lostItems.filter(
+    (item) => item.found_item_id == null,
+  );
 
   return (
     <div className="p-6 space-y-6">
@@ -319,6 +338,18 @@ export default function FoundItems(): JSX.Element {
                 >
                   Return
                 </Button>
+                <Button
+                  variant="secondary"
+                  size={"sm"}
+                  onClick={async () => {
+                    setMatchingDialogOpen(true);
+                  }}
+                  disabled={
+                    !!modalData.lost_item_id || modalData.is_returned === 1
+                  }
+                >
+                  Match with Lost Item
+                </Button>
               </div>
 
               {openReturnForm && (
@@ -368,6 +399,36 @@ export default function FoundItems(): JSX.Element {
           )}
         </DialogContent>
       </Dialog>
+      {/* Match Item Dialog */}
+      <MatchItemDialog
+        open={matchingDialogOpen}
+        onOpenChange={setMatchingDialogOpen}
+        items={lostItemsToMatchWith}
+        type="lost"
+        onMatch={async (lostItemId) => {
+          try {
+            await matchLostItemWithFoundItem({
+              foundItemId: modalData?.id,
+              lostItemId,
+            });
+            await handleGetFoundItems();
+            setMatchingDialogOpen(false);
+            toast.success("Item matched successfully", {
+              style: {
+                backgroundColor: "green",
+                color: "white",
+              },
+            });
+          } catch (error) {
+            toast.error("Failed to match item. Please try again later.", {
+              style: {
+                backgroundColor: "red",
+                color: "white",
+              },
+            });
+          }
+        }}
+      />
     </div>
   );
 }

@@ -35,6 +35,8 @@ const ipcApiToMainWorld = {
   printAmaanatReceipt: (data: any) =>
     ipcRenderer.invoke("PRINT_AMAANAT_RECEIPT", data),
   getAmaanatItems: () => ipcRenderer.invoke("GET_AMAANAT_ITEMS"),
+  matchLostItemWithFoundItem: (data: any) =>
+    ipcRenderer.invoke("MATCH_LOST_ITEM_WITH_FOUND_ITEM", data),
 };
 
 export default ipcApiToMainWorld;

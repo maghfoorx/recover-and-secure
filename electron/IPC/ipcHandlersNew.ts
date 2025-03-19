@@ -18,6 +18,7 @@ import {
   returnFoundItem,
   unFoundLostItem,
   updateFoundColumn,
+  matchLostItemWithFoundItem,
 } from "../modules/lostProperty";
 import {
   AddAmaanatItemType,
@@ -29,6 +30,7 @@ import {
   ReturnFormType,
 } from "../modules/types";
 import { printReceipt } from "../modules/printing/printer";
+import { isIP } from "node:net";
 
 export const registerIpcHandlers = () => {
   ipcMain.handle("get-version", async (event, args) => {
@@ -76,7 +78,8 @@ export const registerIpcHandlers = () => {
   });
 
   ipcMain.handle("RETURN_FOUND_ITEM", async (event, args: ReturnFormType) => {
-    const response = await returnFoundItem(args as any);
+    console.log(args, "istheData");
+    const response = await returnFoundItem(args);
     return response;
   });
 
@@ -131,4 +134,12 @@ export const registerIpcHandlers = () => {
     const response = await getTotalAmaanatItems();
     return response;
   });
+
+  ipcMain.handle(
+    "MATCH_LOST_ITEM_WITH_FOUND_ITEM",
+    async (event, args: { lostItemId: number; foundItemId: number }) => {
+      const response = await matchLostItemWithFoundItem(args);
+      return response;
+    },
+  );
 };

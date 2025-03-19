@@ -105,3 +105,42 @@ export async function returnFoundItem({
     throw error;
   }
 }
+
+export async function matchLostItemWithFoundItem({ foundItemId, lostItemId }) {
+  try {
+    return await db.transaction(async (trx) => {
+      const [lostItem, foundItem] = await Promise.all([
+        trx("lost_items").where("id", lostItemId).first(),
+        trx("found_items").where("id", foundItemId).first(),
+      ]);
+
+      if (!lostItem) throw new Error("Lost item not found");
+      if (!foundItem) throw new Error("Found item not found");
+      if (lostItem.found_item_id) throw new Error("Lost item already matched");
+      if (foundItem.lost_item_id) throw new Error("Found item already matched");
+
+      await Promise.all([
+        trx("lost_items").where("id", lostItemId).update({
+          is_found: true,
+          found_item_id: foundItemId,
+        }),
+
+        trx("found_items").where("id", foundItemId).update({
+          lost_item_id: lostItemId,
+        }),
+      ]);
+
+      return {
+        success: true,
+        message: `Successfully matched Lost Item ${lostItemId} with Found Item ${foundItemId}`,
+      };
+    });
+  } catch (error) {
+    console.error("Matching failed:", error);
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Failed to match items. Please try again.",
+    );
+  }
+}

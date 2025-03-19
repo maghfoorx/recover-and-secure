@@ -9,4 +9,5 @@ export const {
   foundLostItem,
   unFoundLostItem,
   returnFoundItem,
+  matchLostItemWithFoundItem,
 } = window?.ipcApi ?? {};

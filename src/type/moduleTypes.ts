@@ -34,6 +34,7 @@ export interface LostItemType {
   aims_number: string | null;
   phone_number: string | null;
   is_found: 0 | 1;
+  found_item_id: number | null;
 }
 
 export interface FoundItemType {

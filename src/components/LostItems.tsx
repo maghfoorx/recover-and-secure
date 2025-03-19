@@ -31,17 +31,32 @@ import { LostItemType } from "@/type/moduleTypes";
 import {
   deleteLostItem,
   foundLostItem,
+  matchLostItemWithFoundItem,
   unFoundLostItem,
 } from "@/apiApi/modules/lostProperty";
 import { Badge } from "./ui/badge";
 import { formatBoolean } from "@/utils/formatBoolean";
 import { toast } from "sonner";
+import MatchItemDialog from "./MatchItemDialog";
+import { Check, Cross, X } from "lucide-react";
 
 export default function LostItems(): JSX.Element {
-  const { lostItems, handleGetLostItems } = useFetchLostPropertyData();
+  const { lostItems, foundItems, handleGetLostItems } =
+    useFetchLostPropertyData();
   const [searchBarValue, setSearchBarValue] = useState("");
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [modalData, setModalData] = useState<LostItemType | null>(null);
+
+  useEffect(() => {
+    if (modalData?.id != null) {
+      const refreshedModalData = lostItems.find(
+        (item) => item.id === modalData.id,
+      );
+      if (refreshedModalData != null) {
+        setModalData(refreshedModalData);
+      }
+    }
+  }, [lostItems]);
 
   // Reset any extra states when dialog closes
   useEffect(() => {
@@ -100,7 +115,21 @@ export default function LostItems(): JSX.Element {
       });
     }
     await handleGetLostItems();
-    setOpenDialog(false);
+  }
+
+  const foundItemsToMatchWith = foundItems.filter(
+    (item) => item.lost_item_id == null,
+  );
+
+  const [matchingDialogOpen, setMatchingDialogOpen] = useState(false);
+
+  async function createMatch(lostItemId: number, foundItemId: number) {
+    const response = await matchLostItemWithFoundItem({
+      lostItemId,
+      foundItemId,
+    });
+    console.log(response, "isResponse");
+    return response;
   }
 
   return (
@@ -204,7 +233,11 @@ export default function LostItems(): JSX.Element {
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">Found</dt>
                   <dd className="text-sm text-gray-900">
-                    {formatBoolean(modalData.is_found)}
+                    {modalData.is_found === 0 ? (
+                      <X className="h-8 w-8 text-red-600" />
+                    ) : (
+                      <Check className="h-8 w-8 text-green-600" />
+                    )}
                   </dd>
                 </div>
               </dl>
@@ -237,36 +270,82 @@ export default function LostItems(): JSX.Element {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button size="sm" variant="secondary">
-                      {modalData.is_found === 1 ? "UnFound" : "Found"}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you sure you want to{" "}
-                        {modalData.is_found === 1 ? "un-find" : "find"} this
-                        item?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will toggle the found status of the lost item.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() =>
-                          modalData && handleToggleFoundItem(modalData.id)
-                        }
-                      >
-                        Yes
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                {modalData?.found_item_id == null && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="secondary">
+                        {modalData.is_found === 1
+                          ? "mark as not found"
+                          : "Mark as found"}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you sure you want to{" "}
+                          {modalData.is_found === 1 ? "un-find" : "find"} this
+                          item?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will toggle the found status of the lost item.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() =>
+                            modalData && handleToggleFoundItem(modalData.id)
+                          }
+                        >
+                          Yes
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+
+                {modalData?.found_item_id == null && (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setMatchingDialogOpen(true);
+                    }}
+                  >
+                    Match with found item
+                  </Button>
+                )}
               </div>
+
+              <MatchItemDialog
+                open={matchingDialogOpen}
+                onOpenChange={setMatchingDialogOpen}
+                items={foundItemsToMatchWith}
+                type="found"
+                onMatch={async (foundItemId) => {
+                  const response = await createMatch(modalData.id, foundItemId);
+
+                  console.log(response, "isResponse");
+
+                  if (response?.success === true) {
+                    toast.success("Match created successfully", {
+                      style: {
+                        backgroundColor: "green",
+                        color: "white",
+                      },
+                    });
+                  } else {
+                    toast.error("Failed to create match. Please try again.", {
+                      style: {
+                        backgroundColor: "red",
+                        color: "white",
+                      },
+                    });
+                  }
+
+                  await handleGetLostItems();
+                  setMatchingDialogOpen(false);
+                }}
+              />
             </>
           )}
         </DialogContent>

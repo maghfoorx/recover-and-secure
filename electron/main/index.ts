@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import os from "node:os";
 import { update } from "./update";
-import { registerIpcHandlers } from "../ipc/ipcHandlers";
+import { registerIpcHandlers } from "../ipc/ipcHandlersNew";
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

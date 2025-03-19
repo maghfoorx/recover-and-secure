@@ -22,5 +22,6 @@ interface Window {
     getUserAmaanatItems;
     addAmaanatItem;
     getAmaanatItems;
+    matchLostItemWithFoundItem;
   };
 }
