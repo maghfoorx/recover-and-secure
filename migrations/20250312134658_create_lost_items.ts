@@ -11,6 +11,13 @@ export function up(knex: Knex) {
     table.string("aims_number");
     table.string("phone_number");
     table.boolean("is_found").defaultTo(false);
+
+    table
+      .integer("found_item_id")
+      .unsigned()
+      .references("id")
+      .inTable("found_items")
+      .onDelete("SET NULL");
   });
 }
 
