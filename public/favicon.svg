@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="1000" height="1000"><svg width="1000" height="1000" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="1000" height="1000" fill="#DD2828"></rect>
+<path d="M666.667 691.666L750 775L916.667 608.333" stroke="white" stroke-width="43" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M875 441.667V358.333C874.985 343.72 871.127 329.367 863.814 316.715C856.501 304.063 845.989 293.557 833.333 286.25L541.667 119.583C528.998 112.269 514.628 108.419 500 108.419C485.372 108.419 471.002 112.269 458.333 119.583L166.667 286.25C154.011 293.557 143.499 304.063 136.186 316.715C128.873 329.367 125.015 343.72 125 358.333V691.667C125.015 706.28 128.873 720.633 136.186 733.285C143.499 745.937 154.011 756.443 166.667 763.75L458.333 930.417C471.002 937.731 485.372 941.581 500 941.581C514.628 941.581 528.998 937.731 541.667 930.417L625 882.917" stroke="white" stroke-width="43" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M312.5 202.917L687.5 417.5" stroke="white" stroke-width="43" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M137.083 316.667L500 525L862.917 316.667" stroke="white" stroke-width="43" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M500 941.667V525" stroke="white" stroke-width="43" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
+@media (prefers-color-scheme: dark) { :root { filter: none; } }
+</style></svg>
