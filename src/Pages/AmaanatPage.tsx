@@ -14,6 +14,8 @@ import useFetchAmaanatUsers from "@/hooks/useFetchAmaanatUsers";
 import { getAmaanatItems } from "@/apiApi/modules/amaanat";
 import { filterByStoredItems } from "@/utils/filterBySortedItems";
 import { AmaanatUserType, AmaanatUserItemType } from "@/type/moduleTypes";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 export default function AmaanatPage(): JSX.Element {
   const navigate = useNavigate();
@@ -22,6 +24,10 @@ export default function AmaanatPage(): JSX.Element {
   const [amaanatItems, setAmaanatItems] = useState<AmaanatUserItemType[]>([]);
   const [isFilteredByStored, setIsFilteredByStored] = useState(
     localStorage.getItem("filterAmaanatUsersWithStoredItemsOnly") === "true",
+  );
+
+  const dataFromConvex = useQuery(
+    api.amaanat.allAmaanatItems.getAllAmaanatItems,
   );
 
   useEffect(() => {
@@ -44,6 +50,7 @@ export default function AmaanatPage(): JSX.Element {
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-3xl font-bold">Amaanat</h1>
+      {JSON.stringify(dataFromConvex, null, 2)}
       <div className="flex flex-col gap-1">
         <Input
           value={searchBarValue}

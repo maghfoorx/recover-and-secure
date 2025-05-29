@@ -3,6 +3,9 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import { HashRouter } from "react-router-dom";
 import "./index.css";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
+
+const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
 import "./demos/ipc";
 import { SidebarProvider } from "./components/ui/sidebar";
@@ -11,11 +14,13 @@ import { SidebarProvider } from "./components/ui/sidebar";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <SidebarProvider defaultOpen={true}>
-      <HashRouter>
-        <App />
-      </HashRouter>
-    </SidebarProvider>
+    <ConvexProvider client={convex}>
+      <SidebarProvider defaultOpen={true}>
+        <HashRouter>
+          <App />
+        </HashRouter>
+      </SidebarProvider>
+    </ConvexProvider>
   </React.StrictMode>,
 );
 

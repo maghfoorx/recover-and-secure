@@ -36,3 +36,5 @@ yarn.lock
 database.db
 empty-database.db
 database.sqlite3
+
+.env
