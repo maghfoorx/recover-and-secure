@@ -1,4 +1,4 @@
-export function formatDate(inputDate: string) {
+export function formatDate(inputDate: number) {
   const date = new Date(inputDate);
   const options = {
     day: "numeric",

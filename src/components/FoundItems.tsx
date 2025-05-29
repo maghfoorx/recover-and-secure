@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,15 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FoundItemType } from "@/type/moduleTypes";
-import useFetchLostPropertyData from "@/hooks/useFetchLostPropertyData";
 import { formatDate } from "@/utils/formatDate";
-import { formatBoolean } from "@/utils/formatBoolean";
-import {
-  deleteFoundItem,
-  matchLostItemWithFoundItem,
-  returnFoundItem,
-} from "@/apiApi/modules/lostProperty";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,20 +31,35 @@ import {
 import { Badge } from "./ui/badge";
 import { toast } from "sonner";
 import MatchItemDialog from "./MatchItemDialog";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { Doc, Id } from "../../convex/_generated/dataModel";
 
 export default function FoundItems(): JSX.Element {
-  const { foundItems, lostItems, handleGetFoundItems } =
-    useFetchLostPropertyData();
+  // Fetch data using Convex queries
+  const foundItems =
+    useQuery(api.lostProperty.queries.getFoundItemsReported) || [];
+  const lostItems =
+    useQuery(api.lostProperty.queries.getLostItemsReported) || [];
+
+  // Define mutations
+  const deleteFoundItem = useMutation(
+    api.lostProperty.mutations.deleteFoundItem,
+  );
+  const returnFoundItem = useMutation(
+    api.lostProperty.mutations.returnFoundItem,
+  );
+  const matchItems = useMutation(
+    api.lostProperty.mutations.matchLostItemWithFoundItem,
+  );
 
   const [searchBarValue, setSearchBarValue] = useState("");
   // Filter found items by either name or details.
   const includesItemName = foundItems.filter((item) =>
-    item.name.toLocaleLowerCase().includes(searchBarValue.toLocaleLowerCase()),
+    item.name.toLowerCase().includes(searchBarValue.toLowerCase()),
   );
   const includesItemDetails = foundItems.filter((item) =>
-    item?.details
-      ?.toLocaleLowerCase()
-      .includes(searchBarValue.toLocaleLowerCase()),
+    item?.details?.toLowerCase().includes(searchBarValue.toLowerCase()),
   );
   const filteredItemsSet = new Set([
     ...includesItemName,
@@ -61,25 +68,9 @@ export default function FoundItems(): JSX.Element {
   const filteredItems = Array.from(filteredItemsSet);
 
   const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [modalData, setModalData] = useState<FoundItemType | null>(null);
+  const [modalData, setModalData] = useState<Doc<"found_items"> | null>(null);
   const [openReturnForm, setOpenReturnForm] = useState(false);
-
-  useEffect(() => {
-    if (modalData?.id != null) {
-      const refreshedModalData = foundItems.find(
-        (item) => item.id === modalData.id,
-      );
-      if (refreshedModalData != null) {
-        setModalData(refreshedModalData);
-      }
-    }
-  }, [foundItems]);
-
-  useEffect(() => {
-    if (!openDialog) {
-      setOpenReturnForm(false);
-    }
-  }, [openDialog]);
+  const [matchingDialogOpen, setMatchingDialogOpen] = useState(false);
 
   const {
     register,
@@ -88,31 +79,44 @@ export default function FoundItems(): JSX.Element {
     formState: { errors },
   } = useForm();
 
-  function handleOpenDialog() {
+  function handleRowClick(row: Doc<"found_items">) {
+    setModalData(row);
     setOpenDialog(true);
   }
 
-  function handleCloseDialog() {
-    setOpenDialog(false);
-  }
-
-  function handleRowClick(row: FoundItemType) {
-    setModalData(row);
-    handleOpenDialog();
-  }
-
-  async function handleDeletingFoundItem(id: number) {
-    await deleteFoundItem(id);
-    await handleGetFoundItems();
-    handleCloseDialog();
-  }
-
-  async function handleReturnFoundItem(data: unknown) {
+  async function handleDeletingFoundItem(id: Id<"found_items">) {
     try {
-      await returnFoundItem(data as any);
-      await handleGetFoundItems();
-      handleCloseDialog();
+      await deleteFoundItem({ id });
+      setOpenDialog(false);
+      toast.success("Found item deleted successfully", {
+        style: {
+          backgroundColor: "green",
+          color: "white",
+        },
+      });
+    } catch (error) {
+      toast.error("Failed to delete item", {
+        style: {
+          backgroundColor: "red",
+          color: "white",
+        },
+      });
+    }
+  }
+
+  async function handleReturnFoundItem(data: any) {
+    if (!modalData) return;
+
+    try {
+      await returnFoundItem({
+        id: modalData._id,
+        returned_to_name: data.returned_to_name,
+        returned_to_aims_number: data.returned_to_aims_number,
+        returned_by: data.returned_by,
+      });
+
       reset();
+      setOpenReturnForm(false);
       toast.success("Item returned successfully", {
         style: {
           backgroundColor: "green",
@@ -130,9 +134,8 @@ export default function FoundItems(): JSX.Element {
     }
   }
 
-  const [matchingDialogOpen, setMatchingDialogOpen] = useState(false);
   const lostItemsToMatchWith = lostItems.filter(
-    (item) => item.found_item_id == null,
+    (item) => item.found_item_id === undefined,
   );
 
   return (
@@ -145,8 +148,7 @@ export default function FoundItems(): JSX.Element {
           Found items: {foundItems.length}
         </Badge>
         <Badge className="rounded-sm bg-teal-600 text-white font-normal px-2 py-1">
-          Items returned:{" "}
-          {foundItems.filter((item) => !!item.returned_at).length}
+          Items returned: {foundItems.filter((item) => item.is_returned).length}
         </Badge>
       </div>
 
@@ -176,14 +178,14 @@ export default function FoundItems(): JSX.Element {
           ) : (
             filteredItems.map((item) => (
               <TableRow
-                key={item.id}
+                key={item._id}
                 onClick={() => handleRowClick(item)}
                 className="cursor-pointer hover:bg-gray-100"
               >
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item?.details}</TableCell>
                 <TableCell>{formatDate(item.found_date)}</TableCell>
-                <TableCell>{formatBoolean(item.is_returned)}</TableCell>
+                <TableCell>{item.is_returned ? "Yes" : "No"}</TableCell>
               </TableRow>
             ))
           )}
@@ -191,13 +193,19 @@ export default function FoundItems(): JSX.Element {
       </Table>
 
       {/* Item Detail Dialog */}
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+      <Dialog
+        open={openDialog}
+        onOpenChange={(open) => {
+          setOpenDialog(open);
+          if (!open) setOpenReturnForm(false);
+        }}
+      >
         <DialogContent className="max-w-xl">
           {modalData && (
             <>
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold text-gray-900">
-                  {modalData.id}: {modalData.name}
+                  {modalData.name}
                 </DialogTitle>
               </DialogHeader>
               <dl className="mt-4 space-y-3">
@@ -301,7 +309,7 @@ export default function FoundItems(): JSX.Element {
               )}
 
               {/* Action Buttons */}
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2 mt-4">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button size={"sm"} variant="destructive">
@@ -322,7 +330,7 @@ export default function FoundItems(): JSX.Element {
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() =>
-                          modalData && handleDeletingFoundItem(modalData.id)
+                          modalData && handleDeletingFoundItem(modalData._id)
                         }
                       >
                         Continue
@@ -334,18 +342,17 @@ export default function FoundItems(): JSX.Element {
                   variant="secondary"
                   size={"sm"}
                   onClick={() => setOpenReturnForm(true)}
-                  disabled={modalData.is_returned === 1}
+                  disabled={modalData.is_returned}
                 >
                   Return
                 </Button>
                 <Button
                   variant="secondary"
                   size={"sm"}
-                  onClick={async () => {
-                    setMatchingDialogOpen(true);
-                  }}
+                  onClick={() => setMatchingDialogOpen(true)}
                   disabled={
-                    !!modalData.lost_item_id || modalData.is_returned === 1
+                    modalData.lost_item_id !== undefined ||
+                    modalData.is_returned
                   }
                 >
                   Match with Lost Item
@@ -354,10 +361,8 @@ export default function FoundItems(): JSX.Element {
 
               {openReturnForm && (
                 <form
-                  onSubmit={handleSubmit((data) =>
-                    handleReturnFoundItem({ ...data, id: modalData.id }),
-                  )}
-                  className="space-y-2"
+                  onSubmit={handleSubmit(handleReturnFoundItem)}
+                  className="space-y-2 mt-4"
                 >
                   <div>
                     <label className="block text-sm font-medium">
@@ -367,6 +372,11 @@ export default function FoundItems(): JSX.Element {
                       className="my-0"
                       {...register("returned_to_name", { required: true })}
                     />
+                    {errors.returned_to_name && (
+                      <p className="text-red-500 text-xs mt-1">
+                        This field is required
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium">
@@ -378,6 +388,11 @@ export default function FoundItems(): JSX.Element {
                         required: true,
                       })}
                     />
+                    {errors.returned_to_aims_number && (
+                      <p className="text-red-500 text-xs mt-1">
+                        This field is required
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium">
@@ -387,9 +402,21 @@ export default function FoundItems(): JSX.Element {
                       className="my-0"
                       {...register("returned_by", { required: true })}
                     />
+                    {errors.returned_by && (
+                      <p className="text-red-500 text-xs mt-1">
+                        This field is required
+                      </p>
+                    )}
                   </div>
-                  <div className="flex justify-end">
-                    <Button size={"sm"} type="submit">
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setOpenReturnForm(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button size="sm" type="submit">
                       Submit return
                     </Button>
                   </div>
@@ -399,6 +426,7 @@ export default function FoundItems(): JSX.Element {
           )}
         </DialogContent>
       </Dialog>
+
       {/* Match Item Dialog */}
       <MatchItemDialog
         open={matchingDialogOpen}
@@ -406,12 +434,13 @@ export default function FoundItems(): JSX.Element {
         items={lostItemsToMatchWith}
         type="lost"
         onMatch={async (lostItemId) => {
+          if (!modalData) return;
+
           try {
-            await matchLostItemWithFoundItem({
-              foundItemId: modalData?.id,
-              lostItemId,
+            await matchItems({
+              lostItemId: lostItemId as Id<"lost_items">,
+              foundItemId: modalData._id,
             });
-            await handleGetFoundItems();
             setMatchingDialogOpen(false);
             toast.success("Item matched successfully", {
               style: {

@@ -1,9 +1,3 @@
-import { useEffect, useState } from "react";
-import useFetchAmaanatUsers from "@/hooks/useFetchAmaanatUsers";
-import useFetchLostPropertyData from "@/hooks/useFetchLostPropertyData";
-import { AmaanatUserItemType } from "@/type/moduleTypes";
-import { getAmaanatItems } from "@/apiApi/modules/amaanat";
-import { filterByStoredItems } from "@/utils/filterBySortedItems";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   ClipboardList,
@@ -14,22 +8,22 @@ import {
   Box,
   FilePlus,
 } from "lucide-react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 export default function Dashboard(): JSX.Element {
-  const { amaanatUsers } = useFetchAmaanatUsers();
-  const { foundItems, lostItems } = useFetchLostPropertyData();
-  const [amaanatItems, setAmaanatItems] = useState<AmaanatUserItemType[]>([]);
+  // Fetch all data using Convex queries
+  const lostItems =
+    useQuery(api.lostProperty.queries.getLostItemsReported) || [];
+  const foundItems =
+    useQuery(api.lostProperty.queries.getFoundItemsReported) || [];
+  const amaanatUsers = useQuery(api.amaanat.queries.getAllAmaanatUsers) || [];
+  const amaanatItems = useQuery(api.amaanat.queries.getTotalAmaanatItems) || [];
 
-  async function handleGetAmaanatItems() {
-    const response = await getAmaanatItems();
-    setAmaanatItems(response);
-  }
-
-  useEffect(() => {
-    handleGetAmaanatItems();
-  }, []);
-
-  const storedItemUsers = filterByStoredItems(amaanatUsers, amaanatItems);
+  // Calculate stored item users
+  const storedItemUsers = amaanatUsers.filter((user) =>
+    amaanatItems.some((item) => item.user_id === user._id && !item.is_returned),
+  );
 
   return (
     <div className="p-6 space-y-6">
@@ -62,7 +56,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {lostItems.filter((item) => item.is_found === 1).length}
+                {lostItems.filter((item) => item.is_found).length}
               </p>
             </CardContent>
           </Card>
@@ -96,7 +90,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {foundItems.filter((item) => item.is_returned === 1).length}
+                {foundItems.filter((item) => item.is_returned).length}
               </p>
             </CardContent>
           </Card>
@@ -144,7 +138,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {amaanatItems.filter((item) => item.is_returned === 0).length}
+                {amaanatItems.filter((item) => !item.is_returned).length}
               </p>
             </CardContent>
           </Card>

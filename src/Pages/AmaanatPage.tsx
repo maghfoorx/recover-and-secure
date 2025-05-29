@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,47 +10,74 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import useFetchAmaanatUsers from "@/hooks/useFetchAmaanatUsers";
-import { getAmaanatItems } from "@/apiApi/modules/amaanat";
-import { filterByStoredItems } from "@/utils/filterBySortedItems";
-import { AmaanatUserType, AmaanatUserItemType } from "@/type/moduleTypes";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
 export default function AmaanatPage(): JSX.Element {
   const navigate = useNavigate();
-  const { amaanatUsers } = useFetchAmaanatUsers();
+
+  // Convex queries
+  const amaanatUsers = useQuery(api.amaanat.queries.getAllAmaanatUsers) ?? [];
+  const amaanatItems = useQuery(api.amaanat.queries.getTotalAmaanatItems) ?? [];
+
+  // Local state
   const [searchBarValue, setSearchBarValue] = useState<string>("");
-  const [amaanatItems, setAmaanatItems] = useState<AmaanatUserItemType[]>([]);
   const [isFilteredByStored, setIsFilteredByStored] = useState(
     localStorage.getItem("filterAmaanatUsersWithStoredItemsOnly") === "true",
   );
 
-  const dataFromConvex = useQuery(
-    api.amaanat.allAmaanatItems.getAllAmaanatItems,
-  );
+  // Memoized filtering logic
+  const usersWithItemCounts = useMemo(() => {
+    return amaanatUsers.map((user) => {
+      const storedItems = amaanatItems.filter(
+        (item) => item.user_id === user._id && !item.is_returned,
+      ).length;
+      const returnedItems = amaanatItems.filter(
+        (item) => item.user_id === user._id && item.is_returned,
+      ).length;
 
-  useEffect(() => {
-    async function fetchAmaanatItems() {
-      const response = await getAmaanatItems();
-      setAmaanatItems(response);
-    }
-    fetchAmaanatItems();
-  }, []);
+      return {
+        ...user,
+        storedItems,
+        returnedItems,
+      };
+    });
+  }, [amaanatUsers, amaanatItems]);
 
-  const filteredOnStoredItems = filterByStoredItems(amaanatUsers, amaanatItems);
-  const usersToShow = isFilteredByStored ? filteredOnStoredItems : amaanatUsers;
+  // Filter users based on stored items
+  const filteredOnStoredItems = useMemo(() => {
+    return usersWithItemCounts.filter((user) => user.storedItems > 0);
+  }, [usersWithItemCounts]);
 
-  const filteredUsers = usersToShow.filter(
-    (user) =>
-      user.aims_number?.toLowerCase()?.includes(searchBarValue.toLowerCase()) ||
-      user.name?.toLowerCase()?.includes(searchBarValue.toLowerCase()),
-  );
+  // Determine which users to show
+  const usersToShow = isFilteredByStored
+    ? filteredOnStoredItems
+    : usersWithItemCounts;
+
+  // Filter users based on search
+  const filteredUsers = useMemo(() => {
+    return usersToShow.filter(
+      (user) =>
+        user.aims_number
+          ?.toLowerCase()
+          ?.includes(searchBarValue.toLowerCase()) ||
+        user.name?.toLowerCase()?.includes(searchBarValue.toLowerCase()),
+    );
+  }, [usersToShow, searchBarValue]);
+
+  // Show loading state
+  if (amaanatUsers === undefined || amaanatItems === undefined) {
+    return (
+      <div className="p-6 space-y-4">
+        <h1 className="text-3xl font-bold">Amaanat</h1>
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-3xl font-bold">Amaanat</h1>
-      {JSON.stringify(dataFromConvex, null, 2)}
       <div className="flex flex-col gap-1">
         <Input
           value={searchBarValue}
@@ -74,12 +101,10 @@ export default function AmaanatPage(): JSX.Element {
           <span>Show users with stored items only</span>
         </label>
       </div>
-
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Id</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>AIMS number</TableHead>
               <TableHead>Jamaat</TableHead>
@@ -91,35 +116,25 @@ export default function AmaanatPage(): JSX.Element {
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">
+                <TableCell colSpan={6} className="text-center">
                   No users found.
                 </TableCell>
               </TableRow>
             ) : (
-              filteredUsers.map((user) => {
-                const storedItems = amaanatItems.filter(
-                  (item) => item.user_id === user.id && item.is_returned === 0,
-                ).length;
-                const returnedItems = amaanatItems.filter(
-                  (item) => item.user_id === user.id && item.is_returned === 1,
-                ).length;
-
-                return (
-                  <TableRow
-                    key={user.id}
-                    onClick={() => navigate(`/amaanat/${user.id}`)}
-                    className="cursor-pointer hover:bg-gray-100"
-                  >
-                    <TableCell>{user.id}</TableCell>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.aims_number}</TableCell>
-                    <TableCell>{user.jamaat}</TableCell>
-                    <TableCell>{user.phone_number}</TableCell>
-                    <TableCell>{storedItems}</TableCell>
-                    <TableCell>{returnedItems}</TableCell>
-                  </TableRow>
-                );
-              })
+              filteredUsers.map((user) => (
+                <TableRow
+                  key={user._id}
+                  onClick={() => navigate(`/amaanat/${user._id}`)}
+                  className="cursor-pointer hover:bg-gray-100"
+                >
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.aims_number}</TableCell>
+                  <TableCell>{user.jamaat}</TableCell>
+                  <TableCell>{user.phone_number}</TableCell>
+                  <TableCell>{user.storedItems}</TableCell>
+                  <TableCell>{user.returnedItems}</TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>

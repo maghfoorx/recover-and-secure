@@ -1,12 +1,14 @@
-import { AmaanatUserItemType, AmaanatUserType } from "@/type/moduleTypes";
+import { AmaanatItem, AmaanatUser } from "convex/types";
 
 export function filterByStoredItems(
-  users: AmaanatUserType[],
-  items: AmaanatUserItemType[],
+  users: AmaanatUser[],
+  items: AmaanatItem[],
 ) {
-  const storedItems = items.filter((item) => item.is_returned === 0);
+  const storedItems = items.filter((item) => !!item.is_returned);
   const storedUserIDs = storedItems.map((item) => item.user_id);
-  const filteredUsers = users.filter((user) => storedUserIDs.includes(user.id));
+  const filteredUsers = users.filter((user) =>
+    storedUserIDs.includes(user._id),
+  );
 
   return filteredUsers;
 }

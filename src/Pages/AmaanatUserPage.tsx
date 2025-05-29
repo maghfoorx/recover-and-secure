@@ -30,35 +30,60 @@ import {
 import { useForm } from "react-hook-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatDate } from "@/utils/formatDate";
-import { AmaanatUserItemType, AmaanatUserType } from "@/type/moduleTypes";
-import useFetchUserAmaanatItems from "@/hooks/useFetchUserAmaanatItems";
-import {
-  addAmaanatItem,
-  printAmaanatReceipt,
-  returnAmaanatItem,
-} from "@/apiApi/modules/amaanat";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { Id } from "../../convex/_generated/dataModel";
+import { printAmaanatReceipt } from "@/apiApi/modules/amaanat";
+
+// Types based on your Convex schema
+type AmaanatUserType = {
+  _id: Id<"amaanat_users">;
+  name: string;
+  aims_number?: string;
+  jamaat?: string;
+  phone_number?: string;
+  _creationTime: number;
+};
+
+type AmaanatUserItemType = {
+  _id: Id<"amaanat_items">;
+  user_id: Id<"amaanat_users">;
+  name: string;
+  details?: string;
+  location?: string;
+  entry_date: number;
+  returned_by?: string;
+  is_returned: boolean;
+  returned_at?: number;
+  _creationTime: number;
+};
 
 export default function AmaanatUserPage() {
   const { userId } = useParams();
-  const {
-    amaanatItems,
-    amaanatUser,
-    handleGetAmaanatUser,
-    handleGetUserAmaanatItems,
-  } = useFetchUserAmaanatItems({ ID: userId || "" });
 
-  useEffect(() => {
-    if (userId) handleGetAmaanatUser(userId);
-  }, [userId]);
+  // Convex queries
+  const amaanatUser = useQuery(
+    api.amaanat.queries.getAmaanatUser,
+    userId ? { id: userId as Id<"amaanat_users"> } : "skip",
+  );
+
+  const amaanatItems =
+    useQuery(
+      api.amaanat.queries.getUserAmaanatItems,
+      userId ? { userId: userId as Id<"amaanat_users"> } : "skip",
+    ) || [];
 
   const handlePrint = async () => {
-    const storedItems = amaanatItems.filter((item) => item.is_returned === 0);
+    const storedItems = amaanatItems.filter((item) => !item.is_returned);
     if (storedItems.length === 0) {
       toast.error("No items to print", {
         style: { backgroundColor: "red", color: "white" },
       });
       return;
     }
+
+    // Note: You'll need to implement the print functionality
+    // since printAmaanatReceipt was part of your API
     const computerName = localStorage.getItem("computerName") ?? "";
     const capitalizedComputerName =
       computerName.charAt(0).toUpperCase() + computerName.slice(1);
@@ -70,22 +95,18 @@ export default function AmaanatUserPage() {
     };
 
     await printAmaanatReceipt(printData);
+    // You'll need to implement this function or handle printing differently
+    console.log("Print data:", printData);
+    toast.info("Print functionality needs to be implemented");
   };
 
-  if (!amaanatUser) return null;
+  if (!amaanatUser) return <div>Loading...</div>;
 
   return (
     <div className="p-6 space-y-6">
-      <Header
-        onPrint={handlePrint}
-        userId={userId!}
-        onItemAdded={() => handleGetUserAmaanatItems(userId!)}
-      />
+      <Header onPrint={handlePrint} userId={userId!} />
       <UserInfoCard user={amaanatUser} />
-      <ItemsTabs
-        items={amaanatItems}
-        refreshItems={() => handleGetUserAmaanatItems(userId!)}
-      />
+      <ItemsTabs items={amaanatItems} />
     </div>
   );
 }
@@ -93,10 +114,9 @@ export default function AmaanatUserPage() {
 interface HeaderProps {
   onPrint: () => void;
   userId: string;
-  onItemAdded: () => void;
 }
 
-function Header({ onPrint, userId, onItemAdded }: HeaderProps) {
+function Header({ onPrint, userId }: HeaderProps) {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   return (
     <>
@@ -116,8 +136,7 @@ function Header({ onPrint, userId, onItemAdded }: HeaderProps) {
       <AddItemDialog
         open={openAddDialog}
         onClose={() => setOpenAddDialog(false)}
-        userId={userId}
-        onItemAdded={onItemAdded}
+        userId={userId as Id<"amaanat_users">}
       />
     </>
   );
@@ -158,16 +177,12 @@ function UserInfoCard({ user }: UserInfoCardProps) {
 interface AddItemDialogProps {
   open: boolean;
   onClose: () => void;
-  userId: string;
-  onItemAdded: () => void;
+  userId: Id<"amaanat_users">;
 }
 
-function AddItemDialog({
-  open,
-  onClose,
-  userId,
-  onItemAdded,
-}: AddItemDialogProps) {
+function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
+  const addAmaanatItem = useMutation(api.amaanat.mutations.addAmaanatItem);
+
   const addForm = useForm({
     defaultValues: {
       name: "",
@@ -177,9 +192,14 @@ function AddItemDialog({
   });
 
   const handleAddItem = async (data: any) => {
-    const response = await addAmaanatItem({ ...data, user_id: userId });
-    if (response.id != null) {
-      onItemAdded();
+    try {
+      await addAmaanatItem({
+        user_id: userId,
+        name: data.name,
+        details: data.details,
+        location: data.location,
+      });
+
       toast.success("Item added successfully", {
         style: {
           backgroundColor: "green",
@@ -188,8 +208,9 @@ function AddItemDialog({
       });
       addForm.reset();
       onClose();
-    } else {
+    } catch (error) {
       toast.error("Failed to add item");
+      console.error("Error adding item:", error);
     }
   };
 
@@ -276,34 +297,42 @@ function AddItemDialog({
 
 interface ItemsTabsProps {
   items: AmaanatUserItemType[];
-  refreshItems: () => void;
 }
 
-function ItemsTabs({ items, refreshItems }: ItemsTabsProps) {
-  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+function ItemsTabs({ items }: ItemsTabsProps) {
+  const [selectedItems, setSelectedItems] = useState<Id<"amaanat_items">[]>([]);
   const [selectedItem, setSelectedItem] = useState<AmaanatUserItemType | null>(
     null,
   );
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
 
-  const storedItems = items.filter((item) => item.is_returned === 0);
-  const returnedItems = items.filter((item) => item.is_returned === 1);
+  const returnAmaanatItem = useMutation(
+    api.amaanat.mutations.returnAmaanatItem,
+  );
+
+  const storedItems = items.filter((item) => !item.is_returned);
+  const returnedItems = items.filter((item) => item.is_returned);
 
   const selectedItemsDetails = storedItems.filter((item) =>
-    selectedItems.includes(item.id),
+    selectedItems.includes(item._id),
   );
 
   const handleReturnItemsSubmit = async (returned_by: string) => {
-    await Promise.all(
-      selectedItems.map((id) => returnAmaanatItem({ id, returned_by })),
-    );
-    refreshItems();
-    toast.success("Items returned successfully", {
-      style: { backgroundColor: "green", color: "white" },
-    });
-    setSelectedItems([]);
-    setReturnDialogOpen(false);
+    try {
+      await Promise.all(
+        selectedItems.map((id) => returnAmaanatItem({ id, returned_by })),
+      );
+
+      toast.success("Items returned successfully", {
+        style: { backgroundColor: "green", color: "white" },
+      });
+      setSelectedItems([]);
+      setReturnDialogOpen(false);
+    } catch (error) {
+      toast.error("Failed to return items");
+      console.error("Error returning items:", error);
+    }
   };
 
   return (
@@ -351,7 +380,7 @@ function ItemsTabs({ items, refreshItems }: ItemsTabsProps) {
               )}
               {storedItems.map((item) => (
                 <TableRow
-                  key={item.id}
+                  key={item._id}
                   onClick={() => {
                     setSelectedItem(item);
                     setDetailDialogOpen(true);
@@ -359,12 +388,12 @@ function ItemsTabs({ items, refreshItems }: ItemsTabsProps) {
                 >
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
-                      checked={selectedItems.includes(item.id)}
+                      checked={selectedItems.includes(item._id)}
                       onCheckedChange={(checked) =>
                         setSelectedItems((prev) =>
                           checked
-                            ? [...prev, item.id]
-                            : prev.filter((id) => id !== item.id),
+                            ? [...prev, item._id]
+                            : prev.filter((id) => id !== item._id),
                         )
                       }
                     />
@@ -402,7 +431,7 @@ function ItemsTabs({ items, refreshItems }: ItemsTabsProps) {
               )}
               {returnedItems.map((item) => (
                 <TableRow
-                  key={item.id}
+                  key={item._id}
                   onClick={() => {
                     setSelectedItem(item);
                     setDetailDialogOpen(true);
@@ -446,6 +475,7 @@ interface ItemDetailDialogProps {
   open: boolean;
   onClose: () => void;
 }
+
 function ItemDetailDialog({ item, open, onClose }: ItemDetailDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -472,7 +502,7 @@ function ItemDetailDialog({ item, open, onClose }: ItemDetailDialogProps) {
                 <dt className="text-sm font-medium text-gray-500">Location</dt>
                 <dd className="text-sm text-gray-900">{item.location}</dd>
               </div>
-              {item.is_returned === 1 && (
+              {item.is_returned && (
                 <>
                   <div className="flex justify-between">
                     <dt className="text-sm font-medium text-gray-500">
@@ -538,7 +568,7 @@ function ReturnItemsDialog({
         <p>You are about to return:</p>
         <ul className="mb-4 list-disc pl-5">
           {selectedItemsDetails.map((item) => (
-            <li key={item.id}>{item.name}</li>
+            <li key={item._id}>{item.name}</li>
           ))}
         </ul>
         <Form {...returnForm}>

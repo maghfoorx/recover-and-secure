@@ -13,7 +13,11 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
-import type * as amaanat_allAmaanatItems from "../amaanat/allAmaanatItems.js";
+import type * as amaanat_mutations from "../amaanat/mutations.js";
+import type * as amaanat_queries from "../amaanat/queries.js";
+import type * as lostProperty_mutations from "../lostProperty/mutations.js";
+import type * as lostProperty_queries from "../lostProperty/queries.js";
+import type * as types from "../types.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -24,7 +28,11 @@ import type * as amaanat_allAmaanatItems from "../amaanat/allAmaanatItems.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  "amaanat/allAmaanatItems": typeof amaanat_allAmaanatItems;
+  "amaanat/mutations": typeof amaanat_mutations;
+  "amaanat/queries": typeof amaanat_queries;
+  "lostProperty/mutations": typeof lostProperty_mutations;
+  "lostProperty/queries": typeof lostProperty_queries;
+  types: typeof types;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

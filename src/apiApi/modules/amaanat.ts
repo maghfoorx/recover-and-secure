@@ -1,10 +1,1 @@
-export const {
-  getAmaanatUsers,
-  getAmaanatUser,
-  addAmaanatUser,
-  getUserAmaanatItems,
-  addAmaanatItem,
-  returnAmaanatItem,
-  printAmaanatReceipt,
-  getAmaanatItems,
-} = window?.ipcApi ?? {};
+export const { printAmaanatReceipt } = window?.ipcApi ?? {};

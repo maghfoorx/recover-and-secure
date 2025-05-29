@@ -26,44 +26,48 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import useFetchLostPropertyData from "@/hooks/useFetchLostPropertyData";
-import { LostItemType } from "@/type/moduleTypes";
-import {
-  deleteLostItem,
-  foundLostItem,
-  matchLostItemWithFoundItem,
-  unFoundLostItem,
-} from "@/apiApi/modules/lostProperty";
 import { Badge } from "./ui/badge";
-import { formatBoolean } from "@/utils/formatBoolean";
 import { toast } from "sonner";
 import MatchItemDialog from "./MatchItemDialog";
 import { Check, Cross, X } from "lucide-react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { Doc, Id } from "../../convex/_generated/dataModel";
 
 export default function LostItems(): JSX.Element {
-  const { lostItems, foundItems, handleGetLostItems } =
-    useFetchLostPropertyData();
+  // Fetch data using Convex queries
+  const lostItems =
+    useQuery(api.lostProperty.queries.getLostItemsReported) || [];
+  const foundItems =
+    useQuery(api.lostProperty.queries.getFoundItemsReported) || [];
+
+  // Define mutations
+  const deleteLostItem = useMutation(api.lostProperty.mutations.deleteLostItem);
+  const updateFoundColumn = useMutation(
+    api.lostProperty.mutations.updateFoundColumn,
+  );
+  const unFoundLostItem = useMutation(
+    api.lostProperty.mutations.unFoundLostItem,
+  );
+  const matchItems = useMutation(
+    api.lostProperty.mutations.matchLostItemWithFoundItem,
+  );
+
   const [searchBarValue, setSearchBarValue] = useState("");
   const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [modalData, setModalData] = useState<LostItemType | null>(null);
+  const [modalData, setModalData] = useState<Doc<"lost_items"> | null>(null);
+  const [matchingDialogOpen, setMatchingDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (modalData?.id != null) {
+    if (modalData?._id != null) {
       const refreshedModalData = lostItems.find(
-        (item) => item.id === modalData.id,
+        (item) => item._id === modalData._id,
       );
       if (refreshedModalData != null) {
         setModalData(refreshedModalData);
       }
     }
   }, [lostItems]);
-
-  // Reset any extra states when dialog closes
-  useEffect(() => {
-    if (!openDialog) {
-      // Reset additional confirmation states here if needed
-    }
-  }, [openDialog]);
 
   // Filter items based on AIMS ID, Item Name or Details
   const includesAimsID = lostItems.filter((item) =>
@@ -85,51 +89,60 @@ export default function LostItems(): JSX.Element {
   ]);
   const filteredItems = Array.from(filteredItemsSet);
 
-  function handleRowClick(row: LostItemType) {
+  function handleRowClick(row: Doc<"lost_items">) {
     setModalData(row);
     setOpenDialog(true);
   }
 
-  async function handleDeletingLostItem(id: number) {
-    await deleteLostItem(id);
-    await handleGetLostItems();
+  async function handleDeletingLostItem(id: Id<"lost_items">) {
+    await deleteLostItem({ id });
     setOpenDialog(false);
   }
 
-  async function handleToggleFoundItem(id: number) {
-    if (modalData?.is_found === 0) {
-      await foundLostItem(id);
-      toast.success("Item marked as found", {
-        style: {
-          background: "green",
-          color: "white",
-        },
-      });
-    } else if (modalData?.is_found === 1) {
-      await unFoundLostItem(id);
-      toast.success("Item marked as lost", {
-        style: {
-          background: "green",
-          color: "white",
-        },
+  async function handleToggleFoundItem(id: Id<"lost_items">) {
+    try {
+      if (modalData?.is_found === false) {
+        await updateFoundColumn({ id });
+        toast.success("Item marked as found", {
+          style: { background: "green", color: "white" },
+        });
+      } else if (modalData?.is_found === true) {
+        await unFoundLostItem({ id });
+        toast.success("Item marked as lost", {
+          style: { background: "green", color: "white" },
+        });
+      }
+    } catch (error) {
+      toast.error("Operation failed", {
+        style: { background: "red", color: "white" },
       });
     }
-    await handleGetLostItems();
   }
 
   const foundItemsToMatchWith = foundItems.filter(
-    (item) => item.lost_item_id == null,
+    (item) => item.lost_item_id === undefined,
   );
 
-  const [matchingDialogOpen, setMatchingDialogOpen] = useState(false);
+  async function createMatch(
+    lostItemId: Id<"lost_items">,
+    foundItemId: Id<"found_items">,
+  ) {
+    try {
+      const response = await matchItems({
+        lostItemId,
+        foundItemId,
+      });
 
-  async function createMatch(lostItemId: number, foundItemId: number) {
-    const response = await matchLostItemWithFoundItem({
-      lostItemId,
-      foundItemId,
-    });
-    console.log(response, "isResponse");
-    return response;
+      toast.success("Match created successfully", {
+        style: { backgroundColor: "green", color: "white" },
+      });
+      return response;
+    } catch (error) {
+      toast.error("Failed to create match. Please try again.", {
+        style: { backgroundColor: "red", color: "white" },
+      });
+      throw error;
+    }
   }
 
   return (
@@ -141,8 +154,7 @@ export default function LostItems(): JSX.Element {
           Lost items: {lostItems.length}
         </Badge>
         <Badge className="rounded-sm bg-sky-600 text-white font-normal px-2 py-1">
-          Lost items found:{" "}
-          {lostItems.filter((item) => item.is_found === 1).length}
+          Lost items found: {lostItems.filter((item) => item.is_found).length}
         </Badge>
       </div>
 
@@ -171,14 +183,14 @@ export default function LostItems(): JSX.Element {
           ) : (
             filteredItems.map((item) => (
               <TableRow
-                key={item.id}
+                key={item._id}
                 onClick={() => handleRowClick(item)}
                 className="cursor-pointer hover:bg-gray-100"
               >
                 <TableCell>{item.aims_number}</TableCell>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.details}</TableCell>
-                <TableCell>{formatBoolean(item.is_found)}</TableCell>
+                <TableCell>{item.is_found ? "Yes" : "No"}</TableCell>
               </TableRow>
             ))
           )}
@@ -192,7 +204,7 @@ export default function LostItems(): JSX.Element {
             <>
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold">
-                  {modalData.id}: {modalData.name}
+                  {modalData.name}
                 </DialogTitle>
               </DialogHeader>
               <dl className="mt-4 space-y-3">
@@ -233,7 +245,7 @@ export default function LostItems(): JSX.Element {
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">Found</dt>
                   <dd className="text-sm text-gray-900">
-                    {modalData.is_found === 0 ? (
+                    {modalData.is_found === false ? (
                       <X className="h-8 w-8 text-red-600" />
                     ) : (
                       <Check className="h-8 w-8 text-green-600" />
@@ -262,7 +274,7 @@ export default function LostItems(): JSX.Element {
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() =>
-                          modalData && handleDeletingLostItem(modalData.id)
+                          modalData && handleDeletingLostItem(modalData._id)
                         }
                       >
                         Continue
@@ -270,12 +282,12 @@ export default function LostItems(): JSX.Element {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-                {modalData?.found_item_id == null && (
+                {modalData?.found_item_id === undefined && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button size="sm" variant="secondary">
-                        {modalData.is_found === 1
-                          ? "mark as not found"
+                        {modalData.is_found
+                          ? "Mark as not found"
                           : "Mark as found"}
                       </Button>
                     </AlertDialogTrigger>
@@ -283,8 +295,7 @@ export default function LostItems(): JSX.Element {
                       <AlertDialogHeader>
                         <AlertDialogTitle>
                           Are you sure you want to{" "}
-                          {modalData.is_found === 1 ? "un-find" : "find"} this
-                          item?
+                          {modalData.is_found ? "un-find" : "find"} this item?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                           This will toggle the found status of the lost item.
@@ -294,7 +305,7 @@ export default function LostItems(): JSX.Element {
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={() =>
-                            modalData && handleToggleFoundItem(modalData.id)
+                            modalData && handleToggleFoundItem(modalData._id)
                           }
                         >
                           Yes
@@ -304,7 +315,7 @@ export default function LostItems(): JSX.Element {
                   </AlertDialog>
                 )}
 
-                {modalData?.found_item_id == null && (
+                {modalData?.found_item_id === undefined && (
                   <Button
                     size="sm"
                     onClick={() => {
@@ -322,28 +333,15 @@ export default function LostItems(): JSX.Element {
                 items={foundItemsToMatchWith}
                 type="found"
                 onMatch={async (foundItemId) => {
-                  const response = await createMatch(modalData.id, foundItemId);
-
-                  console.log(response, "isResponse");
-
-                  if (response?.success === true) {
-                    toast.success("Match created successfully", {
-                      style: {
-                        backgroundColor: "green",
-                        color: "white",
-                      },
-                    });
-                  } else {
-                    toast.error("Failed to create match. Please try again.", {
-                      style: {
-                        backgroundColor: "red",
-                        color: "white",
-                      },
-                    });
+                  try {
+                    await createMatch(
+                      modalData._id,
+                      foundItemId as Id<"found_items">,
+                    );
+                    setMatchingDialogOpen(false);
+                  } catch (error) {
+                    // Error handling already done in createMatch
                   }
-
-                  await handleGetLostItems();
-                  setMatchingDialogOpen(false);
                 }}
               />
             </>
