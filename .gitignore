@@ -38,3 +38,4 @@ empty-database.db
 database.sqlite3
 
 .env
+convex-data
