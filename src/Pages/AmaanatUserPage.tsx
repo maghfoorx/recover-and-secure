@@ -354,6 +354,12 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                         {(["small", "medium", "large"] as const).map((size) => (
                           <TabsContent key={size} value={size}>
                             <div className="flex flex-wrap gap-2 mt-4 h-[200px] overflow-y-auto items-start content-start">
+                              {(allAvailableLocationsBySize?.[size] || [])
+                                .length === 0 && (
+                                <div className="px-2">
+                                  All {size} locations are occupied
+                                </div>
+                              )}
                               {(allAvailableLocationsBySize?.[size] || []).map(
                                 (loc) => (
                                   <Button

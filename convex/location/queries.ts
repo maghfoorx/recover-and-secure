@@ -8,6 +8,32 @@ export const getAvailableLocations = query({
   handler: async (ctx, args) => {
     const allAvailable = await ctx.db
       .query("amaanat_locations")
+      .filter((q) => q.eq(q.field("is_occupied"), false))
+      .order("asc")
+      .collect();
+
+    // Group by size
+    const grouped = allAvailable.reduce(
+      (acc, loc) => {
+        acc[loc.size].push(loc);
+        return acc;
+      },
+      {
+        small: [] as Doc<"amaanat_locations">[],
+        medium: [] as Doc<"amaanat_locations">[],
+        large: [] as Doc<"amaanat_locations">[],
+      },
+    );
+
+    return grouped;
+  },
+});
+
+export const getAllLocations = query({
+  args: {},
+  handler: async (ctx, args) => {
+    const allAvailable = await ctx.db
+      .query("amaanat_locations")
       // .filter((q) => q.eq(q.field("is_occupied"), false))
       .order("asc")
       .collect();

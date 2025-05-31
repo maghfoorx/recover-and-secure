@@ -22,7 +22,7 @@ import { LOCATION_COLOUR_BY_SIZE } from "../../convex/types";
 
 export default function LocationManagementPage() {
   const allLocationsGroupedBySize = useQuery(
-    api.location.queries.getAvailableLocations,
+    api.location.queries.getAllLocations,
   );
 
   const smallLocations = allLocationsGroupedBySize?.small ?? [];
