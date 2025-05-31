@@ -15,6 +15,8 @@ import type {
 } from "convex/server";
 import type * as amaanat_mutations from "../amaanat/mutations.js";
 import type * as amaanat_queries from "../amaanat/queries.js";
+import type * as location_mutations from "../location/mutations.js";
+import type * as location_queries from "../location/queries.js";
 import type * as lostProperty_mutations from "../lostProperty/mutations.js";
 import type * as lostProperty_queries from "../lostProperty/queries.js";
 import type * as types from "../types.js";
@@ -30,6 +32,8 @@ import type * as types from "../types.js";
 declare const fullApi: ApiFromModules<{
   "amaanat/mutations": typeof amaanat_mutations;
   "amaanat/queries": typeof amaanat_queries;
+  "location/mutations": typeof location_mutations;
+  "location/queries": typeof location_queries;
   "lostProperty/mutations": typeof lostProperty_mutations;
   "lostProperty/queries": typeof lostProperty_queries;
   types: typeof types;

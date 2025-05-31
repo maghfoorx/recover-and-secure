@@ -9,6 +9,7 @@ import {
   Box,
   PackageCheck,
   FilePlus,
+  Map,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,6 +38,7 @@ const lostFoundRoutes = [
 ];
 
 const generalRoutes = [
+  { title: "Location management", path: "/location-settings", icon: Map },
   { title: "Dashboard", path: "/dashboard", icon: Home },
   { title: "Settings", path: "/settings", icon: Settings },
 ];

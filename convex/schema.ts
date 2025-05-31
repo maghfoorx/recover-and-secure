@@ -13,7 +13,7 @@ export default defineSchema({
     user_id: v.id("amaanat_users"),
     name: v.string(),
     details: v.optional(v.string()),
-    location: v.optional(v.string()),
+    location_id: v.id("amaanat_locations"),
     entry_date: v.number(), // Unix timestamp
     returned_by: v.optional(v.string()),
     is_returned: v.boolean(),
@@ -21,6 +21,15 @@ export default defineSchema({
   })
     .index("by_user", ["user_id"])
     .index("by_returned_status", ["is_returned"]),
+
+  amaanat_locations: defineTable({
+    number: v.number(), // globally unique ID like 1, 2, 3...
+    size: v.union(v.literal("small"), v.literal("medium"), v.literal("large")),
+    is_occupied: v.boolean(),
+  })
+    .index("by_occupied", ["is_occupied"])
+    .index("by_number", ["number"])
+    .index("by_size", ["size"]),
 
   lost_items: defineTable({
     date_reported: v.number(), // Unix timestamp

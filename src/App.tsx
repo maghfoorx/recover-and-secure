@@ -10,6 +10,7 @@ import Layout from "./components/Layout";
 import LostItems from "./components/LostItems";
 import FoundItems from "./components/FoundItems";
 import SettingsPage from "./pages/SettingsPage";
+import LocationManagementPage from "./pages/LocationManagementPage";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ const AllRoutes = () => {
       />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/location-settings" element={<LocationManagementPage />} />
     </Routes>
   );
 };

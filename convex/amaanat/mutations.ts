@@ -29,26 +29,42 @@ export const addAmaanatItem = mutation({
     user_id: v.id("amaanat_users"),
     name: v.string(),
     details: v.optional(v.string()),
-    location: v.optional(v.string()),
+    location: v.id("amaanat_locations"),
   },
   handler: async (ctx, args) => {
+    const db = ctx.db;
+
     // Verify user exists
-    const user = await ctx.db.get(args.user_id);
+    const user = await db.get(args.user_id);
     if (!user) {
       throw new Error("User not found");
     }
 
-    const itemId = await ctx.db.insert("amaanat_items", {
+    // Mark location as occupied
+    const location = await db.get(args.location);
+    if (!location) {
+      throw new Error("Location not found");
+    }
+
+    if (location.is_occupied) {
+      throw new Error("Location is already occupied");
+    }
+
+    await db.patch(args.location, {
+      is_occupied: true,
+    });
+
+    // Insert the item
+    const itemId = await db.insert("amaanat_items", {
       user_id: args.user_id,
       name: args.name,
       details: args.details,
-      location: args.location,
-      entry_date: Date.now(), // Current timestamp
+      location_id: args.location,
+      entry_date: Date.now(),
       is_returned: false,
     });
 
-    // Return the created item
-    return await ctx.db.get(itemId);
+    return await db.get(itemId);
   },
 });
 
@@ -59,26 +75,33 @@ export const returnAmaanatItem = mutation({
     returned_by: v.string(),
   },
   handler: async (ctx, args) => {
-    // Verify item exists
-    const item = await ctx.db.get(args.id);
+    const db = ctx.db;
+
+    // Step 1: Verify item exists
+    const item = await db.get(args.id);
     if (!item) {
       throw new Error("Item not found");
     }
 
-    // Check if item is already returned
+    // Step 2: Check if already returned
     if (item.is_returned) {
       throw new Error("Item is already returned");
     }
 
-    // Update the item
-    await ctx.db.patch(args.id, {
+    // Step 3: Mark the item as returned
+    await db.patch(args.id, {
       is_returned: true,
       returned_by: args.returned_by,
-      returned_at: Date.now(), // Current timestamp
+      returned_at: Date.now(),
     });
 
-    // Return the updated item
-    return await ctx.db.get(args.id);
+    // Step 4: Mark the location as available again
+    await db.patch(item.location_id, {
+      is_occupied: false,
+    });
+
+    // Step 5: Return updated item
+    return await db.get(args.id);
   },
 });
 

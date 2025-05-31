@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { z } from "zod";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,8 +34,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { formatDate } from "@/utils/formatDate";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import { Doc, Id } from "../../convex/_generated/dataModel";
 import { printAmaanatReceipt } from "@/apiApi/modules/amaanat";
+import FullScreenSpinner from "@/components/FullScreenSpinner";
+import { LOCATION_COLOUR_BY_SIZE } from "../../convex/types";
+import { cn } from "@/lib/utils";
+import { Infer } from "convex/values";
+import { getUserAmaanatItems } from "convex/amaanat/queries";
 
 // Types based on your Convex schema
 type AmaanatUserType = {
@@ -50,7 +57,9 @@ type AmaanatUserItemType = {
   user_id: Id<"amaanat_users">;
   name: string;
   details?: string;
-  location?: string;
+  location_id: Id<"amaanat_locations">;
+  locationNumber: number | null;
+  locationSize: string | null;
   entry_date: number;
   returned_by?: string;
   is_returned: boolean;
@@ -90,7 +99,7 @@ export default function AmaanatUserPage() {
     const printData = {
       itemsNumber: storedItems.length,
       aimsID: amaanatUser?.aims_number || "",
-      location: storedItems[0]?.location || "",
+      location: storedItems[0]?.location_id || "",
       computerName: capitalizedComputerName,
     };
 
@@ -100,7 +109,25 @@ export default function AmaanatUserPage() {
     toast.info("Print functionality needs to be implemented");
   };
 
-  if (!amaanatUser) return <div>Loading...</div>;
+  if (amaanatUser === undefined)
+    return (
+      <div className="flex items-center justify-center h-full">
+        <FullScreenSpinner />
+      </div>
+    );
+
+  if (amaanatUser === null) {
+    return (
+      <div className="p-6 space-y-6">
+        <div>
+          <Button variant="link" asChild>
+            <Link to="/">← Back to All Users</Link>
+          </Button>
+        </div>
+        <div>Something has gone wrong. This user can't be found.</div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -183,7 +210,33 @@ interface AddItemDialogProps {
 function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
   const addAmaanatItem = useMutation(api.amaanat.mutations.addAmaanatItem);
 
+  const allAvailableLocationsBySize = useQuery(
+    api.location.queries.getAvailableLocations,
+  );
+
+  const availableLocationIds = useMemo(() => {
+    return allAvailableLocationsBySize
+      ? Object.values(allAvailableLocationsBySize)
+          .flat()
+          .map((loc) => loc._id)
+      : [];
+  }, [allAvailableLocationsBySize]);
+
+  const addItemSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    details: z.string().optional(),
+    location: z
+      .string()
+      .refine(
+        (val) => availableLocationIds.includes(val as Id<"amaanat_locations">),
+        {
+          message: "Please select a valid location",
+        },
+      ),
+  });
+
   const addForm = useForm({
+    resolver: zodResolver(addItemSchema),
     defaultValues: {
       name: "",
       details: "",
@@ -232,7 +285,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Name*</FormLabel>
                     <FormControl>
                       <Input
                         className="my-0"
@@ -256,7 +309,6 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                       <Input
                         className="my-0"
                         {...field}
-                        required
                         placeholder="black iphone 6"
                       />
                     </FormControl>
@@ -270,14 +322,66 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Stored Location</FormLabel>
+                    <FormLabel>Choose storage location*</FormLabel>
                     <FormControl>
-                      <Input
-                        className="my-0"
-                        {...field}
-                        required
-                        placeholder="A1"
-                      />
+                      <Tabs defaultValue="small" className="w-full">
+                        <TabsList className="grid grid-cols-3">
+                          {(["small", "medium", "large"] as const).map(
+                            (size) => (
+                              <TabsTrigger
+                                key={size}
+                                value={size}
+                                className={cn(
+                                  LOCATION_COLOUR_BY_SIZE[size],
+                                  "data-[state=active]:border data-[state=active]:border-gray-400 data-[state=active]:font-semibold data-[state=active]:shadow-sm data-[state=active]:saturate-150",
+                                  {
+                                    // override with more saturated color when active
+                                    "data-[state=active]:bg-rose-200":
+                                      size === "small",
+                                    "data-[state=active]:bg-orange-200":
+                                      size === "medium",
+                                    "data-[state=active]:bg-green-200":
+                                      size === "large",
+                                  },
+                                )}
+                              >
+                                {size.charAt(0).toUpperCase() + size.slice(1)}
+                              </TabsTrigger>
+                            ),
+                          )}
+                        </TabsList>
+
+                        {(["small", "medium", "large"] as const).map((size) => (
+                          <TabsContent key={size} value={size}>
+                            <div className="flex flex-wrap gap-2 mt-4 h-[200px] overflow-y-auto items-start content-start">
+                              {(allAvailableLocationsBySize?.[size] || []).map(
+                                (loc) => (
+                                  <Button
+                                    size={"sm"}
+                                    variant={"outline"}
+                                    key={loc._id}
+                                    type="button"
+                                    onClick={() => field.onChange(loc._id)}
+                                    className={cn(
+                                      "px-3 py-1 rounded-md border text-sm transition hover:opacity-55",
+                                      {
+                                        "bg-blue-600 text-white border-blue-600 hover:bg-opacity-55 hover:bg-blue-600 hover:text-white":
+                                          field.value === loc._id,
+                                        "text-gray-800 border-gray-300 hover:bg-opacity-55":
+                                          field.value !== loc._id,
+                                        [LOCATION_COLOUR_BY_SIZE[size]]:
+                                          field.value !== loc._id,
+                                      },
+                                    )}
+                                  >
+                                    {loc.number}
+                                  </Button>
+                                ),
+                              )}
+                            </div>
+                          </TabsContent>
+                        ))}
+                      </Tabs>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -404,7 +508,25 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                       ? `${item?.details?.slice(0, 45)}...`
                       : item.details}
                   </TableCell>
-                  <TableCell>{item.location}</TableCell>
+                  <TableCell
+                    className={cn("text-sm text-gray-900", {
+                      [LOCATION_COLOUR_BY_SIZE[
+                        item?.locationSize as unknown as
+                          | "small"
+                          | "medium"
+                          | "large"
+                      ]]: Boolean([
+                        LOCATION_COLOUR_BY_SIZE[
+                          item?.locationSize as unknown as
+                            | "small"
+                            | "medium"
+                            | "large"
+                        ],
+                      ]),
+                    })}
+                  >
+                    {item.locationNumber}
+                  </TableCell>
                   <TableCell>{formatDate(item.entry_date)}</TableCell>
                 </TableRow>
               ))}
@@ -500,7 +622,25 @@ function ItemDetailDialog({ item, open, onClose }: ItemDetailDialogProps) {
               </div>
               <div className="flex justify-between">
                 <dt className="text-sm font-medium text-gray-500">Location</dt>
-                <dd className="text-sm text-gray-900">{item.location}</dd>
+                <dd
+                  className={cn("text-sm text-gray-900", {
+                    [LOCATION_COLOUR_BY_SIZE[
+                      item?.locationSize as unknown as
+                        | "small"
+                        | "medium"
+                        | "large"
+                    ]]: Boolean([
+                      LOCATION_COLOUR_BY_SIZE[
+                        item?.locationSize as unknown as
+                          | "small"
+                          | "medium"
+                          | "large"
+                      ],
+                    ]),
+                  })}
+                >
+                  {item?.locationNumber}
+                </dd>
               </div>
               {item.is_returned && (
                 <>

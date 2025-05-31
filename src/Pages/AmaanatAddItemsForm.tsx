@@ -80,7 +80,7 @@ export default function AmaanatAddItemsForm({
       const data = {
         itemsNumber: storedItems.length,
         aimsID: amaanatUser.aims_number || "",
-        location: storedItems[0]?.location ?? "",
+        location: storedItems[0]?.location_id ?? "",
         computerName,
       };
       // await printAmaanatReceipt(data);

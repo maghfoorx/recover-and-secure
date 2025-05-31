@@ -45,40 +45,42 @@ export default function MatchItemDialog({
         <DialogHeader>
           <DialogTitle>Match with {type} item</DialogTitle>
         </DialogHeader>
-        <Input
-          placeholder={`Search ${type} items...`}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <div className="max-h-[400px] overflow-y-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredItems.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.details}</TableCell>
-                  <TableCell>
-                    {type === "lost"
-                      ? new Date(item?.date_reported).toLocaleDateString()
-                      : new Date(item?.found_date).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <Button size="sm" onClick={() => onMatch(item._id)}>
-                      Match
-                    </Button>
-                  </TableCell>
+        <div>
+          <Input
+            placeholder={`Search ${type} items...`}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <div className="max-h-[400px] overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Details</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredItems.map((item) => (
+                  <TableRow key={item._id}>
+                    <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.details}</TableCell>
+                    <TableCell>
+                      {type === "lost"
+                        ? new Date(item?.date_reported).toLocaleDateString()
+                        : new Date(item?.found_date).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Button size="sm" onClick={() => onMatch(item._id)}>
+                        Match
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>

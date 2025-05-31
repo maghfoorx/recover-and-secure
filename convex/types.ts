@@ -35,3 +35,12 @@ export interface AmaanatItemWithUser extends AmaanatItem {
 export interface AmaanatUserWithItems extends AmaanatUser {
   items: AmaanatItem[];
 }
+
+export const LOCATION_COLOUR_BY_SIZE: Record<
+  "small" | "medium" | "large",
+  string
+> = {
+  small: "bg-rose-100",
+  medium: "bg-orange-100",
+  large: "bg-green-100",
+};
