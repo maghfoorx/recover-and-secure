@@ -99,10 +99,10 @@ import {
 export async function printReceipt(printReceiptData: any) {
   console.log(printReceiptData, "PRINT_DATA");
   const printingWindow = new BrowserWindow({
-    width: 20,
-    height: 20,
+    width: 300, // Around 80mm at 96 DPI
+    height: 500,
     ...parsePaperSize("80mm"),
-    show: true,
+    show: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -196,13 +196,15 @@ export async function printReceipt(printReceiptData: any) {
 
   const htmlContent = `
           <!doctype html>
-          <html lang="en" style="font-family: monospace;">
+          <html lang="en" style="">
               <head>
                   <meta charset="UTF-8" />
                   <title>Print preview</title>
               </head>
-              <body>
-                  <section id="main">${renderedHTML}</section>
+              <body style="width: 115mm;margin-top: 24px;">
+                <div style="">
+                ${renderedHTML}
+                </div>
               </body>
           </html>
 
@@ -214,9 +216,38 @@ export async function printReceipt(printReceiptData: any) {
   // Load the HTML directly
   printingWindow.loadURL(dataURL);
 
-  const printersList = await printingWindow.webContents.getPrintersAsync();
+  printingWindow.webContents.on("did-finish-load", async () => {
+    const printersList = await printingWindow.webContents.getPrintersAsync();
 
-  console.log(printersList, "WEB CONTENTS");
+    const printerToUse = printersList.find(
+      (printer) => printer.name === "ZDesigner ZD421-203dpi ZPL"
+    );
+
+    console.log(printerToUse, "PRINTER_TO_USE");
+
+    if (printerToUse) {
+      printingWindow.webContents.print(
+        {
+          silent: true, // Print without showing dialog
+          printBackground: true,
+          deviceName: printerToUse.name, // Use the selected printer
+          margins: {
+            marginType: "none",
+          },
+        },
+        (success, failureReason) => {
+          if (!success) {
+            console.error("Print failed: ", failureReason);
+          } else {
+            console.log("Print success");
+          }
+          printingWindow.close(); // Close window after printing
+        }
+      );
+    } else {
+      console.error("Printer not found");
+    }
+  });
 }
 
 function formatDate(inputDate: Date) {
