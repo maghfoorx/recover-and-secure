@@ -1,4 +1,3 @@
-import { getAmaanatUser, getUserAmaanatItems } from "@/apiApi/modules/amaanat";
 import { AmaanatUserItemType, AmaanatUserType } from "@/type/moduleTypes";
 import { useEffect, useState } from "react";
 
@@ -17,15 +16,9 @@ export default function useFetchUserAmaanatItems({
     handleGetAmaanatUser(ID);
   }, []);
 
-  async function handleGetUserAmaanatItems(ID: string | number) {
-    const response = await getUserAmaanatItems(ID);
-    setAmaanatItems(response);
-  }
+  async function handleGetUserAmaanatItems(ID: string | number) {}
 
-  async function handleGetAmaanatUser(ID: string) {
-    const response = await getAmaanatUser(ID);
-    setAmaanatUser(response);
-  }
+  async function handleGetAmaanatUser(ID: string) {}
 
   return {
     amaanatItems,
