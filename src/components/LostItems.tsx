@@ -167,10 +167,10 @@ export default function LostItems(): JSX.Element {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>AIMS id</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Details</TableHead>
             <TableHead>Found</TableHead>
+            <TableHead>AIMS id</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -187,10 +187,10 @@ export default function LostItems(): JSX.Element {
                 onClick={() => handleRowClick(item)}
                 className="cursor-pointer hover:bg-gray-100"
               >
-                <TableCell>{item.aims_number}</TableCell>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>{item.details}</TableCell>
                 <TableCell>{item.is_found ? "Yes" : "No"}</TableCell>
+                <TableCell>{item.aims_number}</TableCell>
               </TableRow>
             ))
           )}
@@ -243,7 +243,9 @@ export default function LostItems(): JSX.Element {
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-sm font-medium text-gray-500">Found</dt>
+                  <dt className="text-sm font-medium text-gray-500">
+                    Item found
+                  </dt>
                   <dd className="text-sm text-gray-900">
                     {modalData.is_found === false ? (
                       <X className="h-8 w-8 text-red-600" />
@@ -252,6 +254,20 @@ export default function LostItems(): JSX.Element {
                     )}
                   </dd>
                 </div>
+                {modalData.is_found === true && (
+                  <div className="flex justify-between">
+                    <dt className="text-sm font-medium text-gray-500">
+                      Matched with a found item
+                    </dt>
+                    <dd className="text-sm text-gray-900">
+                      {modalData.found_item_id == null ? (
+                        <X className="h-8 w-8 text-red-600" />
+                      ) : (
+                        <Check className="h-8 w-8 text-green-600" />
+                      )}
+                    </dd>
+                  </div>
+                )}
               </dl>
               <div className="flex justify-end gap-2 mt-4">
                 <AlertDialog>

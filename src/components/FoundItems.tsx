@@ -34,6 +34,7 @@ import MatchItemDialog from "./MatchItemDialog";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc, Id } from "../../convex/_generated/dataModel";
+import { Check, X } from "lucide-react";
 
 export default function FoundItems(): JSX.Element {
   // Fetch data using Convex queries
@@ -72,6 +73,7 @@ export default function FoundItems(): JSX.Element {
   const [openReturnForm, setOpenReturnForm] = useState(false);
   const [matchingDialogOpen, setMatchingDialogOpen] = useState(false);
 
+  console.log(modalData, "IS_MODALDATA");
   const {
     register,
     handleSubmit,
@@ -259,6 +261,31 @@ export default function FoundItems(): JSX.Element {
                     </dd>
                   </div>
                 )}
+
+                <div className="flex justify-between">
+                  <dt className="text-sm font-medium text-gray-500">
+                    Returned
+                  </dt>
+                  <dd className="text-sm text-gray-900">
+                    {modalData.is_returned === false ? (
+                      <X className="h-8 w-8 text-red-600" />
+                    ) : (
+                      <Check className="h-8 w-8 text-green-600" />
+                    )}
+                  </dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-sm font-medium text-gray-500">
+                    Matched with a lost item
+                  </dt>
+                  <dd className="text-sm text-gray-900">
+                    {modalData.lost_item_id == null ? (
+                      <X className="h-8 w-8 text-red-600" />
+                    ) : (
+                      <Check className="h-8 w-8 text-green-600" />
+                    )}
+                  </dd>
+                </div>
               </dl>
               <hr className="my-0" />
               {(modalData.returned_to_name ||

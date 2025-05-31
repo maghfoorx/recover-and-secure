@@ -97,7 +97,7 @@ import {
 // }
 
 export async function printReceipt(printReceiptData: any) {
-  console.log("hello");
+  console.log(printReceiptData, "PRINT_DATA");
   const printingWindow = new BrowserWindow({
     width: 20,
     height: 20,
@@ -118,6 +118,60 @@ export async function printReceipt(printReceiptData: any) {
         fontWeight: "bold",
         textAlign: "center",
         marginBottom: "4px",
+      },
+    },
+    {
+      type: "text",
+      value: formatDate(new Date()),
+      style: { fontSize: "12px", textAlign: "center", marginBottom: "8px" },
+    },
+    {
+      type: "text",
+      value: "Amaanat Department",
+      style: {
+        fontSize: "18px",
+        fontWeight: "600",
+        textAlign: "center",
+        marginBottom: "8px",
+      },
+    },
+    {
+      type: "text",
+      value: printReceiptData.aimsID, // AIMS number
+      style: {
+        fontSize: "50px",
+        fontWeight: "bold",
+        textAlign: "center",
+        margin: "12px 0",
+      },
+    },
+    {
+      type: "text",
+      value: `${printReceiptData.itemsNumber} items stored`,
+      style: {
+        fontSize: "18px",
+        textAlign: "center",
+        marginBottom: "10px",
+      },
+    },
+    {
+      type: "text",
+      value: "For Office Use Only",
+      style: {
+        fontSize: "14px",
+        textAlign: "center",
+        fontWeight: "600",
+        textDecoration: "underline",
+        marginBottom: "6px",
+      },
+    },
+    {
+      type: "text",
+      value: `${printReceiptData.location}  |  ${printReceiptData.computerName}`,
+      style: {
+        fontSize: "18px",
+        fontWeight: "bold",
+        textAlign: "center",
       },
     },
   ];

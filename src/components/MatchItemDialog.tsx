@@ -41,11 +41,11 @@ export default function MatchItemDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl h-[700px]">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Match with {type} item</DialogTitle>
         </DialogHeader>
-        <div>
+        <div className="h-[500px]">
           <Input
             placeholder={`Search ${type} items...`}
             value={search}

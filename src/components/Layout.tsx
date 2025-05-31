@@ -10,11 +10,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AppSidebar } from "./AppSidebar";
+import { SidebarTrigger } from "./ui/sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex w-full">
       <AppSidebar />
+      <SidebarTrigger className="mt-2 rounded-l-none shadow-none" />
       <main className="flex-1 p-4">
         {children}
         <Toaster />

@@ -99,7 +99,7 @@ export default function AmaanatUserPage() {
     const printData = {
       itemsNumber: storedItems.length,
       aimsID: amaanatUser?.aims_number || "",
-      location: storedItems[0]?.location_id || "",
+      location: storedItems[0]?.locationNumber || "",
       computerName: capitalizedComputerName,
     };
 
