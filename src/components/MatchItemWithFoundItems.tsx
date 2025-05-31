@@ -18,18 +18,16 @@ import {
 } from "@/components/ui/table";
 import { Doc, Id } from "convex/_generated/dataModel";
 
-export default function MatchItemDialog({
+export default function MatchWithFoundItemsDialog({
   open,
   onOpenChange,
   items,
   onMatch,
-  type,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  items: Doc<"found_items">[] | Doc<"lost_items">[];
-  onMatch: (itemId: Id<"found_items"> | Id<"lost_items">) => void;
-  type: "lost" | "found";
+  items: Doc<"found_items">[];
+  onMatch: (itemId: Id<"found_items">) => void;
 }) {
   const [search, setSearch] = useState("");
 
@@ -43,11 +41,11 @@ export default function MatchItemDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Match with {type} item</DialogTitle>
+          <DialogTitle>Match with lost item</DialogTitle>
         </DialogHeader>
         <div className="h-[500px]">
           <Input
-            placeholder={`Search ${type} items...`}
+            placeholder={"Search lost items..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -67,9 +65,7 @@ export default function MatchItemDialog({
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.details}</TableCell>
                     <TableCell>
-                      {type === "lost"
-                        ? new Date(item?.date_reported).toLocaleDateString()
-                        : new Date(item?.found_date).toLocaleDateString()}
+                      {new Date(item?.found_date).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
                       <Button size="sm" onClick={() => onMatch(item._id)}>

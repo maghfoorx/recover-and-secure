@@ -17,7 +17,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="flex w-full">
       <AppSidebar />
       <SidebarTrigger className="mt-2 rounded-l-none shadow-none" />
-      <main className="flex-1 p-4">
+      <main className="flex-1 px-0 py-4">
         {children}
         <Toaster />
         <ComputerNameSelecterDialog />

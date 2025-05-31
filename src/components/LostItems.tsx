@@ -28,11 +28,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "./ui/badge";
 import { toast } from "sonner";
-import MatchItemDialog from "./MatchItemDialog";
 import { Check, Cross, X } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc, Id } from "../../convex/_generated/dataModel";
+import MatchWithFoundItemsDialog from "./MatchItemWithFoundItems";
 
 export default function LostItems(): JSX.Element {
   // Fetch data using Convex queries
@@ -146,7 +146,7 @@ export default function LostItems(): JSX.Element {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-2 py-6 space-y-6">
       <h1 className="text-3xl font-bold">Lost items</h1>
       {/* Totals displayed right after the title */}
       <div className="flex gap-4">
@@ -343,11 +343,10 @@ export default function LostItems(): JSX.Element {
                 )}
               </div>
 
-              <MatchItemDialog
+              <MatchWithFoundItemsDialog
                 open={matchingDialogOpen}
                 onOpenChange={setMatchingDialogOpen}
                 items={foundItemsToMatchWith}
-                type="found"
                 onMatch={async (foundItemId) => {
                   try {
                     await createMatch(

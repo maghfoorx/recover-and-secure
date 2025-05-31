@@ -118,7 +118,7 @@ export default function AmaanatUserPage() {
 
   if (amaanatUser === null) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="px-2 py-6 space-y-6">
         <div>
           <Button variant="link" asChild>
             <Link to="/">← Back to All Users</Link>
@@ -130,7 +130,7 @@ export default function AmaanatUserPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-2 py-6 space-y-6">
       <Header onPrint={handlePrint} userId={userId!} />
       <UserInfoCard user={amaanatUser} />
       <ItemsTabs items={amaanatItems} />

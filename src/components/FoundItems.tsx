@@ -30,11 +30,11 @@ import {
 } from "./ui/alert-dialog";
 import { Badge } from "./ui/badge";
 import { toast } from "sonner";
-import MatchItemDialog from "./MatchItemDialog";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc, Id } from "../../convex/_generated/dataModel";
 import { Check, X } from "lucide-react";
+import MatchWithLostItemsDialog from "./MatchItemWithLostItems";
 
 export default function FoundItems(): JSX.Element {
   // Fetch data using Convex queries
@@ -73,7 +73,6 @@ export default function FoundItems(): JSX.Element {
   const [openReturnForm, setOpenReturnForm] = useState(false);
   const [matchingDialogOpen, setMatchingDialogOpen] = useState(false);
 
-  console.log(modalData, "IS_MODALDATA");
   const {
     register,
     handleSubmit,
@@ -141,7 +140,7 @@ export default function FoundItems(): JSX.Element {
   );
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-2 py-6 space-y-6">
       <h1 className="text-3xl font-bold">Found items</h1>
 
       {/* Totals displayed right after the title */}
@@ -455,11 +454,10 @@ export default function FoundItems(): JSX.Element {
       </Dialog>
 
       {/* Match Item Dialog */}
-      <MatchItemDialog
+      <MatchWithLostItemsDialog
         open={matchingDialogOpen}
         onOpenChange={setMatchingDialogOpen}
         items={lostItemsToMatchWith}
-        type="lost"
         onMatch={async (lostItemId) => {
           if (!modalData) return;
 

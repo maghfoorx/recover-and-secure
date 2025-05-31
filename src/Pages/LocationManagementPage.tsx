@@ -39,13 +39,12 @@ export default function LocationManagementPage() {
   ]);
 
   const smallStats = summarize(smallLocations);
-  console.log(smallStats, "SMALL_STATS", smallLocations, "SMALL_LOCATIONS");
   const mediumStats = summarize(mediumLocations);
   const largeStats = summarize(largeLocations);
 
   if (allLocationsGroupedBySize === undefined) {
     return (
-      <div className="h-full">
+      <div className="h-full max-w-4xl mx-auto px-2 py-6">
         <h1 className="text-3xl font-bold">Location management</h1>
         <div className="h-full flex items-center justify-center">
           <FullScreenSpinner />
@@ -55,7 +54,7 @@ export default function LocationManagementPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto px-2 py-6">
       <h1 className="text-3xl font-bold mb-4">Location management</h1>
       <div className="text-muted-foreground mb-6">
         Total locations: {totalLocationsNumber}
@@ -99,8 +98,6 @@ function CreateLocationBatchForm() {
   const latestLocationNumber = useQuery(
     api.location.queries.getLatestLocationNumber,
   );
-
-  console.log(latestLocationNumber, "LATESET LOCATION NUMBER");
 
   const startingNumber = (latestLocationNumber ?? 0) + 1;
   const {

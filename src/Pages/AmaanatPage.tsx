@@ -76,7 +76,7 @@ export default function AmaanatPage(): JSX.Element {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="px-2 py-6 space-y-4">
       <h1 className="text-3xl font-bold">Amaanat</h1>
       <div className="flex flex-col gap-1">
         <Input

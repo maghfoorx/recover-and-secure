@@ -70,7 +70,7 @@ export default function AmaanatSignUpForm() {
   }
 
   return (
-    <div className="max-w-lg p-6">
+    <div className="max-w-lg px-2 py-6 ">
       <h1 className="text-3xl font-bold">Sign up amaanat user</h1>
       <div>
         <form onSubmit={handleSubmit(handleSignUpUser)} className="space-y-2">

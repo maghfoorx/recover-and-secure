@@ -12,11 +12,6 @@ export const getAvailableLocations = query({
       .order("asc")
       .collect();
 
-    console.log(
-      allAvailable.filter((item) => item.size === "small"),
-      "ALL_AVAILABLE",
-    );
-
     // Group by size
     const grouped = allAvailable.reduce(
       (acc, loc) => {

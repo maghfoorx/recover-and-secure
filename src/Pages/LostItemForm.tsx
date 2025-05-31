@@ -67,7 +67,7 @@ export default function LostItemForm() {
   }
 
   return (
-    <div className="max-w-lg p-6">
+    <div className="max-w-lg px-2 py-6">
       <h1 className="text-3xl font-bold">Add a lost item</h1>
       <form
         onSubmit={handleSubmit(handlePostingForm)}

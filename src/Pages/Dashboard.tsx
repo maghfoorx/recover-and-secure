@@ -26,7 +26,7 @@ export default function Dashboard(): JSX.Element {
   );
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-2 py-6 space-y-6">
       <h1 className="text-3xl font-bold">Dashboard</h1>
 
       {/* Lost items section */}

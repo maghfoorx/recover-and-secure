@@ -78,7 +78,6 @@ export const registerIpcHandlers = () => {
   });
 
   ipcMain.handle("RETURN_FOUND_ITEM", async (event, args: ReturnFormType) => {
-    console.log(args, "istheData");
     const response = await returnFoundItem(args);
     return response;
   });

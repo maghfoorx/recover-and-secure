@@ -9,7 +9,7 @@ import {
 
 export default function SettingsPage() {
   return (
-    <div className="p-6 space-y-4">
+    <div className="px-2 py-6 space-y-4">
       <h2 className="text-3xl font-semibold">Settings</h2>
       <UpdatedComputerNameSelect />
     </div>
