@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { Textarea } from "@/components/ui/textarea";
 
 // Define form data type
 interface FoundItemFormData {
@@ -89,7 +90,7 @@ export default function FoundItemForm() {
         </div>
         <div>
           <Label htmlFor="details">Item details*</Label>
-          <Input
+          <Textarea
             className="mt-1"
             id="details"
             {...register("details", { required: "Item details are required" })}

@@ -97,12 +97,11 @@ import {
 // }
 
 export async function printReceipt(printReceiptData: any) {
-  console.log(printReceiptData, "PRINT_DATA");
   const printingWindow = new BrowserWindow({
     width: 300, // Around 80mm at 96 DPI
     height: 500,
     ...parsePaperSize("80mm"),
-    show: false,
+    show: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -204,6 +203,10 @@ export async function printReceipt(printReceiptData: any) {
               <body style="width: 115mm;margin-top: 24px;">
                 <div style="">
                 ${renderedHTML}
+                <div style="margin-top: 4px;">
+                <div style="text-align: center; font-size: 12px;">If storing valuables like passports, please inform us.</div>
+                <div style="text-align: center; font-size: 12px;">On Sunday, collect items promptly after Huzoor’s final address.</div>
+                </div>
                 </div>
               </body>
           </html>
@@ -220,7 +223,7 @@ export async function printReceipt(printReceiptData: any) {
     const printersList = await printingWindow.webContents.getPrintersAsync();
 
     const printerToUse = printersList.find(
-      (printer) => printer.name === "ZDesigner ZD421-203dpi ZPL"
+      (printer) => printer.name === "ZDesigner ZD421-203dpi ZPL",
     );
 
     console.log(printerToUse, "PRINTER_TO_USE");
@@ -242,7 +245,7 @@ export async function printReceipt(printReceiptData: any) {
             console.log("Print success");
           }
           printingWindow.close(); // Close window after printing
-        }
+        },
       );
     } else {
       console.error("Printer not found");

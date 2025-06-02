@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,10 +33,15 @@ import { toast } from "sonner";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc, Id } from "../../convex/_generated/dataModel";
-import { Check, X } from "lucide-react";
+import { Check, CheckIcon, X, XIcon } from "lucide-react";
 import MatchWithLostItemsDialog from "./MatchItemWithLostItems";
+import { Checkbox } from "./ui/checkbox";
 
 export default function FoundItems(): JSX.Element {
+  const [isFilteredByNotReturned, setIsFilteredByNotReturned] = useState(
+    localStorage.getItem("filterFoundItemsByNotReturnedOnly") === "true",
+  );
+
   // Fetch data using Convex queries
   const foundItems =
     useQuery(api.lostProperty.queries.getFoundItemsReported) || [];
@@ -56,17 +61,24 @@ export default function FoundItems(): JSX.Element {
 
   const [searchBarValue, setSearchBarValue] = useState("");
   // Filter found items by either name or details.
-  const includesItemName = foundItems.filter((item) =>
-    item.name.toLowerCase().includes(searchBarValue.toLowerCase()),
-  );
-  const includesItemDetails = foundItems.filter((item) =>
-    item?.details?.toLowerCase().includes(searchBarValue.toLowerCase()),
-  );
-  const filteredItemsSet = new Set([
-    ...includesItemName,
-    ...includesItemDetails,
-  ]);
-  const filteredItems = Array.from(filteredItemsSet);
+  const filteredItems = useMemo(() => {
+    const lowerSearch = searchBarValue.toLowerCase();
+
+    const filtered = foundItems.filter((item) => {
+      const matchesName = item.name.toLowerCase().includes(lowerSearch);
+      const matchesDetails = item?.details?.toLowerCase().includes(lowerSearch);
+
+      const matchesSearch = matchesName || matchesDetails;
+
+      if (isFilteredByNotReturned) {
+        return matchesSearch && !item.is_returned;
+      }
+
+      return matchesSearch;
+    });
+
+    return filtered;
+  }, [foundItems, searchBarValue, isFilteredByNotReturned]);
 
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [modalData, setModalData] = useState<Doc<"found_items"> | null>(null);
@@ -79,6 +91,18 @@ export default function FoundItems(): JSX.Element {
     reset,
     formState: { errors },
   } = useForm();
+
+  useEffect(() => {
+    if (modalData != null) {
+      const updatedFoundItem = foundItems.find(
+        (item) => item._id === modalData._id,
+      );
+
+      if (updatedFoundItem) {
+        setModalData(updatedFoundItem);
+      }
+    }
+  }, [foundItems]);
 
   function handleRowClick(row: Doc<"found_items">) {
     setModalData(row);
@@ -153,20 +177,40 @@ export default function FoundItems(): JSX.Element {
         </Badge>
       </div>
 
-      <Input
-        value={searchBarValue}
-        onChange={(e) => setSearchBarValue(e.target.value)}
-        placeholder="Search by item name or details"
-        className="max-w-md"
-      />
+      <div>
+        <Input
+          value={searchBarValue}
+          onChange={(e) => setSearchBarValue(e.target.value)}
+          placeholder="Search by item name or details"
+          className="max-w-md"
+        />
+
+        <label className="flex items-center gap-2 text-sm mt-2">
+          <Checkbox
+            checked={isFilteredByNotReturned}
+            onCheckedChange={() => {
+              const updatedValue = !isFilteredByNotReturned;
+              const stringToStore = updatedValue.toString();
+              localStorage.setItem(
+                "filterFoundItemsByNotReturnedOnly",
+                stringToStore,
+              );
+              setIsFilteredByNotReturned(updatedValue);
+            }}
+          />
+          <span>Show not returned items only</span>
+        </label>
+      </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Detail</TableHead>
-            <TableHead>Date found</TableHead>
-            <TableHead>Returned</TableHead>
+            <TableHead className="w-[20%]">Name</TableHead>
+            <TableHead className="w-[60%]">Detail</TableHead>
+            <TableHead className="w-[10%] whitespace-nowrap">
+              Date found
+            </TableHead>
+            <TableHead className="w-[10%]">Returned</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -183,10 +227,18 @@ export default function FoundItems(): JSX.Element {
                 onClick={() => handleRowClick(item)}
                 className="cursor-pointer hover:bg-gray-100"
               >
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item?.details}</TableCell>
-                <TableCell>{formatDate(item.found_date)}</TableCell>
-                <TableCell>{item.is_returned ? "Yes" : "No"}</TableCell>
+                <TableCell className="w-[30%]">{item.name}</TableCell>
+                <TableCell className="w-[60%]">{item?.details}</TableCell>
+                <TableCell className="w-[10%] whitespace-nowrap">
+                  {formatDate(item.found_date)}
+                </TableCell>
+                <TableCell className="w-[10%]">
+                  {item.is_returned ? (
+                    <CheckIcon className="text-green-500" />
+                  ) : (
+                    <XIcon className="text-red-500" />
+                  )}
+                </TableCell>
               </TableRow>
             ))
           )}
@@ -201,7 +253,7 @@ export default function FoundItems(): JSX.Element {
           if (!open) setOpenReturnForm(false);
         }}
       >
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-xl overflow-y-auto max-h-[800px]">
           {modalData && (
             <>
               <DialogHeader>
@@ -212,7 +264,9 @@ export default function FoundItems(): JSX.Element {
               <dl className="mt-4 space-y-3">
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">Details</dt>
-                  <dd className="text-sm text-gray-900">{modalData.details}</dd>
+                  <dd className="text-sm text-gray-900 text-right">
+                    {modalData.details}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">
@@ -438,7 +492,10 @@ export default function FoundItems(): JSX.Element {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setOpenReturnForm(false)}
+                      onClick={() => {
+                        setOpenReturnForm(false);
+                        reset();
+                      }}
                     >
                       Cancel
                     </Button>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,13 +28,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "./ui/badge";
 import { toast } from "sonner";
-import { Check, Cross, X } from "lucide-react";
+import { Check, CheckIcon, Cross, X, XIcon } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc, Id } from "../../convex/_generated/dataModel";
 import MatchWithFoundItemsDialog from "./MatchItemWithFoundItems";
+import { Checkbox } from "./ui/checkbox";
 
 export default function LostItems(): JSX.Element {
+  const [isFilteredByNotFound, setIsFilteredByNotFound] = useState(
+    localStorage.getItem("filterFoundItemsByNotFoundOnly") === "true",
+  );
+
   // Fetch data using Convex queries
   const lostItems =
     useQuery(api.lostProperty.queries.getLostItemsReported) || [];
@@ -69,25 +74,29 @@ export default function LostItems(): JSX.Element {
     }
   }, [lostItems]);
 
-  // Filter items based on AIMS ID, Item Name or Details
-  const includesAimsID = lostItems.filter((item) =>
-    item?.aims_number
-      ?.toString()
-      .toLowerCase()
-      .includes(searchBarValue.toLowerCase()),
-  );
-  const includesItemName = lostItems.filter((item) =>
-    item.name.toLowerCase().includes(searchBarValue.toLowerCase()),
-  );
-  const includesItemDetails = lostItems.filter((item) =>
-    item?.details?.toLowerCase().includes(searchBarValue.toLowerCase()),
-  );
-  const filteredItemsSet = new Set([
-    ...includesAimsID,
-    ...includesItemName,
-    ...includesItemDetails,
-  ]);
-  const filteredItems = Array.from(filteredItemsSet);
+  const filteredItems = useMemo(() => {
+    const search = searchBarValue.toLowerCase();
+
+    const includesAimsID = lostItems.filter((item) =>
+      item?.aims_number?.toString().toLowerCase().includes(search),
+    );
+    const includesItemName = lostItems.filter((item) =>
+      item.name.toLowerCase().includes(search),
+    );
+    const includesItemDetails = lostItems.filter((item) =>
+      item?.details?.toLowerCase().includes(search),
+    );
+
+    let uniqueMatches = Array.from(
+      new Set([...includesAimsID, ...includesItemName, ...includesItemDetails]),
+    );
+
+    if (isFilteredByNotFound) {
+      uniqueMatches = uniqueMatches.filter((item) => !item.is_found);
+    }
+
+    return uniqueMatches;
+  }, [lostItems, searchBarValue, isFilteredByNotFound]);
 
   function handleRowClick(row: Doc<"lost_items">) {
     setModalData(row);
@@ -158,19 +167,36 @@ export default function LostItems(): JSX.Element {
         </Badge>
       </div>
 
-      <Input
-        value={searchBarValue}
-        onChange={(e) => setSearchBarValue(e.target.value)}
-        placeholder="Search by item name, AIMS id or details"
-        className="max-w-md"
-      />
+      <div>
+        <Input
+          value={searchBarValue}
+          onChange={(e) => setSearchBarValue(e.target.value)}
+          placeholder="Search by item name, AIMS id or details"
+          className="max-w-md"
+        />
+        <label className="flex items-center gap-2 text-sm mt-2">
+          <Checkbox
+            checked={isFilteredByNotFound}
+            onCheckedChange={() => {
+              const updatedValue = !isFilteredByNotFound;
+              const stringToStore = updatedValue.toString();
+              localStorage.setItem(
+                "filterFoundItemsByNotFoundOnly",
+                stringToStore,
+              );
+              setIsFilteredByNotFound(updatedValue);
+            }}
+          />
+          <span>Show not found items only</span>
+        </label>
+      </div>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Details</TableHead>
-            <TableHead>Found</TableHead>
-            <TableHead>AIMS id</TableHead>
+            <TableHead className="w-[20%]">Name</TableHead>
+            <TableHead className="w-[60%]">Details</TableHead>
+            <TableHead className="w-[10%]">Found</TableHead>
+            <TableHead className="w-[10%]">AIMS id</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -187,10 +213,16 @@ export default function LostItems(): JSX.Element {
                 onClick={() => handleRowClick(item)}
                 className="cursor-pointer hover:bg-gray-100"
               >
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.details}</TableCell>
-                <TableCell>{item.is_found ? "Yes" : "No"}</TableCell>
-                <TableCell>{item.aims_number}</TableCell>
+                <TableCell className="w-[20%]">{item.name}</TableCell>
+                <TableCell className="w-[60%]">{item.details}</TableCell>
+                <TableCell className="w-[10%]">
+                  {item.is_found ? (
+                    <CheckIcon className="text-green-500" />
+                  ) : (
+                    <XIcon className="text-red-500" />
+                  )}
+                </TableCell>
+                <TableCell className="w-[10%]">{item.aims_number}</TableCell>
               </TableRow>
             ))
           )}
@@ -199,7 +231,7 @@ export default function LostItems(): JSX.Element {
 
       {/* Detail Dialog */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-xl overflow-y-auto max-h-[800px]">
           {modalData && (
             <>
               <DialogHeader>

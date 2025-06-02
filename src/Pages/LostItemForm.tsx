@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { Textarea } from "@/components/ui/textarea";
 
 // Define form data type
 interface LostItemFormData {
@@ -101,7 +102,7 @@ export default function LostItemForm() {
         </div>
         <div>
           <Label htmlFor="details">Item details</Label>
-          <Input className="mt-1" id="details" {...register("details")} />
+          <Textarea className="mt-1" id="details" {...register("details")} />
         </div>
         <div>
           <Label htmlFor="location_lost">Lost area</Label>
