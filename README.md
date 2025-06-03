@@ -19,3 +19,8 @@ The application also has the ability to name itself from some options. This is s
 
 Thank you to the developers that created the electron-vite-react template. I would not be able to get started with this project without their tempalte and documentation. You can find the repo [here](https://github.com/electron-vite/electron-vite-react).
 
+
+### Convex
+
+To generate Convex backend key:
+`docker compose exec backend ./generate_admin_key.sh`
