@@ -14,6 +14,7 @@ interface FoundItemFormData {
   name: string;
   details: string;
   location_found?: string;
+  location_stored?: string;
   finder_name?: string;
   finder_aims_number?: string;
   received_by?: string;
@@ -39,6 +40,7 @@ export default function FoundItemForm() {
         name: data.name,
         details: data.details,
         location_found: data.location_found,
+        location_stored: data.location_stored,
         ...(isCash
           ? {
               finder_name: data.finder_name,
@@ -108,6 +110,19 @@ export default function FoundItemForm() {
             id="location_found"
             {...register("location_found")}
           />
+        </div>
+        <div>
+          <Label htmlFor="location_stored">Stored location</Label>
+          <Input
+            className="mt-1"
+            id="location_stored"
+            {...register("location_stored")}
+          />
+          {errors.details && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.details.message}
+            </p>
+          )}
         </div>
         <div className="flex items-center space-x-2 pt-2">
           <Label htmlFor="includes_cash">Item includes cash</Label>

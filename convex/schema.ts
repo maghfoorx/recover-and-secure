@@ -51,6 +51,7 @@ export default defineSchema({
     name: v.string(),
     details: v.optional(v.string()),
     location_found: v.optional(v.string()),
+    location_stored: v.optional(v.string()),
     finder_name: v.optional(v.string()),
     finder_aims_number: v.optional(v.string()),
     returned_to_aims_number: v.optional(v.string()),

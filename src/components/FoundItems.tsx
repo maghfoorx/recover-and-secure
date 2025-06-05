@@ -314,6 +314,16 @@ export default function FoundItems(): JSX.Element {
                     </dd>
                   </div>
                 )}
+                {modalData.location_stored && (
+                  <div className="flex justify-between">
+                    <dt className="text-sm font-medium text-gray-500">
+                      Location stored
+                    </dt>
+                    <dd className="text-sm text-gray-900">
+                      {modalData.location_stored}
+                    </dd>
+                  </div>
+                )}
 
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">
