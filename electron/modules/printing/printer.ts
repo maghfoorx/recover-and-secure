@@ -97,6 +97,7 @@ import {
 // }
 
 export async function printReceipt(printReceiptData: any) {
+  console.log(printReceiptData, "PRINT");
   const printingWindow = new BrowserWindow({
     width: 300, // Around 80mm at 96 DPI
     height: 500,
@@ -223,10 +224,8 @@ export async function printReceipt(printReceiptData: any) {
     const printersList = await printingWindow.webContents.getPrintersAsync();
 
     const printerToUse = printersList.find(
-      (printer) => printer.name === "ZDesigner ZD421-203dpi ZPL",
+      (printer) => printer.name === printReceiptData.printerName,
     );
-
-    console.log(printerToUse, "PRINTER_TO_USE");
 
     if (printerToUse) {
       printingWindow.webContents.print(

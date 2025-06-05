@@ -94,6 +94,15 @@ export default function AmaanatUserPage() {
     // Note: You'll need to implement the print functionality
     // since printAmaanatReceipt was part of your API
     const computerName = localStorage.getItem("computerName") ?? "";
+    const printerName = localStorage.getItem("storedPrinterName");
+
+    if (!printerName) {
+      toast.error("No printer name is set", {
+        style: { backgroundColor: "red", color: "white" },
+      });
+      return;
+    }
+
     const capitalizedComputerName =
       computerName.charAt(0).toUpperCase() + computerName.slice(1);
     const printData = {
@@ -101,12 +110,13 @@ export default function AmaanatUserPage() {
       aimsID: amaanatUser?.aims_number || "",
       location: storedItems[0]?.locationNumber || "",
       computerName: capitalizedComputerName,
+      printerName: printerName,
     };
 
     await printAmaanatReceipt(printData);
     // You'll need to implement this function or handle printing differently
-    console.log("Print data:", printData);
-    toast.info("Print functionality needs to be implemented");
+    // console.log("Print data:", printData);
+    // toast.info("Print functionality needs to be implemented");
   };
 
   if (amaanatUser === undefined)
