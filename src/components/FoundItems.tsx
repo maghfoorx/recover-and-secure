@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -36,6 +35,7 @@ import { Doc, Id } from "../../convex/_generated/dataModel";
 import { Check, CheckIcon, X, XIcon } from "lucide-react";
 import MatchWithLostItemsDialog from "./MatchItemWithLostItems";
 import { Checkbox } from "./ui/checkbox";
+import ReturnFoundItemForm from "./FoundItemReturnForm";
 
 export default function FoundItems(): JSX.Element {
   const [isFilteredByNotReturned, setIsFilteredByNotReturned] = useState(
@@ -51,9 +51,6 @@ export default function FoundItems(): JSX.Element {
   // Define mutations
   const deleteFoundItem = useMutation(
     api.lostProperty.mutations.deleteFoundItem,
-  );
-  const returnFoundItem = useMutation(
-    api.lostProperty.mutations.returnFoundItem,
   );
   const matchItems = useMutation(
     api.lostProperty.mutations.matchLostItemWithFoundItem,
@@ -84,13 +81,6 @@ export default function FoundItems(): JSX.Element {
   const [modalData, setModalData] = useState<Doc<"found_items"> | null>(null);
   const [openReturnForm, setOpenReturnForm] = useState(false);
   const [matchingDialogOpen, setMatchingDialogOpen] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm();
 
   useEffect(() => {
     if (modalData != null) {
@@ -126,36 +116,6 @@ export default function FoundItems(): JSX.Element {
           color: "white",
         },
       });
-    }
-  }
-
-  async function handleReturnFoundItem(data: any) {
-    if (!modalData) return;
-
-    try {
-      await returnFoundItem({
-        id: modalData._id,
-        returned_to_name: data.returned_to_name,
-        returned_to_aims_number: data.returned_to_aims_number,
-        returned_by: data.returned_by,
-      });
-
-      reset();
-      setOpenReturnForm(false);
-      toast.success("Item returned successfully", {
-        style: {
-          backgroundColor: "green",
-          color: "white",
-        },
-      });
-    } catch (error) {
-      toast.error("Failed to return item", {
-        style: {
-          backgroundColor: "red",
-          color: "white",
-        },
-      });
-      console.error(error);
     }
   }
 
@@ -450,70 +410,15 @@ export default function FoundItems(): JSX.Element {
               </div>
 
               {openReturnForm && (
-                <form
-                  onSubmit={handleSubmit(handleReturnFoundItem)}
-                  className="space-y-2 mt-4"
-                >
-                  <div>
-                    <label className="block text-sm font-medium">
-                      Person name
-                    </label>
-                    <Input
-                      className="my-0"
-                      {...register("returned_to_name", { required: true })}
-                    />
-                    {errors.returned_to_name && (
-                      <p className="text-red-500 text-xs mt-1">
-                        This field is required
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">
-                      AIMS number
-                    </label>
-                    <Input
-                      className="my-0"
-                      {...register("returned_to_aims_number", {
-                        required: true,
-                      })}
-                    />
-                    {errors.returned_to_aims_number && (
-                      <p className="text-red-500 text-xs mt-1">
-                        This field is required
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">
-                      Returned by
-                    </label>
-                    <Input
-                      className="my-0"
-                      {...register("returned_by", { required: true })}
-                    />
-                    {errors.returned_by && (
-                      <p className="text-red-500 text-xs mt-1">
-                        This field is required
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setOpenReturnForm(false);
-                        reset();
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button size="sm" type="submit">
-                      Submit return
-                    </Button>
-                  </div>
-                </form>
+                <ReturnFoundItemForm
+                  foundItem={modalData}
+                  onCancel={() => {
+                    setOpenReturnForm(false);
+                  }}
+                  onSuccess={() => {
+                    setOpenReturnForm(false);
+                  }}
+                />
               )}
             </>
           )}

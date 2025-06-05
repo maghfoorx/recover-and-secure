@@ -11,6 +11,7 @@ import LostItems from "./components/LostItems";
 import FoundItems from "./components/FoundItems";
 import SettingsPage from "./pages/SettingsPage";
 import LocationManagementPage from "./pages/LocationManagementPage";
+import FoundItemPage from "./pages/FoundItemPage";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ const AllRoutes = () => {
       <Route path="/" element={<AmaanatPage />} />
       <Route path="/lost-items-list" element={<LostItems />} />
       <Route path="/found-items-list" element={<FoundItems />} />
+      <Route path="/found-item/:foundItemId" element={<FoundItemPage />} />
       <Route path="/lost-item-form" element={<LostItemForm />} />
       <Route path="/found-item-form" element={<FoundItemForm />} />
       <Route path="/amaanat/:userId" element={<AmaanatUserPage />} />

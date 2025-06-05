@@ -28,12 +28,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "./ui/badge";
 import { toast } from "sonner";
-import { Check, CheckIcon, Cross, X, XIcon } from "lucide-react";
+import { ArrowRight, Check, CheckIcon, Cross, X, XIcon } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc, Id } from "../../convex/_generated/dataModel";
 import MatchWithFoundItemsDialog from "./MatchItemWithFoundItems";
 import { Checkbox } from "./ui/checkbox";
+import { Link } from "react-router-dom";
 
 export default function LostItems(): JSX.Element {
   const [isFilteredByNotFound, setIsFilteredByNotFound] = useState(
@@ -287,17 +288,31 @@ export default function LostItems(): JSX.Element {
                   </dd>
                 </div>
                 {modalData.is_found === true && (
-                  <div className="flex justify-between">
-                    <dt className="text-sm font-medium text-gray-500">
-                      Matched with a found item
-                    </dt>
-                    <dd className="text-sm text-gray-900">
-                      {modalData.found_item_id == null ? (
-                        <X className="h-8 w-8 text-red-600" />
-                      ) : (
-                        <Check className="h-8 w-8 text-green-600" />
-                      )}
-                    </dd>
+                  <div>
+                    <div className="flex justify-between">
+                      <dt className="text-sm font-medium text-gray-500">
+                        Matched with a found item
+                      </dt>
+                      <dd className="text-sm text-gray-900">
+                        {modalData.found_item_id == null ? (
+                          <X className="h-8 w-8 text-red-600" />
+                        ) : (
+                          <Check className="h-8 w-8 text-green-600" />
+                        )}
+                      </dd>
+                    </div>
+                    <div>
+                      <Button
+                        variant="link"
+                        size={"sm"}
+                        className="text-xs p-0"
+                        asChild
+                      >
+                        <Link to={`/found-item/${modalData.found_item_id}`}>
+                          Go to found item →
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
                 )}
               </dl>

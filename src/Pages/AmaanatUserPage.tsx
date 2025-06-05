@@ -121,7 +121,7 @@ export default function AmaanatUserPage() {
       <div className="px-2 py-6 space-y-6">
         <div>
           <Button variant="link" asChild>
-            <Link to="/">← Back to All Users</Link>
+            <Link to="/">← Back to all users</Link>
           </Button>
         </div>
         <div>Something has gone wrong. This user can't be found.</div>
@@ -149,7 +149,7 @@ function Header({ onPrint, userId }: HeaderProps) {
     <>
       <div className="flex justify-between items-start">
         <Button variant="link" asChild>
-          <Link to="/">← Back to All Users</Link>
+          <Link to="/">← Back to all users</Link>
         </Button>
         <div className="flex flex-row gap-2">
           <Button size="sm" onClick={onPrint} variant="secondary">
