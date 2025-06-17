@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { cn } from "@/lib/utils";
 
 export default function AmaanatPage(): JSX.Element {
   const navigate = useNavigate();
@@ -106,11 +107,11 @@ export default function AmaanatPage(): JSX.Element {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead>Stored items</TableHead>
+              <TableHead>Returned items</TableHead>
               <TableHead>AIMS number</TableHead>
               <TableHead>Jamaat</TableHead>
               <TableHead>Phone number</TableHead>
-              <TableHead>Stored items</TableHead>
-              <TableHead>Returned items</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -125,14 +126,16 @@ export default function AmaanatPage(): JSX.Element {
                 <TableRow
                   key={user._id}
                   onClick={() => navigate(`/amaanat/${user._id}`)}
-                  className="cursor-pointer hover:bg-gray-100"
+                  className={cn("cursor-pointer hover:opacity-80", {
+                    "bg-green-300 hover:bg-green-300": user.storedItems === 0,
+                  })}
                 >
                   <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.storedItems}</TableCell>
+                  <TableCell>{user.returnedItems}</TableCell>
                   <TableCell>{user.aims_number}</TableCell>
                   <TableCell>{user.jamaat}</TableCell>
                   <TableCell>{user.phone_number}</TableCell>
-                  <TableCell>{user.storedItems}</TableCell>
-                  <TableCell>{user.returnedItems}</TableCell>
                 </TableRow>
               ))
             )}

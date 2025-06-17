@@ -23,7 +23,7 @@ export const addAmaanatUser = mutation({
   },
 });
 
-// Add a new amaanat item
+// Updated addAmaanatItem mutation
 export const addAmaanatItem = mutation({
   args: {
     user_id: v.id("amaanat_users"),
@@ -40,19 +40,36 @@ export const addAmaanatItem = mutation({
       throw new Error("User not found");
     }
 
-    // Mark location as occupied
+    // Check location
     const location = await db.get(args.location);
     if (!location) {
       throw new Error("Location not found");
     }
 
+    // If location is occupied, check if it's occupied by the same user
     if (location.is_occupied) {
-      throw new Error("Location is already occupied");
+      // Find any item in this location
+      const existingItem = await db
+        .query("amaanat_items")
+        .filter((q) =>
+          q.and(
+            q.eq(q.field("location_id"), args.location),
+            q.eq(q.field("is_returned"), false),
+          ),
+        )
+        .first();
+
+      if (existingItem && existingItem.user_id !== args.user_id) {
+        throw new Error("Location is occupied by another user");
+      }
     }
 
-    await db.patch(args.location, {
-      is_occupied: true,
-    });
+    // Mark location as occupied (if not already)
+    if (!location.is_occupied) {
+      await db.patch(args.location, {
+        is_occupied: true,
+      });
+    }
 
     // Insert the item
     const itemId = await db.insert("amaanat_items", {
@@ -68,7 +85,7 @@ export const addAmaanatItem = mutation({
   },
 });
 
-// Return an amaanat item
+// Updated returnAmaanatItem mutation to handle multiple items per location
 export const returnAmaanatItem = mutation({
   args: {
     id: v.id("amaanat_items"),
@@ -77,30 +94,36 @@ export const returnAmaanatItem = mutation({
   handler: async (ctx, args) => {
     const db = ctx.db;
 
-    // Step 1: Verify item exists
     const item = await db.get(args.id);
     if (!item) {
       throw new Error("Item not found");
     }
 
-    // Step 2: Check if already returned
-    if (item.is_returned) {
-      throw new Error("Item is already returned");
-    }
-
-    // Step 3: Mark the item as returned
+    // Mark item as returned
     await db.patch(args.id, {
       is_returned: true,
       returned_by: args.returned_by,
       returned_at: Date.now(),
     });
 
-    // Step 4: Mark the location as available again
-    await db.patch(item.location_id, {
-      is_occupied: false,
-    });
+    // Check if there are any other unreturned items in the same location
+    const remainingItems = await db
+      .query("amaanat_items")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("location_id"), item.location_id),
+          q.eq(q.field("is_returned"), false),
+        ),
+      )
+      .collect();
 
-    // Step 5: Return updated item
+    // If no items remain in this location, mark location as unoccupied
+    if (remainingItems.length === 0) {
+      await db.patch(item.location_id, {
+        is_occupied: false,
+      });
+    }
+
     return await db.get(args.id);
   },
 });

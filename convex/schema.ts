@@ -24,7 +24,13 @@ export default defineSchema({
 
   amaanat_locations: defineTable({
     number: v.number(), // globally unique ID like 1, 2, 3...
-    size: v.union(v.literal("small"), v.literal("medium"), v.literal("large")),
+    size: v.union(
+      v.literal("x_small"),
+      v.literal("small"),
+      v.literal("medium"),
+      v.literal("large"),
+      v.literal("x_large"),
+    ),
     is_occupied: v.boolean(),
   })
     .index("by_occupied", ["is_occupied"])

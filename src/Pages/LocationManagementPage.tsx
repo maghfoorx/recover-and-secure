@@ -25,22 +25,32 @@ export default function LocationManagementPage() {
     api.location.queries.getAllLocations,
   );
 
+  const extraSmallLocations = allLocationsGroupedBySize?.x_small ?? [];
   const smallLocations = allLocationsGroupedBySize?.small ?? [];
   const mediumLocations = allLocationsGroupedBySize?.medium ?? [];
   const largeLocations = allLocationsGroupedBySize?.large ?? [];
+  const extraLargeLocations = allLocationsGroupedBySize?.x_large ?? [];
 
   const totalLocationsNumber =
-    smallLocations.length + mediumLocations.length + largeLocations.length;
+    extraSmallLocations.length +
+    smallLocations.length +
+    mediumLocations.length +
+    largeLocations.length +
+    extraLargeLocations.length;
 
   const numberGroupsBySize = groupNumbersBySize([
+    ...extraSmallLocations,
     ...smallLocations,
     ...mediumLocations,
     ...largeLocations,
+    ...extraLargeLocations,
   ]);
 
+  const extraSmallStats = summarize(extraSmallLocations);
   const smallStats = summarize(smallLocations);
   const mediumStats = summarize(mediumLocations);
   const largeStats = summarize(largeLocations);
+  const extraLargeStats = summarize(extraLargeLocations);
 
   if (allLocationsGroupedBySize === undefined) {
     return (
@@ -62,6 +72,12 @@ export default function LocationManagementPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <LocationStatsCard
+          label="Extra small"
+          color="pink"
+          stats={extraSmallStats}
+          numbers={numberGroupsBySize.x_small ?? []}
+        />
+        <LocationStatsCard
           label="Small"
           color="rose"
           stats={smallStats}
@@ -79,6 +95,13 @@ export default function LocationManagementPage() {
           stats={largeStats}
           numbers={numberGroupsBySize.large ?? []}
         />
+
+        <LocationStatsCard
+          label="Extra large"
+          color="teal"
+          stats={extraLargeStats}
+          numbers={numberGroupsBySize.x_large ?? []}
+        />
       </div>
 
       <CreateLocationBatchForm />
@@ -88,7 +111,7 @@ export default function LocationManagementPage() {
 
 interface CreateLocationFormData {
   endingNumber: number;
-  size: "small" | "medium" | "large";
+  size: "x_small" | "small" | "medium" | "large" | "x_large";
 }
 
 function CreateLocationBatchForm() {
@@ -110,7 +133,7 @@ function CreateLocationBatchForm() {
   } = useForm<CreateLocationFormData>({
     defaultValues: {
       endingNumber: startingNumber,
-      size: "small",
+      size: "x_small",
     },
   });
 
@@ -119,12 +142,13 @@ function CreateLocationBatchForm() {
       const starting = latestLocationNumber + 1;
       reset({
         endingNumber: starting,
-        size: "small",
+        size: "x_small",
       });
     }
   }, [latestLocationNumber, reset]);
 
   const handleCreate = async (data: CreateLocationFormData) => {
+    console.log(data, "HANDLE_CREATE_DATA");
     if (data.endingNumber < startingNumber) {
       toast.error(
         "Ending number must be greater than or equal to starting number.",
@@ -191,10 +215,14 @@ function CreateLocationBatchForm() {
         <div>
           <Label htmlFor="size">Size</Label>
           <Select
-            onValueChange={(val) =>
-              setValue("size", val as "small" | "medium" | "large")
-            }
-            defaultValue="small"
+            onValueChange={(val) => {
+              console.log(val, "IS_VALUE");
+              setValue(
+                "size",
+                val as "x_small" | "small" | "medium" | "large" | "x_large",
+              );
+            }}
+            defaultValue="x_small"
           >
             <SelectTrigger
               className={cn("w-full", {
@@ -203,24 +231,36 @@ function CreateLocationBatchForm() {
             >
               <SelectValue placeholder="Select size" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="text-gray-700">
+              <SelectItem
+                value="x_small"
+                className="bg-pink-300 focus:bg-rose-400 hover:opacity-80"
+              >
+                Extra small
+              </SelectItem>
               <SelectItem
                 value="small"
-                className="bg-rose-400 focus:bg-rose-400 hover:opacity-55"
+                className="bg-rose-300 focus:bg-rose-400 hover:opacity-80"
               >
                 Small
               </SelectItem>
               <SelectItem
                 value="medium"
-                className="bg-orange-400 focus:bg-orange-400 hover:opacity-55"
+                className="bg-orange-300 focus:bg-orange-400 hover:opacity-80"
               >
                 Medium
               </SelectItem>
               <SelectItem
                 value="large"
-                className="bg-green-400 focus:bg-green-400 hover:opacity-55"
+                className="bg-green-300 focus:bg-green-400 hover:opacity-80"
               >
                 Large
+              </SelectItem>
+              <SelectItem
+                value="x_large"
+                className="bg-teal-300 focus:bg-rose-400 hover:opacity-80"
+              >
+                Extra large
               </SelectItem>
             </SelectContent>
           </Select>
@@ -256,7 +296,7 @@ function LocationStatsCard({
   numbers,
 }: {
   label: string;
-  color: "rose" | "orange" | "green";
+  color: "rose" | "orange" | "green" | "teal" | "pink";
   stats: { total: number; occupied: number; available: number };
   numbers: number[];
 }) {

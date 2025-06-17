@@ -37,7 +37,10 @@ import { api } from "../../convex/_generated/api";
 import { Doc, Id } from "../../convex/_generated/dataModel";
 import { printAmaanatReceipt } from "@/apiApi/modules/amaanat";
 import FullScreenSpinner from "@/components/FullScreenSpinner";
-import { LOCATION_COLOUR_BY_SIZE } from "../../convex/types";
+import {
+  LOCATION_COLOUR_BY_SIZE,
+  LOCATION_NAME_BY_ID,
+} from "../../convex/types";
 import { cn } from "@/lib/utils";
 import { Infer } from "convex/values";
 import { getUserAmaanatItems } from "convex/amaanat/queries";
@@ -220,8 +223,10 @@ interface AddItemDialogProps {
 function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
   const addAmaanatItem = useMutation(api.amaanat.mutations.addAmaanatItem);
 
+  // Pass userId to get locations available for this specific user
   const allAvailableLocationsBySize = useQuery(
     api.location.queries.getAvailableLocations,
+    { userId },
   );
 
   const availableLocationIds = useMemo(() => {
@@ -263,22 +268,39 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
         location: data.location,
       });
 
-      toast.success("Item added successfully", {
-        style: {
-          backgroundColor: "green",
-          color: "white",
+      toast.success(
+        "Item added successfully. Add another item or close the dialog",
+        {
+          style: {
+            backgroundColor: "green",
+            color: "white",
+          },
         },
+      );
+
+      addForm.reset({
+        name: "",
+        details: "",
+        location: "",
       });
-      addForm.reset();
-      onClose();
     } catch (error) {
       toast.error("Failed to add item");
       console.error("Error adding item:", error);
     }
   };
 
+  const handleCloseDialog = () => {
+    addForm.reset({
+      name: "",
+      details: "",
+      location: "",
+    });
+
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleCloseDialog}>
       <DialogContent
         aria-describedby="Add a new item to your Amaanat"
         overlayClassName="backdrop-blur-sm"
@@ -334,66 +356,118 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                   <FormItem>
                     <FormLabel>Choose storage location*</FormLabel>
                     <FormControl>
-                      <Tabs defaultValue="small" className="w-full">
-                        <TabsList className="grid grid-cols-3">
-                          {(["small", "medium", "large"] as const).map(
-                            (size) => (
+                      <Tabs defaultValue="x_small" className="w-full">
+                        <TabsList className="grid grid-cols-5">
+                          {(
+                            [
+                              "x_small",
+                              "small",
+                              "medium",
+                              "large",
+                              "x_large",
+                            ] as const
+                          ).map((size) => {
+                            const isUsedByCurrentUser =
+                              allAvailableLocationsBySize?.[size]?.some(
+                                (availableLoc) => availableLoc.is_occupied,
+                              );
+
+                            return (
                               <TabsTrigger
                                 key={size}
                                 value={size}
                                 className={cn(
                                   LOCATION_COLOUR_BY_SIZE[size],
-                                  "data-[state=active]:border data-[state=active]:border-gray-400 data-[state=active]:font-semibold data-[state=active]:shadow-sm data-[state=active]:saturate-150",
+                                  "relative data-[state=active]:border data-[state=active]:border-gray-400 data-[state=active]:font-semibold data-[state=active]:shadow-sm data-[state=active]:saturate-150",
                                   {
                                     // override with more saturated color when active
+                                    "data-[state=active]:bg-pink-200":
+                                      size === "x_small",
+
                                     "data-[state=active]:bg-rose-200":
                                       size === "small",
                                     "data-[state=active]:bg-orange-200":
                                       size === "medium",
                                     "data-[state=active]:bg-green-200":
                                       size === "large",
+
+                                    "data-[state=active]:bg-teal-200":
+                                      size === "x_large",
                                   },
                                 )}
                               >
-                                {size.charAt(0).toUpperCase() + size.slice(1)}
+                                {LOCATION_NAME_BY_ID[size]}
+
+                                {isUsedByCurrentUser && (
+                                  <span className="absolute z-50 -top-1 -right-0 w-3 h-3 bg-green-500 rounded-full"></span>
+                                )}
                               </TabsTrigger>
-                            ),
-                          )}
+                            );
+                          })}
                         </TabsList>
 
-                        {(["small", "medium", "large"] as const).map((size) => (
+                        {(
+                          [
+                            "x_small",
+                            "small",
+                            "medium",
+                            "large",
+                            "x_large",
+                          ] as const
+                        ).map((size) => (
                           <TabsContent key={size} value={size}>
-                            <div className="flex flex-wrap gap-2 mt-4 h-[200px] overflow-y-auto items-start content-start">
+                            <div className="flex flex-wrap gap-2 p-2 mt-4 h-[200px] overflow-y-auto items-start content-start">
                               {(allAvailableLocationsBySize?.[size] || [])
                                 .length === 0 && (
                                 <div className="px-2">
-                                  All {size} locations are occupied
+                                  All {size} locations are occupied by other
+                                  users
                                 </div>
                               )}
-                              {(allAvailableLocationsBySize?.[size] || []).map(
-                                (loc) => (
-                                  <Button
-                                    size={"sm"}
-                                    variant={"outline"}
-                                    key={loc._id}
-                                    type="button"
-                                    onClick={() => field.onChange(loc._id)}
-                                    className={cn(
-                                      "px-3 py-1 rounded-md border text-sm transition hover:opacity-55",
-                                      {
-                                        "bg-blue-600 text-white border-blue-600 hover:bg-opacity-55 hover:bg-blue-600 hover:text-white":
-                                          field.value === loc._id,
-                                        "text-gray-800 border-gray-300 hover:bg-opacity-55":
-                                          field.value !== loc._id,
-                                        [LOCATION_COLOUR_BY_SIZE[size]]:
-                                          field.value !== loc._id,
-                                      },
-                                    )}
-                                  >
-                                    {loc.number}
-                                  </Button>
-                                ),
-                              )}
+                              {(allAvailableLocationsBySize?.[size] || [])
+                                .sort((a, b) => {
+                                  // Sort occupied locations (by current user) first
+                                  const aOccupied = a.is_occupied ? 1 : 0;
+                                  const bOccupied = b.is_occupied ? 1 : 0;
+                                  return bOccupied - aOccupied;
+                                })
+                                .map((loc) => {
+                                  // Check if this location is already used by current user
+                                  const isUsedByCurrentUser =
+                                    allAvailableLocationsBySize?.[size]?.some(
+                                      (availableLoc) =>
+                                        availableLoc._id === loc._id &&
+                                        availableLoc.is_occupied,
+                                    );
+
+                                  return (
+                                    <Button
+                                      size={"sm"}
+                                      variant={"outline"}
+                                      key={loc._id}
+                                      type="button"
+                                      onClick={() => field.onChange(loc._id)}
+                                      className={cn(
+                                        "px-3 py-1 rounded-md border text-sm transition hover:opacity-55 relative",
+                                        {
+                                          "bg-blue-600 text-white border-blue-600 hover:bg-opacity-55 hover:bg-blue-600 hover:text-white":
+                                            field.value === loc._id,
+                                          "text-gray-800 border-gray-300 hover:bg-opacity-55":
+                                            field.value !== loc._id,
+                                          [LOCATION_COLOUR_BY_SIZE[size]]:
+                                            field.value !== loc._id,
+                                          "ring-4 ring-green-400":
+                                            isUsedByCurrentUser,
+                                        },
+                                      )}
+                                    >
+                                      {loc.number}
+                                      {isUsedByCurrentUser && (
+                                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></span>
+                                      )}
+                                    </Button>
+                                  );
+                                })}
                             </div>
                           </TabsContent>
                         ))}
@@ -404,8 +478,22 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                 )}
               />
 
-              <div className="flex justify-end">
-                <Button type="submit">Add item</Button>
+              <div className="flex justify-between">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    addForm.reset({
+                      name: "",
+                      details: "",
+                      location: "",
+                    });
+                    onClose();
+                  }}
+                >
+                  Done adding items
+                </Button>
+                <Button type="submit">Add Item</Button>
               </div>
             </form>
           </Form>

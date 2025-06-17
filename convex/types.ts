@@ -37,10 +37,23 @@ export interface AmaanatUserWithItems extends AmaanatUser {
 }
 
 export const LOCATION_COLOUR_BY_SIZE: Record<
-  "small" | "medium" | "large",
+  "x_small" | "small" | "medium" | "large" | "x_large",
   string
 > = {
+  x_small: "bg-pink-100",
   small: "bg-rose-100",
   medium: "bg-orange-100",
   large: "bg-green-100",
+  x_large: "bg-teal-100",
+};
+
+export const LOCATION_NAME_BY_ID: Record<
+  "x_small" | "small" | "medium" | "large" | "x_large",
+  "Extra small" | "Small" | "Medium" | "Large" | "Extra large"
+> = {
+  x_small: "Extra small",
+  small: "Small",
+  medium: "Medium",
+  large: "Large",
+  x_large: "Extra large",
 };
