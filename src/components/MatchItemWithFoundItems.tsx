@@ -41,7 +41,7 @@ export default function MatchWithFoundItemsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Match with lost item</DialogTitle>
+          <DialogTitle>Match with found item</DialogTitle>
         </DialogHeader>
         <div className="h-[500px]">
           <Input

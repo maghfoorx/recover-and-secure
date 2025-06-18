@@ -130,7 +130,7 @@ export default function LostItems(): JSX.Element {
   }
 
   const foundItemsToMatchWith = foundItems.filter(
-    (item) => item.lost_item_id === undefined,
+    (item) => item.lost_item_id === undefined && item.is_returned === false,
   );
 
   async function createMatch(
