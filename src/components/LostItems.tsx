@@ -156,7 +156,7 @@ export default function LostItems(): JSX.Element {
   }
 
   return (
-    <div className="px-2 py-6 space-y-6">
+    <div className="flex flex-col flex-1 h-full px-2 py-6 space-y-4">
       <h1 className="text-3xl font-bold">Lost items</h1>
       {/* Totals displayed right after the title */}
       <div className="flex gap-4">
@@ -191,44 +191,51 @@ export default function LostItems(): JSX.Element {
           <span>Show not found items only</span>
         </label>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[20%]">Name</TableHead>
-            <TableHead className="w-[60%]">Details</TableHead>
-            <TableHead className="w-[10%]">Found</TableHead>
-            <TableHead className="w-[10%]">AIMS id</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredItems.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={4} className="text-center">
-                No lost items
-              </TableCell>
-            </TableRow>
-          ) : (
-            filteredItems.map((item) => (
-              <TableRow
-                key={item._id}
-                onClick={() => handleRowClick(item)}
-                className="cursor-pointer hover:bg-gray-100"
-              >
-                <TableCell className="w-[20%]">{item.name}</TableCell>
-                <TableCell className="w-[60%]">{item.details}</TableCell>
-                <TableCell className="w-[10%]">
-                  {item.is_found ? (
-                    <CheckIcon className="text-green-500" />
-                  ) : (
-                    <XIcon className="text-red-500" />
-                  )}
-                </TableCell>
-                <TableCell className="w-[10%]">{item.aims_number}</TableCell>
+
+      <div className="flex-1 relative h-full">
+        <div className="absolute h-full w-full overflow-y-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[20%]">Name</TableHead>
+                <TableHead className="w-[60%]">Details</TableHead>
+                <TableHead className="w-[10%]">Found</TableHead>
+                <TableHead className="w-[10%]">AIMS id</TableHead>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredItems.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center">
+                    No lost items
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredItems.map((item) => (
+                  <TableRow
+                    key={item._id}
+                    onClick={() => handleRowClick(item)}
+                    className="cursor-pointer hover:bg-gray-100"
+                  >
+                    <TableCell className="w-[20%]">{item.name}</TableCell>
+                    <TableCell className="w-[60%]">{item.details}</TableCell>
+                    <TableCell className="w-[10%]">
+                      {item.is_found ? (
+                        <CheckIcon className="text-green-500" />
+                      ) : (
+                        <XIcon className="text-red-500" />
+                      )}
+                    </TableCell>
+                    <TableCell className="w-[10%]">
+                      {item.aims_number}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
 
       {/* Detail Dialog */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>

@@ -64,7 +64,7 @@ export default function LocationManagementPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-2 py-6">
+    <div className="px-2 py-6">
       <h1 className="text-3xl font-bold mb-4">Location management</h1>
       <div className="text-muted-foreground mb-6">
         Total locations: {totalLocationsNumber}
@@ -305,7 +305,7 @@ function LocationStatsCard({
   );
 
   return (
-    <Card>
+    <Card className="bg-slate-100">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>{label}</span>

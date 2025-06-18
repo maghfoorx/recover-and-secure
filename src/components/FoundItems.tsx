@@ -124,7 +124,7 @@ export default function FoundItems(): JSX.Element {
   );
 
   return (
-    <div className="px-2 py-6 space-y-6">
+    <div className="flex flex-col flex-1 h-full px-2 py-6 space-y-4">
       <h1 className="text-3xl font-bold">Found items</h1>
 
       {/* Totals displayed right after the title */}
@@ -162,48 +162,52 @@ export default function FoundItems(): JSX.Element {
         </label>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[20%]">Name</TableHead>
-            <TableHead className="w-[60%]">Detail</TableHead>
-            <TableHead className="w-[10%] whitespace-nowrap">
-              Date found
-            </TableHead>
-            <TableHead className="w-[10%]">Returned</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredItems.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={4} className="text-center">
-                No found items
-              </TableCell>
-            </TableRow>
-          ) : (
-            filteredItems.map((item) => (
-              <TableRow
-                key={item._id}
-                onClick={() => handleRowClick(item)}
-                className="cursor-pointer hover:bg-gray-100"
-              >
-                <TableCell className="w-[30%]">{item.name}</TableCell>
-                <TableCell className="w-[60%]">{item?.details}</TableCell>
-                <TableCell className="w-[10%] whitespace-nowrap">
-                  {formatDate(item.found_date)}
-                </TableCell>
-                <TableCell className="w-[10%]">
-                  {item.is_returned ? (
-                    <CheckIcon className="text-green-500" />
-                  ) : (
-                    <XIcon className="text-red-500" />
-                  )}
-                </TableCell>
+      <div className="flex-1 relative h-full">
+        <div className="absolute h-full w-full overflow-y-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[20%]">Name</TableHead>
+                <TableHead className="w-[60%]">Detail</TableHead>
+                <TableHead className="w-[10%] whitespace-nowrap">
+                  Date found
+                </TableHead>
+                <TableHead className="w-[10%]">Returned</TableHead>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredItems.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center">
+                    No found items
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredItems.map((item) => (
+                  <TableRow
+                    key={item._id}
+                    onClick={() => handleRowClick(item)}
+                    className="cursor-pointer hover:bg-gray-100"
+                  >
+                    <TableCell className="w-[30%]">{item.name}</TableCell>
+                    <TableCell className="w-[60%]">{item?.details}</TableCell>
+                    <TableCell className="w-[10%] whitespace-nowrap">
+                      {formatDate(item.found_date)}
+                    </TableCell>
+                    <TableCell className="w-[10%]">
+                      {item.is_returned ? (
+                        <CheckIcon className="text-green-500" />
+                      ) : (
+                        <XIcon className="text-red-500" />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
 
       {/* Item Detail Dialog */}
       <Dialog

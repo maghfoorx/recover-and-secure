@@ -77,8 +77,9 @@ export default function AmaanatPage(): JSX.Element {
   }
 
   return (
-    <div className="px-2 py-6 space-y-4">
+    <div className="flex flex-col flex-1 h-full px-2 py-6 space-y-4">
       <h1 className="text-3xl font-bold">Amaanat</h1>
+
       <div className="flex flex-col gap-1">
         <Input
           value={searchBarValue}
@@ -91,10 +92,9 @@ export default function AmaanatPage(): JSX.Element {
             checked={isFilteredByStored}
             onCheckedChange={() => {
               const updatedValue = !isFilteredByStored;
-              const stringToStore = updatedValue.toString();
               localStorage.setItem(
                 "filterAmaanatUsersWithStoredItemsOnly",
-                stringToStore,
+                updatedValue.toString(),
               );
               setIsFilteredByStored(updatedValue);
             }}
@@ -102,45 +102,49 @@ export default function AmaanatPage(): JSX.Element {
           <span>Show users with stored items only</span>
         </label>
       </div>
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Stored items</TableHead>
-              <TableHead>Returned items</TableHead>
-              <TableHead>AIMS number</TableHead>
-              <TableHead>Jamaat</TableHead>
-              <TableHead>Phone number</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredUsers.length === 0 ? (
+
+      {/* Main scrollable table area */}
+      <div className="flex-1 relative h-full">
+        <div className="absolute h-full w-full overflow-y-auto">
+          <Table className="w-full">
+            <TableHeader className="bg-white">
               <TableRow>
-                <TableCell colSpan={6} className="text-center">
-                  No users found.
-                </TableCell>
+                <TableHead>Name</TableHead>
+                <TableHead>Stored items</TableHead>
+                <TableHead>Returned items</TableHead>
+                <TableHead>AIMS number</TableHead>
+                <TableHead>Jamaat</TableHead>
+                <TableHead>Phone number</TableHead>
               </TableRow>
-            ) : (
-              filteredUsers.map((user) => (
-                <TableRow
-                  key={user._id}
-                  onClick={() => navigate(`/amaanat/${user._id}`)}
-                  className={cn("cursor-pointer hover:opacity-80", {
-                    "bg-green-300 hover:bg-green-300": user.storedItems === 0,
-                  })}
-                >
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.storedItems}</TableCell>
-                  <TableCell>{user.returnedItems}</TableCell>
-                  <TableCell>{user.aims_number}</TableCell>
-                  <TableCell>{user.jamaat}</TableCell>
-                  <TableCell>{user.phone_number}</TableCell>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">
+                    No users found.
+                  </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                filteredUsers.map((user) => (
+                  <TableRow
+                    key={user._id}
+                    onClick={() => navigate(`/amaanat/${user._id}`)}
+                    className={cn("cursor-pointer hover:opacity-80", {
+                      "bg-green-300 hover:bg-green-300": user.storedItems === 0,
+                    })}
+                  >
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.storedItems}</TableCell>
+                    <TableCell>{user.returnedItems}</TableCell>
+                    <TableCell>{user.aims_number}</TableCell>
+                    <TableCell>{user.jamaat}</TableCell>
+                    <TableCell>{user.phone_number}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );
