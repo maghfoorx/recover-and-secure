@@ -306,11 +306,11 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
         overlayClassName="backdrop-blur-sm"
       >
         <DialogTitle>Add item</DialogTitle>
-        <div className="mb-10 flex flex-col gap-2">
+        <div className="flex flex-col gap-2">
           <Form {...addForm}>
             <form
               onSubmit={addForm.handleSubmit(handleAddItem)}
-              className="space-y-4"
+              className="space-y-2"
             >
               <FormField
                 control={addForm.control}

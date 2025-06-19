@@ -54,7 +54,7 @@ export default function LocationManagementPage() {
 
   if (allLocationsGroupedBySize === undefined) {
     return (
-      <div className="h-full max-w-4xl mx-auto px-2 py-6">
+      <div className="h-full px-2 py-6">
         <h1 className="text-3xl font-bold">Location management</h1>
         <div className="h-full flex items-center justify-center">
           <FullScreenSpinner />
