@@ -401,6 +401,7 @@ export default function LostItems(): JSX.Element {
                 open={matchingDialogOpen}
                 onOpenChange={setMatchingDialogOpen}
                 items={foundItemsToMatchWith}
+                lostItem={modalData}
                 onMatch={async (foundItemId) => {
                   try {
                     await createMatch(

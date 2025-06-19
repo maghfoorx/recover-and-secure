@@ -23,11 +23,13 @@ export default function MatchWithFoundItemsDialog({
   onOpenChange,
   items,
   onMatch,
+  lostItem,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   items: Doc<"found_items">[];
   onMatch: (itemId: Id<"found_items">) => void;
+  lostItem: Doc<"lost_items"> | null;
 }) {
   const [search, setSearch] = useState("");
 
@@ -43,11 +45,27 @@ export default function MatchWithFoundItemsDialog({
         <DialogHeader>
           <DialogTitle>Match with found item</DialogTitle>
         </DialogHeader>
-        <div className="h-[500px]">
+        <div className="flex flex-col h-[500px]">
+          {lostItem != null && (
+            <div className="rounded-sm p-2 bg-slate-200 text-sm">
+              <div className="font-semibold">Item to match with</div>
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-500">Name</dt>
+                <dd className="text-right">{lostItem.name}</dd>
+              </div>
+              <div className="flex justify-between items-center">
+                <dt className="text-sm font-medium text-gray-500">Details</dt>
+                <dd className="text-sm text-gray-900 text-right">
+                  {lostItem.details}
+                </dd>
+              </div>
+            </div>
+          )}
           <Input
             placeholder={"Search lost items..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="mt-2"
           />
           <div className="max-h-[400px] overflow-y-auto">
             <Table>

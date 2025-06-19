@@ -434,6 +434,7 @@ export default function FoundItems(): JSX.Element {
         open={matchingDialogOpen}
         onOpenChange={setMatchingDialogOpen}
         items={lostItemsToMatchWith}
+        foundItem={modalData}
         onMatch={async (lostItemId) => {
           if (!modalData) return;
 
