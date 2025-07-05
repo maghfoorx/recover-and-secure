@@ -40,6 +40,9 @@ export const getAvailableLocations = query({
       medium: availableLocations.filter((loc) => loc.size === "medium"),
       large: availableLocations.filter((loc) => loc.size === "large"),
       x_large: availableLocations.filter((loc) => loc.size === "x_large"),
+      bulky_storage: availableLocations.filter(
+        (loc) => loc.size === "bulky_storage",
+      ),
     };
 
     return locationsBySize;
@@ -67,6 +70,7 @@ export const getAllLocations = query({
         medium: [] as Doc<"amaanat_locations">[],
         large: [] as Doc<"amaanat_locations">[],
         x_large: [] as Doc<"amaanat_locations">[],
+        bulky_storage: [] as Doc<"amaanat_locations">[],
       },
     );
 

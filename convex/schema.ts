@@ -30,6 +30,7 @@ export default defineSchema({
       v.literal("medium"),
       v.literal("large"),
       v.literal("x_large"),
+      v.literal("bulky_storage"),
     ),
     is_occupied: v.boolean(),
   })

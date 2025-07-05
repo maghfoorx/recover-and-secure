@@ -30,13 +30,15 @@ export default function LocationManagementPage() {
   const mediumLocations = allLocationsGroupedBySize?.medium ?? [];
   const largeLocations = allLocationsGroupedBySize?.large ?? [];
   const extraLargeLocations = allLocationsGroupedBySize?.x_large ?? [];
+  const bulkyStorageLocations = allLocationsGroupedBySize?.bulky_storage ?? [];
 
   const totalLocationsNumber =
     extraSmallLocations.length +
     smallLocations.length +
     mediumLocations.length +
     largeLocations.length +
-    extraLargeLocations.length;
+    extraLargeLocations.length +
+    bulkyStorageLocations.length;
 
   const numberGroupsBySize = groupNumbersBySize([
     ...extraSmallLocations,
@@ -44,6 +46,7 @@ export default function LocationManagementPage() {
     ...mediumLocations,
     ...largeLocations,
     ...extraLargeLocations,
+    ...bulkyStorageLocations,
   ]);
 
   const extraSmallStats = summarize(extraSmallLocations);
@@ -51,6 +54,7 @@ export default function LocationManagementPage() {
   const mediumStats = summarize(mediumLocations);
   const largeStats = summarize(largeLocations);
   const extraLargeStats = summarize(extraLargeLocations);
+  const bulkyStorageStats = summarize(bulkyStorageLocations);
 
   if (allLocationsGroupedBySize === undefined) {
     return (
@@ -102,6 +106,12 @@ export default function LocationManagementPage() {
           stats={extraLargeStats}
           numbers={numberGroupsBySize.x_large ?? []}
         />
+        <LocationStatsCard
+          label="Bulky storage"
+          color="sky"
+          stats={bulkyStorageStats}
+          numbers={numberGroupsBySize.bulky_storage ?? []}
+        />
       </div>
 
       <CreateLocationBatchForm />
@@ -111,7 +121,7 @@ export default function LocationManagementPage() {
 
 interface CreateLocationFormData {
   endingNumber: number;
-  size: "x_small" | "small" | "medium" | "large" | "x_large";
+  size: "x_small" | "small" | "medium" | "large" | "x_large" | "bulky_storage";
 }
 
 function CreateLocationBatchForm() {
@@ -262,6 +272,12 @@ function CreateLocationBatchForm() {
               >
                 Extra large
               </SelectItem>
+              <SelectItem
+                value="bulky_storage"
+                className="bg-teal-300 focus:bg-rose-400 hover:opacity-80"
+              >
+                Bulky storage
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -296,7 +312,7 @@ function LocationStatsCard({
   numbers,
 }: {
   label: string;
-  color: "rose" | "orange" | "green" | "teal" | "pink";
+  color: "rose" | "orange" | "green" | "teal" | "pink" | "sky";
   stats: { total: number; occupied: number; available: number };
   numbers: number[];
 }) {

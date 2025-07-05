@@ -62,7 +62,7 @@ export default function MatchWithFoundItemsDialog({
             </div>
           )}
           <Input
-            placeholder={"Search lost items..."}
+            placeholder={"Search found items..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="mt-2"

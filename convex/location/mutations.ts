@@ -11,6 +11,7 @@ export const createLocationsBatch = mutation({
       v.literal("medium"),
       v.literal("large"),
       v.literal("x_large"),
+      v.literal("bulky_storage"),
     ),
   },
   handler: async (ctx, { from, to, size }) => {

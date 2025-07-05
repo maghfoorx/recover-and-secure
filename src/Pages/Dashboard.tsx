@@ -131,20 +131,6 @@ export default function Dashboard(): JSX.Element {
 
           <Card>
             <CardHeader className="flex items-center space-x-2">
-              <Box className="w-5 h-5 text-gray-500" />
-              <CardTitle className="text-sm text-gray-500">
-                Amanat items currently stored
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-semibold text-center">
-                {amaanatItems.filter((item) => !item.is_returned).length}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex items-center space-x-2">
               <Users className="w-5 h-5 text-gray-500" />
               <CardTitle className="text-sm text-gray-500">
                 Amanat users with items stored
@@ -153,6 +139,20 @@ export default function Dashboard(): JSX.Element {
             <CardContent>
               <p className="text-2xl font-semibold text-center">
                 {storedItemUsers.length}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex items-center space-x-2">
+              <Box className="w-5 h-5 text-gray-500" />
+              <CardTitle className="text-sm text-gray-500">
+                Amanat items currently stored
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-semibold text-center">
+                {amaanatItems.filter((item) => !item.is_returned).length}
               </p>
             </CardContent>
           </Card>

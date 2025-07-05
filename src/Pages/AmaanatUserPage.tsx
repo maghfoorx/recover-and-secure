@@ -106,12 +106,15 @@ export default function AmaanatUserPage() {
       return;
     }
 
+    const storedLocationString = Array.from(
+      new Set(storedItems.map((item) => item.locationNumber)),
+    ).join(" | ");
     const capitalizedComputerName =
       computerName.charAt(0).toUpperCase() + computerName.slice(1);
     const printData = {
       itemsNumber: storedItems.length,
       aimsID: amaanatUser?.aims_number || "",
-      location: storedItems[0]?.locationNumber || "",
+      location: storedLocationString,
       computerName: capitalizedComputerName,
       printerName: printerName,
     };
@@ -304,6 +307,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
       <DialogContent
         aria-describedby="Add a new item to your Amaanat"
         overlayClassName="backdrop-blur-sm"
+        className="max-w-[900px]"
       >
         <DialogTitle>Add item</DialogTitle>
         <div className="flex flex-col gap-2">
@@ -357,7 +361,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                     <FormLabel>Choose storage location*</FormLabel>
                     <FormControl>
                       <Tabs defaultValue="x_small" className="w-full">
-                        <TabsList className="grid grid-cols-5">
+                        <TabsList className="grid grid-cols-6">
                           {(
                             [
                               "x_small",
@@ -365,6 +369,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                               "medium",
                               "large",
                               "x_large",
+                              "bulky_storage",
                             ] as const
                           ).map((size) => {
                             const isUsedByCurrentUser =
@@ -393,6 +398,8 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
 
                                     "data-[state=active]:bg-teal-200":
                                       size === "x_large",
+                                    "data-[state=active]:bg-sky-200":
+                                      size === "bulky_storage",
                                   },
                                 )}
                               >
@@ -413,6 +420,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                             "medium",
                             "large",
                             "x_large",
+                            "bulky_storage",
                           ] as const
                         ).map((size) => (
                           <TabsContent key={size} value={size}>

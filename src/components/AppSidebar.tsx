@@ -30,10 +30,13 @@ const amaanatRoutes = [
   { title: "Sign up amaanat", path: "/amaanat/sign-up", icon: Users },
 ];
 
-const lostFoundRoutes = [
+const lostRoutes = [
   { title: "Lost items", path: "/lost-items-list", icon: ClipboardList },
-  { title: "Found items", path: "/found-items-list", icon: PackageCheck },
   { title: "Lost item form", path: "/lost-item-form", icon: FilePlus },
+];
+
+const foundRoutes = [
+  { title: "Found items", path: "/found-items-list", icon: PackageCheck },
   { title: "Found item form", path: "/found-item-form", icon: Calendar },
 ];
 
@@ -100,12 +103,41 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-400">
-            Lost & Found
-          </SidebarGroupLabel>
+          <SidebarGroupLabel className="text-gray-400">Lost</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {lostFoundRoutes.map((item) => {
+              {lostRoutes.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <SidebarMenuItem className="list-none" key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      className={cn(
+                        isActive ? "bg-blue-500 hover:bg-blue-500" : "",
+                      )}
+                    >
+                      <Link
+                        to={item.path}
+                        className={cn(
+                          "flex items-center space-x-2 px-3 py-2 rounded-md transition text-black no-underline",
+                          isActive ? "text-white hover:text-white" : "",
+                        )}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-gray-400">Found</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {foundRoutes.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
                   <SidebarMenuItem className="list-none" key={item.title}>

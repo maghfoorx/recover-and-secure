@@ -37,7 +37,7 @@ export interface AmaanatUserWithItems extends AmaanatUser {
 }
 
 export const LOCATION_COLOUR_BY_SIZE: Record<
-  "x_small" | "small" | "medium" | "large" | "x_large",
+  "x_small" | "small" | "medium" | "large" | "x_large" | "bulky_storage",
   string
 > = {
   x_small: "bg-pink-100",
@@ -45,15 +45,17 @@ export const LOCATION_COLOUR_BY_SIZE: Record<
   medium: "bg-orange-100",
   large: "bg-green-100",
   x_large: "bg-teal-100",
+  bulky_storage: "bg-sky-100",
 };
 
 export const LOCATION_NAME_BY_ID: Record<
-  "x_small" | "small" | "medium" | "large" | "x_large",
-  "Extra small" | "Small" | "Medium" | "Large" | "Extra large"
+  "x_small" | "small" | "medium" | "large" | "x_large" | "bulky_storage",
+  "Extra small" | "Small" | "Medium" | "Large" | "Extra large" | "Bulky storage"
 > = {
   x_small: "Extra small",
   small: "Small",
   medium: "Medium",
   large: "Large",
   x_large: "Extra large",
+  bulky_storage: "Bulky storage",
 };
