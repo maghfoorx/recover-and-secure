@@ -113,7 +113,6 @@ const EditPrinterNameDialog = ({
 
   useEffect(() => {
     if (dialogOpen === false) {
-      // Reset state when dialog closes
       setAuthPassed(false);
       setInputPassword("");
       setNewPrinterName(currentPrinterName);

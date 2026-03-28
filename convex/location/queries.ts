@@ -2,7 +2,6 @@ import { v } from "convex/values";
 import { query } from "../_generated/server";
 import { Doc } from "convex/_generated/dataModel";
 
-// Updated query to get available locations (locations not occupied by other users)
 export const getAvailableLocations = query({
   args: {
     userId: v.optional(v.id("amaanat_users")),
@@ -10,22 +9,18 @@ export const getAvailableLocations = query({
   handler: async (ctx, args) => {
     const db = ctx.db;
 
-    // Get all locations
     const allLocations = await db.query("amaanat_locations").collect();
 
-    // Get all unreturned items with location info
     const occupiedLocations = await db
       .query("amaanat_items")
       .filter((q) => q.eq(q.field("is_returned"), false))
       .collect();
 
-    // Create a map of location_id to user_id for occupied locations
     const locationUserMap = new Map();
     occupiedLocations.forEach((item) => {
       locationUserMap.set(item.location_id, item.user_id);
     });
 
-    // Filter locations - available if unoccupied OR occupied by the same user
     const availableLocations = allLocations.filter((location) => {
       const occupyingUserId = locationUserMap.get(location._id);
       return (
@@ -33,7 +28,6 @@ export const getAvailableLocations = query({
       );
     });
 
-    // Group by size
     const locationsBySize = {
       x_small: availableLocations.filter((loc) => loc.size === "x_small"),
       small: availableLocations.filter((loc) => loc.size === "small"),

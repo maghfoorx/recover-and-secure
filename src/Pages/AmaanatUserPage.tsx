@@ -94,8 +94,6 @@ export default function AmaanatUserPage() {
       return;
     }
 
-    // Note: You'll need to implement the print functionality
-    // since printAmaanatReceipt was part of your API
     const computerName = localStorage.getItem("computerName") ?? "";
     const printerName = localStorage.getItem("storedPrinterName");
 
@@ -120,7 +118,6 @@ export default function AmaanatUserPage() {
     };
 
     await printAmaanatReceipt(printData);
-    // You'll need to implement this function or handle printing differently
     // console.log("Print data:", printData);
     // toast.info("Print functionality needs to be implemented");
   };

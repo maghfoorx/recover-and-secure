@@ -1,8 +1,6 @@
-// convex/lostProperty/queries.ts
 import { v } from "convex/values";
 import { query } from "../_generated/server";
 
-// Get all lost items reported
 export const getLostItemsReported = query({
   args: {},
   handler: async (ctx) => {
@@ -10,7 +8,6 @@ export const getLostItemsReported = query({
   },
 });
 
-// Get all found items reported
 export const getFoundItemsReported = query({
   args: {},
   handler: async (ctx) => {
@@ -18,7 +15,6 @@ export const getFoundItemsReported = query({
   },
 });
 
-// Get lost items by found status
 export const getLostItemsByFoundStatus = query({
   args: { isFound: v.boolean() },
   handler: async (ctx, args) => {
@@ -29,7 +25,6 @@ export const getLostItemsByFoundStatus = query({
   },
 });
 
-// Get found items by returned status
 export const getFoundItemsByReturnedStatus = query({
   args: { isReturned: v.boolean() },
   handler: async (ctx, args) => {
@@ -42,7 +37,6 @@ export const getFoundItemsByReturnedStatus = query({
   },
 });
 
-// Get lost items by reporter AIMS number
 export const getLostItemsByReporter = query({
   args: { aimsNumber: v.string() },
   handler: async (ctx, args) => {
@@ -53,7 +47,6 @@ export const getLostItemsByReporter = query({
   },
 });
 
-// Get found items by finder AIMS number
 export const getFoundItemsByFinder = query({
   args: { finderAimsNumber: v.string() },
   handler: async (ctx, args) => {
@@ -66,7 +59,6 @@ export const getFoundItemsByFinder = query({
   },
 });
 
-// Get a specific lost item by ID
 export const getLostItem = query({
   args: { id: v.id("lost_items") },
   handler: async (ctx, args) => {
@@ -74,7 +66,6 @@ export const getLostItem = query({
   },
 });
 
-// Get a specific found item by ID
 export const getFoundItem = query({
   args: { id: v.id("found_items") },
   handler: async (ctx, args) => {
@@ -82,7 +73,6 @@ export const getFoundItem = query({
   },
 });
 
-// Get lost items with their matched found items
 export const getLostItemsWithFoundItems = query({
   args: {},
   handler: async (ctx) => {
@@ -102,7 +92,6 @@ export const getLostItemsWithFoundItems = query({
   },
 });
 
-// Get found items with their matched lost items
 export const getFoundItemsWithLostItems = query({
   args: {},
   handler: async (ctx) => {
@@ -122,7 +111,6 @@ export const getFoundItemsWithLostItems = query({
   },
 });
 
-// Get matched items (both lost and found together)
 export const getMatchedItems = query({
   args: {},
   handler: async (ctx) => {
@@ -147,7 +135,6 @@ export const getMatchedItems = query({
   },
 });
 
-// Get unmatched lost items
 export const getUnmatchedLostItems = query({
   args: {},
   handler: async (ctx) => {
@@ -158,7 +145,6 @@ export const getUnmatchedLostItems = query({
   },
 });
 
-// Get unmatched found items
 export const getUnmatchedFoundItems = query({
   args: {},
   handler: async (ctx) => {

@@ -50,7 +50,6 @@ export default function FoundItemForm() {
           : {}),
       };
 
-      // Call Convex mutation
       await postFoundItem(formData);
 
       reset();

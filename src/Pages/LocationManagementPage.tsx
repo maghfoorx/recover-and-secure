@@ -295,7 +295,6 @@ function CreateLocationBatchForm() {
   );
 }
 
-// Helper to calculate stats
 function summarize(locations: Doc<"amaanat_locations">[]) {
   const total = locations.length;
   const occupied = locations.filter((l) => l.is_occupied).length;
@@ -304,7 +303,6 @@ function summarize(locations: Doc<"amaanat_locations">[]) {
   return { total, occupied, available };
 }
 
-// Card component per size
 function LocationStatsCard({
   label,
   color,
@@ -359,10 +357,9 @@ function groupNumbersBySize(locations: Doc<"amaanat_locations">[]) {
     if (!grouped[loc.size]) {
       grouped[loc.size] = [];
     }
-    grouped[loc.size].push(loc.number); // assuming each location has a `number` field
+    grouped[loc.size].push(loc.number);
   }
 
-  // Sort each size's numbers
   for (const size in grouped) {
     grouped[size] = grouped[size].sort((a, b) => a - b);
   }

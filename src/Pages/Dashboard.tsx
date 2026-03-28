@@ -20,7 +20,6 @@ export default function Dashboard(): JSX.Element {
   const amaanatUsers = useQuery(api.amaanat.queries.getAllAmaanatUsers) || [];
   const amaanatItems = useQuery(api.amaanat.queries.getTotalAmaanatItems) || [];
 
-  // Calculate stored item users
   const storedItemUsers = amaanatUsers.filter((user) =>
     amaanatItems.some((item) => item.user_id === user._id && !item.is_returned),
   );
