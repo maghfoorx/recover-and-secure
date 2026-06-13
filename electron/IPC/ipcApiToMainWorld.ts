@@ -5,6 +5,7 @@ import {
   PostFoundItem,
   PostLostItemType,
   ReturnAmaanatType,
+  EventReportPdfData,
   ReturnFormType,
 } from "../modules/types";
 
@@ -34,6 +35,8 @@ const ipcApiToMainWorld = {
     ipcRenderer.invoke("RETURN_AMAANAT_ITEM", data),
   printAmaanatReceipt: (data: any) =>
     ipcRenderer.invoke("PRINT_AMAANAT_RECEIPT", data),
+  generateEventReportPdf: (data: EventReportPdfData) =>
+    ipcRenderer.invoke("GENERATE_EVENT_REPORT_PDF", data),
   getAmaanatItems: () => ipcRenderer.invoke("GET_AMAANAT_ITEMS"),
   matchLostItemWithFoundItem: (data: any) =>
     ipcRenderer.invoke("MATCH_LOST_ITEM_WITH_FOUND_ITEM", data),

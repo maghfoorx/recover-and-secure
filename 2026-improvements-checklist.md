@@ -396,7 +396,7 @@ The best order is to build shared foundations first, then the device-specific fl
 - [ ] Add normalized candidate suggestion logic for lost/found matching.
 - [ ] Show top match suggestions on create and detail screens.
 - [ ] Add manual confirm-match actions from suggestion results.
-- [ ] Add admin print view for all unreturned found items.
+- [x] Add admin print view for all unreturned found items.
 - [ ] Add grouped totals in the print report by category and storage location.
 
 ### Phase 6: Analytics

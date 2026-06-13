@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   ClipboardList,
   PackageCheck,
@@ -7,11 +8,18 @@ import {
   Users,
   Box,
   FilePlus,
+  FileDown,
 } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useState } from "react";
+import { toast } from "sonner";
+import { formatDate } from "@/utils/formatDate";
+import { getLostItemCategoryLabel } from "@/lib/lostItemCategories";
 
 export default function Dashboard(): JSX.Element {
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+
   // Fetch all data using Convex queries
   const lostItems =
     useQuery(api.lostProperty.queries.getLostItemsReported) || [];
@@ -24,13 +32,69 @@ export default function Dashboard(): JSX.Element {
     amaanatItems.some((item) => item.user_id === user._id && !item.is_returned),
   );
 
+  const handleGenerateReport = async () => {
+    setIsGeneratingReport(true);
+
+    try {
+      const unreturnedFoundItems = foundItems.filter(
+        (item) => !item.is_returned,
+      );
+
+      const reportData = {
+        generatedAt: new Date().toLocaleString("en-GB"),
+        summary: {
+          lostItems: lostItems.length,
+          lostItemsFound: lostItems.filter((item) => item.is_found).length,
+          foundItems: foundItems.length,
+          foundItemsReturned: foundItems.filter((item) => item.is_returned)
+            .length,
+          amaanatUsers: amaanatUsers.length,
+          amaanatItems: amaanatItems.length,
+          amaanatItemsStored: amaanatItems.filter((item) => !item.is_returned)
+            .length,
+        },
+        categoryTotals: {
+          lost: buildCategoryTotals(lostItems),
+          found: buildCategoryTotals(foundItems),
+          amaanat: buildCategoryTotals(amaanatItems),
+          unreturnedFound: buildCategoryTotals(unreturnedFoundItems),
+        },
+        unreturnedFoundItems: unreturnedFoundItems.map((item) => ({
+          Item: item.name,
+          Category: getCategoryName(item.category_slug),
+          Details: item.details || "-",
+          "Found date": formatDate(item.found_date),
+          "Office ref": item.location_stored || "-",
+          "Found area": item.location_found || "-",
+          "Found by": item.finder_name || "-",
+          "Received by": item.received_by || "-",
+        })),
+      };
+
+      const result = await window.ipcApi.generateEventReportPdf(reportData);
+
+      toast.success(`Report saved to ${result.filePath}`);
+    } catch (error) {
+      toast.error("Failed to generate report PDF");
+      console.error(error);
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
   return (
     <div className="px-2 py-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Operational overview and staff controls.
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Operational overview and staff controls.
+          </p>
+        </div>
+        <Button onClick={handleGenerateReport} disabled={isGeneratingReport}>
+          <FileDown className="h-4 w-4" />
+          {isGeneratingReport ? "Generating PDF..." : "Generate PDF report"}
+        </Button>
       </div>
 
       {/* Lost items section */}
@@ -164,4 +228,20 @@ export default function Dashboard(): JSX.Element {
       </section>
     </div>
   );
+}
+
+function buildCategoryTotals(items: Array<{ category_slug?: string }>) {
+  return items.reduce<Record<string, number>>((totals, item) => {
+    const category = getCategoryName(item.category_slug);
+    totals[category] = (totals[category] ?? 0) + 1;
+    return totals;
+  }, {});
+}
+
+function getCategoryName(categorySlug?: string) {
+  if (!categorySlug) {
+    return "Uncategorized";
+  }
+
+  return getLostItemCategoryLabel(categorySlug) || "Uncategorized";
 }
