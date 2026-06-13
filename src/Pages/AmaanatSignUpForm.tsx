@@ -1,12 +1,12 @@
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface FormData {
   name: string;
@@ -19,6 +19,8 @@ export default function AmaanatSignUpForm() {
   const {
     register,
     handleSubmit,
+    setFocus,
+    setValue,
     formState: { errors },
     reset,
   } = useForm<FormData>({
@@ -31,8 +33,22 @@ export default function AmaanatSignUpForm() {
   });
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const addUserMutation = useMutation(api.amaanat.mutations.addAmaanatUser);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const prefilledAimsNumber = searchParams.get("aims")?.trim() ?? "";
+
+  useEffect(() => {
+    if (prefilledAimsNumber.length === 0) {
+      return;
+    }
+
+    setValue("aims_number", prefilledAimsNumber, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setFocus("name");
+  }, [prefilledAimsNumber, setFocus, setValue]);
 
   async function handleSignUpUser(data: FormData) {
     setIsSubmitting(true);
@@ -75,6 +91,36 @@ export default function AmaanatSignUpForm() {
       <div>
         <form onSubmit={handleSubmit(handleSignUpUser)} className="space-y-2">
           <div>
+            <Label htmlFor="aims_number">AIMS number*</Label>
+            <p className="mt-1 text-sm text-slate-500">
+              Scan AIMS ID or enter it manually.
+            </p>
+            <Input
+              className="my-0"
+              id="aims_number"
+              placeholder="Scan AIMS ID or type it manually"
+              autoFocus
+              {...register("aims_number", {
+                required: "AIMS Number is required",
+                onBlur: (event) => {
+                  event.target.value = event.target.value.trim();
+                },
+              })}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  setFocus("name");
+                }
+              }}
+            />
+            {errors.aims_number && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.aims_number.message}
+              </p>
+            )}
+          </div>
+
+          <div>
             <Label htmlFor="name">Person name*</Label>
             <Input
               className="my-0"
@@ -83,22 +129,6 @@ export default function AmaanatSignUpForm() {
             />
             {errors.name && (
               <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="aims_number">AIMS number*</Label>
-            <Input
-              className="my-0"
-              id="aims_number"
-              {...register("aims_number", {
-                required: "AIMS Number is required",
-              })}
-            />
-            {errors.aims_number && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.aims_number.message}
-              </p>
             )}
           </div>
 

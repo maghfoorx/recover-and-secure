@@ -375,12 +375,12 @@ The best order is to build shared foundations first, then the device-specific fl
 - [x] Require passcode `lost2026` before leaving self-serve mode.
 - [x] Add inactivity reset behavior for kiosk screens.
 - [ ] Add barcode or QR output to Amaanat receipts using the AIMS number.
-- [ ] Add scanner-aware search input with auto-submit on scan completion.
+- [x] Add scanner-aware search input with auto-submit on scan completion.
 
 ### Phase 4: Workflow UX
 
 - [ ] Optimize the existing Amaanat staff workflow for tablet use.
-- [ ] Make the AIMS lookup field scanner-first in the staff workflow.
+- [x] Make the AIMS lookup field scanner-first in the staff workflow.
 - [x] Build the lost-property self-serve kiosk page.
 - [x] Restrict the self-serve kiosk page to lost-item creation only.
 - [x] Add clear success and restart states for public use.
