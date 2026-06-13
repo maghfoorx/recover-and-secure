@@ -56,6 +56,7 @@ export default defineSchema({
 
   found_items: defineTable({
     found_date: v.number(), // Unix timestamp
+    category_slug: v.optional(v.string()),
     name: v.string(),
     details: v.optional(v.string()),
     location_found: v.optional(v.string()),

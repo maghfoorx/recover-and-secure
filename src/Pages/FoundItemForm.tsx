@@ -8,9 +8,23 @@ import { toast } from "sonner";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  getLostItemCategoryDisplayLabel,
+  getLostItemCategoryLabel,
+  LOST_ITEM_CATEGORIES,
+  OTHER_LOST_ITEM_CATEGORY,
+} from "@/lib/lostItemCategories";
 
 // Define form data type
 interface FoundItemFormData {
+  category_slug: string;
   name: string;
   details: string;
   location_found?: string;
@@ -29,15 +43,61 @@ export default function FoundItemForm() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
+    clearErrors,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<FoundItemFormData>();
+  } = useForm<FoundItemFormData>({
+    defaultValues: {
+      category_slug: "",
+      name: "",
+      details: "",
+      location_found: "",
+      location_stored: "",
+      finder_name: "",
+      finder_aims_number: "",
+      received_by: "",
+    },
+  });
+
+  const selectedCategory = watch("category_slug");
+  const isCustomCategory = selectedCategory === OTHER_LOST_ITEM_CATEGORY;
+  const selectedCategoryDisplayLabel =
+    getLostItemCategoryDisplayLabel(selectedCategory);
+
+  const handleCategoryChange = (value: string) => {
+    setValue("category_slug", value, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
+    if (value === OTHER_LOST_ITEM_CATEGORY) {
+      setValue("name", "", {
+        shouldDirty: true,
+        shouldValidate: false,
+      });
+      clearErrors("name");
+      return;
+    }
+
+    setValue("name", getLostItemCategoryLabel(value), {
+      shouldDirty: true,
+      shouldValidate: false,
+    });
+    clearErrors("name");
+  };
 
   async function handlePostingForm(data: FoundItemFormData) {
     try {
+      const resolvedName = isCustomCategory
+        ? data.name.trim()
+        : getLostItemCategoryLabel(data.category_slug);
+
       // Prepare form data for Convex
       const formData = {
-        name: data.name,
+        category_slug: data.category_slug,
+        name: resolvedName,
         details: data.details,
         location_found: data.location_found,
         location_stored: data.location_stored,
@@ -78,17 +138,62 @@ export default function FoundItemForm() {
         onSubmit={handleSubmit(handlePostingForm)}
         className="space-y-4 mt-4"
       >
+        <input
+          type="hidden"
+          {...register("category_slug", {
+            required: "Item category is required",
+          })}
+        />
         <div>
-          <Label htmlFor="name">Item name*</Label>
-          <Input
-            className="mt-1"
-            id="name"
-            {...register("name", { required: "Item name is required" })}
-          />
-          {errors.name && (
-            <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+          <Label htmlFor="category_slug">Item category*</Label>
+          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder="Select item category" />
+            </SelectTrigger>
+            <SelectContent>
+              {LOST_ITEM_CATEGORIES.map((category, index) => (
+                <SelectItem key={category.value} value={category.value}>
+                  {index + 1}. {category.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.category_slug && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.category_slug.message}
+            </p>
           )}
         </div>
+        {isCustomCategory ? (
+          <div>
+            <Label htmlFor="name">Item name*</Label>
+            <Input
+              className="mt-1"
+              id="name"
+              placeholder="Enter the item name"
+              {...register("name", {
+                validate: (value) =>
+                  value.trim().length > 0 || "Item name is required",
+              })}
+            />
+            {errors.name && (
+              <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+            )}
+          </div>
+        ) : selectedCategoryDisplayLabel ? (
+          <div className="rounded-md border bg-slate-50 px-3 py-3">
+            <div className="text-sm font-medium text-slate-900">
+              Selected item
+            </div>
+            <div className="mt-1 text-sm text-slate-600">
+              This found item will be saved as{" "}
+              <span className="font-medium">
+                {selectedCategoryDisplayLabel}
+              </span>
+              .
+            </div>
+          </div>
+        ) : null}
         <div>
           <Label htmlFor="details">Item details*</Label>
           <Textarea
