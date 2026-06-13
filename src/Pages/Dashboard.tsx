@@ -26,7 +26,12 @@ export default function Dashboard(): JSX.Element {
 
   return (
     <div className="px-2 py-6 space-y-6">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
+      <div>
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Operational overview and staff controls.
+        </p>
+      </div>
 
       {/* Lost items section */}
       <section>
