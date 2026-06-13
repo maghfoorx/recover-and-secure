@@ -15,12 +15,17 @@ import { useForm } from "react-hook-form";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { useSelfServeMode } from "@/lib/selfServeMode";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const selfServeEnabled = useSelfServeMode();
+
   return (
     <div className="flex w-full">
-      <AppSidebar />
-      <SidebarTrigger className="mt-2 rounded-l-none shadow-none" />
+      {!selfServeEnabled && <AppSidebar />}
+      {!selfServeEnabled && (
+        <SidebarTrigger className="mt-2 rounded-l-none shadow-none" />
+      )}
       <main className="flex-1 flex flex-col h-full px-0 py-4">
         {children}
         <Toaster />
