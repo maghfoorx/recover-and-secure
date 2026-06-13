@@ -58,6 +58,8 @@ import {
   OTHER_LOST_ITEM_CATEGORY,
 } from "@/lib/lostItemCategories";
 
+const ALL_CATEGORIES_VALUE = "all_categories";
+
 // Types based on your Convex schema
 type AmaanatUserType = {
   _id: Id<"amaanat_users">;
@@ -636,17 +638,53 @@ function ItemsTabs({ items }: ItemsTabsProps) {
   );
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(
+    localStorage.getItem("filterAmaanatItemsByCategory") ||
+      ALL_CATEGORIES_VALUE,
+  );
 
   const returnAmaanatItem = useMutation(
     api.amaanat.mutations.returnAmaanatItem,
   );
 
-  const storedItems = items.filter((item) => !item.is_returned);
-  const returnedItems = items.filter((item) => item.is_returned);
+  const storedItems = useMemo(
+    () => items.filter((item) => !item.is_returned),
+    [items],
+  );
+  const returnedItems = useMemo(
+    () => items.filter((item) => item.is_returned),
+    [items],
+  );
+
+  const filteredStoredItems = useMemo(() => {
+    if (selectedCategory === ALL_CATEGORIES_VALUE) {
+      return storedItems;
+    }
+
+    return storedItems.filter((item) => item.category_slug === selectedCategory);
+  }, [selectedCategory, storedItems]);
+
+  const filteredReturnedItems = useMemo(() => {
+    if (selectedCategory === ALL_CATEGORIES_VALUE) {
+      return returnedItems;
+    }
+
+    return returnedItems.filter(
+      (item) => item.category_slug === selectedCategory,
+    );
+  }, [selectedCategory, returnedItems]);
 
   const selectedItemsDetails = storedItems.filter((item) =>
     selectedItems.includes(item._id),
   );
+
+  useEffect(() => {
+    setSelectedItems((previous) =>
+      previous.filter((id) =>
+        filteredStoredItems.some((item) => item._id === id),
+      ),
+    );
+  }, [filteredStoredItems]);
 
   const handleReturnItemsSubmit = async (returned_by: string) => {
     try {
@@ -689,26 +727,61 @@ function ItemsTabs({ items }: ItemsTabsProps) {
             </Button>
           </div>
         </div>
+        <div className="mt-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="w-full max-w-sm">
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                localStorage.setItem("filterAmaanatItemsByCategory", value);
+                setSelectedCategory(value);
+              }}
+            >
+              <SelectTrigger className="bg-white">
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_CATEGORIES_VALUE}>
+                  All categories
+                </SelectItem>
+                {LOST_ITEM_CATEGORIES.map((category) => (
+                  <SelectItem key={category.value} value={category.value}>
+                    {getLostItemCategoryDisplayLabel(category.value)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <p className="text-sm text-slate-500">
+            Showing{" "}
+            <span className="font-semibold text-slate-900">
+              {filteredStoredItems.length + filteredReturnedItems.length}
+            </span>{" "}
+            of {items.length} items
+          </p>
+        </div>
         <TabsContent value="stored">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Select</TableHead>
                 <TableHead>Item name</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead>Details</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead>Date stored</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {storedItems.length === 0 && (
+              {filteredStoredItems.length === 0 && (
                 <TableRow>
-                  <TableCell className="text-center" colSpan={7}>
-                    No items stored for this user
+                  <TableCell className="text-center" colSpan={6}>
+                    {selectedCategory === ALL_CATEGORIES_VALUE
+                      ? "No items stored for this user"
+                      : "No stored items match the current category filter"}
                   </TableCell>
                 </TableRow>
               )}
-              {storedItems.map((item) => (
+              {filteredStoredItems.map((item) => (
                 <TableRow
                   key={item._id}
                   onClick={() => {
@@ -729,6 +802,11 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                     />
                   </TableCell>
                   <TableCell>{item.name}</TableCell>
+                  <TableCell>
+                    {item.category_slug
+                      ? getLostItemCategoryDisplayLabel(item.category_slug)
+                      : "Uncategorized"}
+                  </TableCell>
                   <TableCell>
                     {(item?.details?.length ?? 0) > 30
                       ? `${item?.details?.slice(0, 45)}...`
@@ -764,20 +842,23 @@ function ItemsTabs({ items }: ItemsTabsProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Item name</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead>Details</TableHead>
                 <TableHead>Returned by</TableHead>
                 <TableHead>Returned date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {returnedItems.length === 0 && (
+              {filteredReturnedItems.length === 0 && (
                 <TableRow>
                   <TableCell className="text-center" colSpan={5}>
-                    No items returned for this user
+                    {selectedCategory === ALL_CATEGORIES_VALUE
+                      ? "No items returned for this user"
+                      : "No returned items match the current category filter"}
                   </TableCell>
                 </TableRow>
               )}
-              {returnedItems.map((item) => (
+              {filteredReturnedItems.map((item) => (
                 <TableRow
                   key={item._id}
                   onClick={() => {
@@ -786,6 +867,11 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                   }}
                 >
                   <TableCell>{item.name}</TableCell>
+                  <TableCell>
+                    {item.category_slug
+                      ? getLostItemCategoryDisplayLabel(item.category_slug)
+                      : "Uncategorized"}
+                  </TableCell>
                   <TableCell>
                     {(item?.details?.length ?? 0) > 30
                       ? `${item?.details?.slice(0, 45)}...`
@@ -840,6 +926,16 @@ function ItemDetailDialog({ item, open, onClose }: ItemDetailDialogProps) {
                 <dt className="text-sm font-medium text-gray-500">Details</dt>
                 <dd className="text-sm text-gray-900">{item.details}</dd>
               </div>
+              {item.category_slug && (
+                <div className="flex justify-between">
+                  <dt className="text-sm font-medium text-gray-500">
+                    Category
+                  </dt>
+                  <dd className="text-sm text-gray-900">
+                    {getLostItemCategoryDisplayLabel(item.category_slug)}
+                  </dd>
+                </div>
+              )}
               <div className="flex justify-between">
                 <dt className="text-sm font-medium text-gray-500">Stored</dt>
                 <dd className="text-sm text-gray-900">
