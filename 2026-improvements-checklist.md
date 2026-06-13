@@ -387,7 +387,7 @@ The best order is to build shared foundations first, then the device-specific fl
 - [x] Add category dropdown + custom item entry to lost item forms.
 - [x] Add category dropdown + custom item entry to found item forms.
 - [x] Add category dropdown + custom item entry to Amaanat item forms.
-- [ ] Add category filters to lost and found list pages.
+- [x] Add category filters to lost and found list pages.
 - [ ] Add category filters to Amaanat list pages.
 - [ ] Add next available storage suggestions to found-item entry.
 

@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -28,17 +34,33 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "./ui/badge";
 import { toast } from "sonner";
-import { ArrowRight, Check, CheckIcon, Cross, X, XIcon } from "lucide-react";
+import { Check, CheckIcon, X, XIcon } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc, Id } from "../../convex/_generated/dataModel";
 import MatchWithFoundItemsDialog from "./MatchItemWithFoundItems";
 import { Checkbox } from "./ui/checkbox";
 import { Link } from "react-router-dom";
+import {
+  getLostItemCategoryDisplayLabel,
+  LOST_ITEM_CATEGORIES,
+} from "@/lib/lostItemCategories";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+
+const ALL_CATEGORIES_VALUE = "all_categories";
 
 export default function LostItems(): JSX.Element {
   const [isFilteredByNotFound, setIsFilteredByNotFound] = useState(
     localStorage.getItem("filterFoundItemsByNotFoundOnly") === "true",
+  );
+  const [selectedCategory, setSelectedCategory] = useState(
+    localStorage.getItem("filterLostItemsByCategory") || ALL_CATEGORIES_VALUE,
   );
 
   // Fetch data using Convex queries
@@ -96,8 +118,16 @@ export default function LostItems(): JSX.Element {
       uniqueMatches = uniqueMatches.filter((item) => !item.is_found);
     }
 
+    if (selectedCategory !== ALL_CATEGORIES_VALUE) {
+      uniqueMatches = uniqueMatches.filter(
+        (item) => item.category_slug === selectedCategory,
+      );
+    }
+
     return uniqueMatches;
-  }, [lostItems, searchBarValue, isFilteredByNotFound]);
+  }, [lostItems, searchBarValue, isFilteredByNotFound, selectedCategory]);
+
+  const foundCount = lostItems.filter((item) => item.is_found).length;
 
   function handleRowClick(row: Doc<"lost_items">) {
     setModalData(row);
@@ -156,86 +186,176 @@ export default function LostItems(): JSX.Element {
   }
 
   return (
-    <div className="flex flex-col flex-1 h-full px-2 py-6 space-y-4">
-      <h1 className="text-3xl font-bold">Lost items</h1>
-      {/* Totals displayed right after the title */}
-      <div className="flex gap-4">
-        <Badge className="rounded-sm bg-sky-600 text-white font-normal px-2 py-1">
-          Lost items: {lostItems.length}
-        </Badge>
-        <Badge className="rounded-sm bg-sky-600 text-white font-normal px-2 py-1">
-          Lost items found: {lostItems.filter((item) => item.is_found).length}
-        </Badge>
-      </div>
+    <div className="flex flex-col flex-1 h-full px-0 py-6 space-y-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-950">
+            Lost items
+          </h1>
+        </div>
 
-      <div>
-        <Input
-          value={searchBarValue}
-          onChange={(e) => setSearchBarValue(e.target.value)}
-          placeholder="Search by item name, AIMS id or details"
-          className="max-w-md"
-        />
-        <label className="flex items-center gap-2 text-sm mt-2">
-          <Checkbox
-            checked={isFilteredByNotFound}
-            onCheckedChange={() => {
-              const updatedValue = !isFilteredByNotFound;
-              const stringToStore = updatedValue.toString();
-              localStorage.setItem(
-                "filterFoundItemsByNotFoundOnly",
-                stringToStore,
-              );
-              setIsFilteredByNotFound(updatedValue);
-            }}
-          />
-          <span>Show not found items only</span>
-        </label>
-      </div>
-
-      <div className="flex-1 relative h-full">
-        <div className="absolute h-full w-full overflow-y-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[20%]">Name</TableHead>
-                <TableHead className="w-[60%]">Details</TableHead>
-                <TableHead className="w-[10%]">Found</TableHead>
-                <TableHead className="w-[10%]">AIMS id</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredItems.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center">
-                    No lost items
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredItems.map((item) => (
-                  <TableRow
-                    key={item._id}
-                    onClick={() => handleRowClick(item)}
-                    className="cursor-pointer hover:bg-gray-100"
-                  >
-                    <TableCell className="w-[20%]">{item.name}</TableCell>
-                    <TableCell className="w-[60%]">{item.details}</TableCell>
-                    <TableCell className="w-[10%]">
-                      {item.is_found ? (
-                        <CheckIcon className="text-green-500" />
-                      ) : (
-                        <XIcon className="text-red-500" />
-                      )}
-                    </TableCell>
-                    <TableCell className="w-[10%]">
-                      {item.aims_number}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+        <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[360px]">
+          <Card className="border-sky-200 bg-white shadow-none">
+            <CardContent className="p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                Total reports
+              </p>
+              <p className="mt-2 text-3xl font-semibold text-slate-950">
+                {lostItems.length}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-emerald-200 bg-white shadow-none">
+            <CardContent className="p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                Marked found
+              </p>
+              <p className="mt-2 text-3xl font-semibold text-slate-950">
+                {foundCount}
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
+
+      <Card className="border-slate-200 shadow-none">
+        <CardHeader className="px-6 pb-2 pt-5">
+          <CardTitle className="text-lg">Filters</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 px-6 pb-5 pt-0">
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_280px]">
+            <Input
+              value={searchBarValue}
+              onChange={(e) => setSearchBarValue(e.target.value)}
+              placeholder="Search by item name, AIMS id or details"
+              className="h-11 bg-white"
+            />
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                localStorage.setItem("filterLostItemsByCategory", value);
+                setSelectedCategory(value);
+              }}
+            >
+              <SelectTrigger className="h-11 bg-white">
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_CATEGORIES_VALUE}>
+                  All categories
+                </SelectItem>
+                {LOST_ITEM_CATEGORIES.map((category) => (
+                  <SelectItem key={category.value} value={category.value}>
+                    {getLostItemCategoryDisplayLabel(category.value)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col gap-3 rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
+              <Checkbox
+                checked={isFilteredByNotFound}
+                onCheckedChange={() => {
+                  const updatedValue = !isFilteredByNotFound;
+                  const stringToStore = updatedValue.toString();
+                  localStorage.setItem(
+                    "filterFoundItemsByNotFoundOnly",
+                    stringToStore,
+                  );
+                  setIsFilteredByNotFound(updatedValue);
+                }}
+              />
+              <span>Show not found items only</span>
+            </label>
+
+            <p className="text-sm text-slate-500">
+              Showing <span className="font-semibold text-slate-900">{filteredItems.length}</span>{" "}
+              of {lostItems.length} reports
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="flex-1 overflow-hidden border-slate-200 shadow-none">
+        <CardHeader className="px-6 pb-3 pt-5">
+          <CardTitle className="text-lg">Reported items</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="max-h-[calc(100vh-23rem)] overflow-y-auto">
+            <Table>
+              <TableHeader className="sticky top-0 z-10 bg-slate-100/95 backdrop-blur">
+                <TableRow className="border-b border-slate-200 hover:bg-transparent">
+                  <TableHead className="w-[28%] pl-6">Item</TableHead>
+                  <TableHead className="w-[42%]">Details</TableHead>
+                  <TableHead className="w-[15%]">Status</TableHead>
+                  <TableHead className="w-[15%] pr-6">AIMS id</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredItems.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="h-28 text-center text-sm text-slate-500"
+                    >
+                      No lost items match the current filters.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredItems.map((item) => (
+                    <TableRow
+                      key={item._id}
+                      onClick={() => handleRowClick(item)}
+                      className="cursor-pointer border-b border-slate-100 hover:bg-sky-50/60"
+                    >
+                      <TableCell className="pl-6 align-top">
+                        <div className="space-y-2">
+                          <p className="font-medium text-slate-950">
+                            {item.name}
+                          </p>
+                          {item.category_slug && (
+                            <Badge
+                              variant="secondary"
+                              className="rounded-full bg-slate-100 text-slate-700"
+                            >
+                              {getLostItemCategoryDisplayLabel(
+                                item.category_slug,
+                              )}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="align-top text-sm leading-6 text-slate-600">
+                        {item.details || "No details provided."}
+                      </TableCell>
+                      <TableCell className="align-top">
+                        <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+                          {item.is_found ? (
+                            <>
+                              <CheckIcon className="h-4 w-4 text-emerald-600" />
+                              Found
+                            </>
+                          ) : (
+                            <>
+                              <XIcon className="h-4 w-4 text-rose-600" />
+                              Not found
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="pr-6 align-top font-medium text-slate-900">
+                        {item.aims_number}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Detail Dialog */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
@@ -252,6 +372,16 @@ export default function LostItems(): JSX.Element {
                   <dt className="text-sm font-medium text-gray-500">Details</dt>
                   <dd className="text-sm text-gray-900">{modalData.details}</dd>
                 </div>
+                {modalData.category_slug && (
+                  <div className="flex justify-between">
+                    <dt className="text-sm font-medium text-gray-500">
+                      Category
+                    </dt>
+                    <dd className="text-sm text-gray-900">
+                      {getLostItemCategoryDisplayLabel(modalData.category_slug)}
+                    </dd>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <dt className="text-sm font-medium text-gray-500">
                     Person name
