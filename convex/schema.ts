@@ -40,6 +40,7 @@ export default defineSchema({
 
   lost_items: defineTable({
     date_reported: v.number(), // Unix timestamp
+    category_slug: v.optional(v.string()),
     name: v.string(),
     details: v.optional(v.string()),
     location_lost: v.optional(v.string()),

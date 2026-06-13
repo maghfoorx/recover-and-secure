@@ -384,7 +384,9 @@ The best order is to build shared foundations first, then the device-specific fl
 - [x] Build the lost-property self-serve kiosk page.
 - [x] Restrict the self-serve kiosk page to lost-item creation only.
 - [x] Add clear success and restart states for public use.
-- [ ] Add category dropdown + custom item entry to all item forms.
+- [x] Add category dropdown + custom item entry to lost item forms.
+- [ ] Add category dropdown + custom item entry to found item forms.
+- [ ] Add category dropdown + custom item entry to Amaanat item forms.
 - [ ] Add category filters to Amaanat, lost, and found list pages.
 - [ ] Add next available storage suggestions to found-item entry.
 

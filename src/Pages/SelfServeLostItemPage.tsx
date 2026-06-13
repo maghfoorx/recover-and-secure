@@ -18,12 +18,26 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { disableSelfServeMode } from "@/lib/selfServeMode";
 import { api } from "../../convex/_generated/api";
+import {
+  getLostItemCategoryDisplayLabel,
+  getLostItemCategoryLabel,
+  LOST_ITEM_CATEGORIES,
+  OTHER_LOST_ITEM_CATEGORY,
+} from "@/lib/lostItemCategories";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const SELF_SERVE_PASSCODE = "lost2026";
 const SELF_SERVE_INACTIVITY_TIMEOUT_MS = 60000;
 const SELF_SERVE_WARNING_COUNTDOWN_MS = 10000;
 
 interface SelfServeLostItemFormData {
+  category_slug: string;
   reporter_name: string;
   name: string;
   details?: string;
@@ -52,9 +66,13 @@ export default function SelfServeLostItemPage() {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
+    clearErrors,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<SelfServeLostItemFormData>({
     defaultValues: {
+      category_slug: "",
       reporter_name: "",
       name: "",
       details: "",
@@ -63,6 +81,33 @@ export default function SelfServeLostItemPage() {
       phone_number: "",
     },
   });
+
+  const selectedCategory = watch("category_slug");
+  const isCustomCategory = selectedCategory === OTHER_LOST_ITEM_CATEGORY;
+  const selectedCategoryDisplayLabel =
+    getLostItemCategoryDisplayLabel(selectedCategory);
+
+  const handleCategoryChange = (value: string) => {
+    setValue("category_slug", value, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
+    if (value === OTHER_LOST_ITEM_CATEGORY) {
+      setValue("name", "", {
+        shouldDirty: true,
+        shouldValidate: false,
+      });
+      clearErrors("name");
+      return;
+    }
+
+    setValue("name", getLostItemCategoryLabel(value), {
+      shouldDirty: true,
+      shouldValidate: false,
+    });
+    clearErrors("name");
+  };
 
   const handleExit = () => {
     if (passcode !== SELF_SERVE_PASSCODE) {
@@ -83,16 +128,21 @@ export default function SelfServeLostItemPage() {
 
   const handleSubmitLostItem = async (data: SelfServeLostItemFormData) => {
     try {
+      const resolvedName = isCustomCategory
+        ? data.name.trim()
+        : getLostItemCategoryLabel(data.category_slug);
+
       await postLostItem({
+        category_slug: data.category_slug,
         reporter_name: data.reporter_name,
-        name: data.name,
+        name: resolvedName,
         details: data.details,
         location_lost: data.location_lost,
         aims_number: data.aims_number,
         phone_number: data.phone_number,
       });
 
-      setLastSubmittedName(data.name);
+      setLastSubmittedName(resolvedName);
       reset();
       toast.success("Lost item reported", {
         style: { backgroundColor: "green", color: "white" },
@@ -275,6 +325,63 @@ export default function SelfServeLostItemPage() {
             onSubmit={handleSubmit(handleSubmitLostItem)}
             className="mt-10 grid gap-6"
           >
+            <input
+              type="hidden"
+              {...register("category_slug", {
+                required: "Please select an item category",
+              })}
+            />
+            <FormFieldBlock
+              label="Item category"
+              htmlFor="category_slug"
+              error={errors.category_slug?.message}
+            >
+              <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                <SelectTrigger className="mt-2 h-14 rounded-xl text-lg">
+                  <SelectValue placeholder="Select item category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LOST_ITEM_CATEGORIES.map((category, index) => (
+                    <SelectItem key={category.value} value={category.value}>
+                      {index + 1}. {category.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormFieldBlock>
+
+            {isCustomCategory ? (
+              <FormFieldBlock
+                label="Item name"
+                htmlFor="name"
+                error={errors.name?.message}
+                helpText="Enter the item name because it is not listed above."
+              >
+                <Input
+                  id="name"
+                  className="mt-2 h-14 rounded-xl text-lg"
+                  placeholder="Enter the item name"
+                  {...register("name", {
+                    validate: (value) =>
+                      value.trim().length > 0 || "Item name is required",
+                  })}
+                />
+              </FormFieldBlock>
+            ) : selectedCategoryDisplayLabel ? (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                <div className="text-base font-semibold text-slate-900">
+                  Selected item
+                </div>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  This report will be submitted as{" "}
+                  <span className="font-semibold">
+                    {selectedCategoryDisplayLabel}
+                  </span>
+                  .
+                </p>
+              </div>
+            ) : null}
+
             <FormFieldBlock
               label="Your name"
               htmlFor="reporter_name"
@@ -285,20 +392,6 @@ export default function SelfServeLostItemPage() {
                 className="mt-2 h-14 rounded-xl text-lg"
                 {...register("reporter_name", {
                   required: "Your name is required",
-                })}
-              />
-            </FormFieldBlock>
-
-            <FormFieldBlock
-              label="Item name"
-              htmlFor="name"
-              error={errors.name?.message}
-            >
-              <Input
-                id="name"
-                className="mt-2 h-14 rounded-xl text-lg"
-                {...register("name", {
-                  required: "Item name is required",
                 })}
               />
             </FormFieldBlock>
