@@ -374,7 +374,7 @@ The best order is to build shared foundations first, then the device-specific fl
 - [x] Add an `Exit self serve` action inside the kiosk view.
 - [x] Require passcode `lost2026` before leaving self-serve mode.
 - [x] Add inactivity reset behavior for kiosk screens.
-- [ ] Add barcode or QR output to Amaanat receipts using the AIMS number.
+- [x] Add barcode or QR output to Amaanat receipts using the AIMS number.
 - [x] Add scanner-aware search input with auto-submit on scan completion.
 
 ### Phase 4: Workflow UX
