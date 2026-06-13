@@ -2,6 +2,15 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  storage_areas: defineTable({
+    name: v.string(),
+    code: v.string(),
+    is_active: v.boolean(),
+  })
+    .index("by_code", ["code"])
+    .index("by_name", ["name"])
+    .index("by_active", ["is_active"]),
+
   amaanat_users: defineTable({
     name: v.string(),
     aims_number: v.optional(v.string()),
@@ -25,6 +34,7 @@ export default defineSchema({
 
   amaanat_locations: defineTable({
     number: v.number(), // globally unique ID like 1, 2, 3...
+    area_id: v.optional(v.id("storage_areas")),
     size: v.union(
       v.literal("x_small"),
       v.literal("small"),

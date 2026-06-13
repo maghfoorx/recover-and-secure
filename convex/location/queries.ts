@@ -10,6 +10,8 @@ export const getAvailableLocations = query({
     const db = ctx.db;
 
     const allLocations = await db.query("amaanat_locations").collect();
+    const allAreas = await db.query("storage_areas").collect();
+    const areaMap = new Map(allAreas.map((area) => [area._id, area]));
 
     const occupiedLocations = await db
       .query("amaanat_items")
@@ -29,17 +31,69 @@ export const getAvailableLocations = query({
     });
 
     const locationsBySize = {
-      x_small: availableLocations.filter((loc) => loc.size === "x_small"),
-      small: availableLocations.filter((loc) => loc.size === "small"),
-      medium: availableLocations.filter((loc) => loc.size === "medium"),
-      large: availableLocations.filter((loc) => loc.size === "large"),
-      x_large: availableLocations.filter((loc) => loc.size === "x_large"),
-      bulky_storage: availableLocations.filter(
-        (loc) => loc.size === "bulky_storage",
-      ),
+      x_small: availableLocations
+        .filter((loc) => loc.size === "x_small")
+        .map((loc) => ({
+          ...loc,
+          area_name: loc.area_id ? (areaMap.get(loc.area_id)?.name ?? null) : null,
+          area_code: loc.area_id ? (areaMap.get(loc.area_id)?.code ?? null) : null,
+        })),
+      small: availableLocations
+        .filter((loc) => loc.size === "small")
+        .map((loc) => ({
+          ...loc,
+          area_name: loc.area_id ? (areaMap.get(loc.area_id)?.name ?? null) : null,
+          area_code: loc.area_id ? (areaMap.get(loc.area_id)?.code ?? null) : null,
+        })),
+      medium: availableLocations
+        .filter((loc) => loc.size === "medium")
+        .map((loc) => ({
+          ...loc,
+          area_name: loc.area_id ? (areaMap.get(loc.area_id)?.name ?? null) : null,
+          area_code: loc.area_id ? (areaMap.get(loc.area_id)?.code ?? null) : null,
+        })),
+      large: availableLocations
+        .filter((loc) => loc.size === "large")
+        .map((loc) => ({
+          ...loc,
+          area_name: loc.area_id ? (areaMap.get(loc.area_id)?.name ?? null) : null,
+          area_code: loc.area_id ? (areaMap.get(loc.area_id)?.code ?? null) : null,
+        })),
+      x_large: availableLocations
+        .filter((loc) => loc.size === "x_large")
+        .map((loc) => ({
+          ...loc,
+          area_name: loc.area_id ? (areaMap.get(loc.area_id)?.name ?? null) : null,
+          area_code: loc.area_id ? (areaMap.get(loc.area_id)?.code ?? null) : null,
+        })),
+      bulky_storage: availableLocations
+        .filter((loc) => loc.size === "bulky_storage")
+        .map((loc) => ({
+          ...loc,
+          area_name: loc.area_id ? (areaMap.get(loc.area_id)?.name ?? null) : null,
+          area_code: loc.area_id ? (areaMap.get(loc.area_id)?.code ?? null) : null,
+        })),
     };
 
     return locationsBySize;
+  },
+});
+
+export const getStorageAreas = query({
+  args: {},
+  handler: async (ctx) => {
+    const [areas, locations] = await Promise.all([
+      ctx.db.query("storage_areas").withIndex("by_active", (q) => q.eq("is_active", true)).collect(),
+      ctx.db.query("amaanat_locations").collect(),
+    ]);
+
+    return areas
+      .map((area) => ({
+        ...area,
+        locationCount: locations.filter((location) => location.area_id === area._id)
+          .length,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   },
 });
 

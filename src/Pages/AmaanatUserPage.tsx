@@ -79,12 +79,32 @@ type AmaanatUserItemType = {
   location_id: Id<"amaanat_locations">;
   locationNumber: number | null;
   locationSize: string | null;
+  locationAreaName: string | null;
+  locationAreaCode: string | null;
   entry_date: number;
   returned_by?: string;
   is_returned: boolean;
   returned_at?: number;
   _creationTime: number;
 };
+
+function formatLocationFromParts(
+  areaCode: string | null | undefined,
+  locationNumber: number | null | undefined,
+) {
+  if (locationNumber == null) {
+    return "N/A";
+  }
+
+  return areaCode ? `${areaCode}-${locationNumber}` : `${locationNumber}`;
+}
+
+function formatAmaanatLocation(item: {
+  locationAreaCode: string | null;
+  locationNumber: number | null;
+}) {
+  return formatLocationFromParts(item.locationAreaCode, item.locationNumber);
+}
 
 export default function AmaanatUserPage() {
   const { userId } = useParams();
@@ -121,7 +141,7 @@ export default function AmaanatUserPage() {
     }
 
     const storedLocationString = Array.from(
-      new Set(storedItems.map((item) => item.locationNumber)),
+      new Set(storedItems.map((item) => formatAmaanatLocation(item))),
     ).join(" | ");
     const capitalizedComputerName =
       computerName.charAt(0).toUpperCase() + computerName.slice(1);
@@ -593,7 +613,15 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                                         },
                                       )}
                                     >
-                                      {loc.number}
+                                      <span className="font-semibold">
+                                        {formatLocationFromParts(
+                                          loc.area_code,
+                                          loc.number,
+                                        )}
+                                      </span>
+                                      <span className="block text-[11px] font-normal opacity-70">
+                                        {loc.area_name ?? "Unassigned area"}
+                                      </span>
                                       {isUsedByCurrentUser && (
                                         <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></span>
                                       )}
@@ -849,7 +877,14 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                       ]),
                     })}
                   >
-                    {item.locationNumber}
+                    <div className="font-medium">
+                      {formatAmaanatLocation(item)}
+                    </div>
+                    {item.locationAreaName && (
+                      <div className="text-xs text-slate-500">
+                        {item.locationAreaName}
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell>{formatDate(item.entry_date)}</TableCell>
                 </TableRow>
@@ -982,7 +1017,14 @@ function ItemDetailDialog({ item, open, onClose }: ItemDetailDialogProps) {
                     ]),
                   })}
                 >
-                  {item?.locationNumber}
+                  <div className="text-right">
+                    <div>{formatAmaanatLocation(item)}</div>
+                    {item.locationAreaName && (
+                      <div className="text-xs text-slate-500">
+                        {item.locationAreaName}
+                      </div>
+                    )}
+                  </div>
                 </dd>
               </div>
               {item.is_returned && (

@@ -35,20 +35,30 @@ export const getUserAmaanatItems = query({
       .filter((id): id is Id<"amaanat_locations"> => !!id);
 
     const locations = await getAll(db, locationIds);
+    const areaIds = locations
+      .filter((location): location is NonNullable<typeof location> => !!location)
+      .map((location) => location.area_id)
+      .filter((id): id is Id<"storage_areas"> => !!id);
+    const areas = await getAll(db, areaIds);
 
     const cleanLocations = locations.filter((location) => !!location);
+    const cleanAreas = areas.filter((area) => !!area);
 
     const locationMap = new Map(cleanLocations.map((loc) => [loc._id, loc]));
+    const areaMap = new Map(cleanAreas.map((area) => [area._id, area]));
 
-    return items.map((item) => ({
-      ...item,
-      locationNumber: item.location_id
-        ? (locationMap.get(item.location_id)?.number ?? null)
-        : null,
-      locationSize: item.location_id
-        ? (locationMap.get(item.location_id)?.size ?? null)
-        : null,
-    }));
+    return items.map((item) => {
+      const location = item.location_id ? locationMap.get(item.location_id) : null;
+      const area = location?.area_id ? areaMap.get(location.area_id) : null;
+
+      return {
+        ...item,
+        locationNumber: location?.number ?? null,
+        locationSize: location?.size ?? null,
+        locationAreaName: area?.name ?? null,
+        locationAreaCode: area?.code ?? null,
+      };
+    });
   },
 });
 
