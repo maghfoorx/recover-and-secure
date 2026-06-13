@@ -1,7 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -14,6 +24,11 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { cn } from "@/lib/utils";
 
+const SCANNER_MAX_TOTAL_MS = 700;
+const SCANNER_MAX_AVERAGE_KEY_MS = 80;
+const SCANNER_MIN_LENGTH = 4;
+const AIMS_SCAN_PATTERN = /^\d+$/;
+
 export default function AmaanatPage(): JSX.Element {
   const navigate = useNavigate();
 
@@ -23,6 +38,11 @@ export default function AmaanatPage(): JSX.Element {
 
   // Local state
   const [searchBarValue, setSearchBarValue] = useState<string>("");
+  const [unknownScannedAims, setUnknownScannedAims] = useState("");
+  const [duplicateScannedAims, setDuplicateScannedAims] = useState("");
+  const scannerBufferRef = useRef("");
+  const scannerStartedAtRef = useRef(0);
+  const scannerLastKeyAtRef = useRef(0);
   const [isFilteredByStored, setIsFilteredByStored] = useState(
     localStorage.getItem("filterAmaanatUsersWithStoredItemsOnly") === "true",
   );
@@ -57,14 +77,105 @@ export default function AmaanatPage(): JSX.Element {
 
   // Filter users based on search
   const filteredUsers = useMemo(() => {
+    const normalizedSearch = searchBarValue.trim().toLowerCase();
+
     return usersToShow.filter(
       (user) =>
         user.aims_number
           ?.toLowerCase()
-          ?.includes(searchBarValue.toLowerCase()) ||
-        user.name?.toLowerCase()?.includes(searchBarValue.toLowerCase()),
+          ?.includes(normalizedSearch) ||
+        user.name?.toLowerCase()?.includes(normalizedSearch),
     );
   }, [usersToShow, searchBarValue]);
+
+  const handleScannedAims = useCallback(
+    (scannedValue: string) => {
+      const lookupValue = scannedValue.trim();
+      const normalizedLookupValue = lookupValue.toLowerCase();
+
+      if (lookupValue.length === 0) {
+        return;
+      }
+
+      const exactMatches = usersWithItemCounts.filter(
+        (user) =>
+          user.aims_number?.trim().toLowerCase() === normalizedLookupValue,
+      );
+
+      if (exactMatches.length === 1) {
+        navigate(`/amaanat/${exactMatches[0]._id}`);
+        return;
+      }
+
+      if (exactMatches.length > 1) {
+        setSearchBarValue(lookupValue);
+        setDuplicateScannedAims(lookupValue);
+        return;
+      }
+
+      setSearchBarValue("");
+      setUnknownScannedAims(lookupValue);
+    },
+    [navigate, usersWithItemCounts],
+  );
+
+  useEffect(() => {
+    const resetScannerBuffer = () => {
+      scannerBufferRef.current = "";
+      scannerStartedAtRef.current = 0;
+      scannerLastKeyAtRef.current = 0;
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+
+      const now = performance.now();
+      const buffer = scannerBufferRef.current;
+
+      if (event.key === "Enter") {
+        if (buffer.length < SCANNER_MIN_LENGTH) {
+          resetScannerBuffer();
+          return;
+        }
+
+        const totalTime = now - scannerStartedAtRef.current;
+        const averageKeyTime = totalTime / buffer.length;
+        const looksLikeScannerInput =
+          AIMS_SCAN_PATTERN.test(buffer) &&
+          (totalTime <= SCANNER_MAX_TOTAL_MS ||
+            averageKeyTime <= SCANNER_MAX_AVERAGE_KEY_MS);
+
+        if (looksLikeScannerInput) {
+          event.preventDefault();
+          event.stopPropagation();
+          handleScannedAims(buffer);
+        }
+
+        resetScannerBuffer();
+        return;
+      }
+
+      if (event.key.length !== 1) {
+        return;
+      }
+
+      if (now - scannerLastKeyAtRef.current > 120) {
+        scannerBufferRef.current = "";
+        scannerStartedAtRef.current = now;
+      }
+
+      scannerBufferRef.current += event.key;
+      scannerLastKeyAtRef.current = now;
+    };
+
+    window.addEventListener("keydown", handleKeyDown, true);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [handleScannedAims]);
 
   // Show loading state
   if (amaanatUsers === undefined || amaanatItems === undefined) {
@@ -84,8 +195,9 @@ export default function AmaanatPage(): JSX.Element {
         <Input
           value={searchBarValue}
           onChange={(event) => setSearchBarValue(event.target.value)}
-          placeholder="Search name or AIMS number"
+          placeholder="Search name or AIMS number. Scan AIMS ID to open."
           className="rounded-sm"
+          autoFocus
         />
         <label className="flex items-center gap-2 text-sm">
           <Checkbox
@@ -146,6 +258,61 @@ export default function AmaanatPage(): JSX.Element {
           </Table>
         </div>
       </div>
+
+      <AlertDialog
+        open={unknownScannedAims.length > 0}
+        onOpenChange={(open) => {
+          if (!open) {
+            setUnknownScannedAims("");
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>User not found</AlertDialogTitle>
+            <AlertDialogDescription>
+              We could not find AIMS {unknownScannedAims}. Would you like to
+              sign them up?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                navigate(
+                  `/amaanat/sign-up?aims=${encodeURIComponent(
+                    unknownScannedAims,
+                  )}`,
+                );
+              }}
+            >
+              Sign up
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={duplicateScannedAims.length > 0}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDuplicateScannedAims("");
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Multiple users found</AlertDialogTitle>
+            <AlertDialogDescription>
+              More than one Amaanat user has AIMS number {duplicateScannedAims}.
+              Review the filtered list and choose the correct person.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>Review list</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

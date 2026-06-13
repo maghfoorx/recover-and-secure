@@ -16,6 +16,7 @@ interface Window {
     returnFoundItem;
     returnAmaanatItem;
     printAmaanatReceipt;
+    generateEventReportPdf;
     getAmaanatUsers;
     getAmaanatUser;
     addAmaanatUser;

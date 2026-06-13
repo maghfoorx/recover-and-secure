@@ -2,6 +2,15 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  storage_areas: defineTable({
+    name: v.string(),
+    code: v.string(),
+    is_active: v.boolean(),
+  })
+    .index("by_code", ["code"])
+    .index("by_name", ["name"])
+    .index("by_active", ["is_active"]),
+
   amaanat_users: defineTable({
     name: v.string(),
     aims_number: v.optional(v.string()),
@@ -11,6 +20,7 @@ export default defineSchema({
 
   amaanat_items: defineTable({
     user_id: v.id("amaanat_users"),
+    category_slug: v.optional(v.string()),
     name: v.string(),
     details: v.optional(v.string()),
     location_id: v.id("amaanat_locations"),
@@ -24,6 +34,7 @@ export default defineSchema({
 
   amaanat_locations: defineTable({
     number: v.number(), // globally unique ID like 1, 2, 3...
+    area_id: v.optional(v.id("storage_areas")),
     size: v.union(
       v.literal("x_small"),
       v.literal("small"),
@@ -40,6 +51,7 @@ export default defineSchema({
 
   lost_items: defineTable({
     date_reported: v.number(), // Unix timestamp
+    category_slug: v.optional(v.string()),
     name: v.string(),
     details: v.optional(v.string()),
     location_lost: v.optional(v.string()),
@@ -55,6 +67,7 @@ export default defineSchema({
 
   found_items: defineTable({
     found_date: v.number(), // Unix timestamp
+    category_slug: v.optional(v.string()),
     name: v.string(),
     details: v.optional(v.string()),
     location_found: v.optional(v.string()),

@@ -109,90 +109,10 @@ export async function printReceipt(printReceiptData: any) {
     },
   });
 
-  const data = [
-    {
-      type: "text",
-      value: "JALSA SALANA UK",
-      style: {
-        fontSize: "24px",
-        fontWeight: "bold",
-        textAlign: "center",
-        marginBottom: "4px",
-      },
-    },
-    {
-      type: "text",
-      value: formatDate(new Date()),
-      style: { fontSize: "12px", textAlign: "center", marginBottom: "8px" },
-    },
-    {
-      type: "text",
-      value: "Amaanat Department",
-      style: {
-        fontSize: "18px",
-        fontWeight: "600",
-        textAlign: "center",
-        marginBottom: "8px",
-      },
-    },
-    {
-      type: "text",
-      value: printReceiptData.aimsID, // AIMS number
-      style: {
-        fontSize: "50px",
-        fontWeight: "bold",
-        textAlign: "center",
-        margin: "12px 0",
-      },
-    },
-    {
-      type: "text",
-      value: `${printReceiptData.itemsNumber} items stored`,
-      style: {
-        fontSize: "18px",
-        textAlign: "center",
-        marginBottom: "10px",
-      },
-    },
-    {
-      type: "text",
-      value: "For Office Use Only",
-      style: {
-        fontSize: "14px",
-        textAlign: "center",
-        fontWeight: "600",
-        textDecoration: "underline",
-        marginBottom: "6px",
-      },
-    },
-    {
-      type: "text",
-      value: `${printReceiptData.location}  |  ${printReceiptData.computerName}`,
-      style: {
-        fontSize: "18px",
-        fontWeight: "bold",
-        textAlign: "center",
-      },
-    },
-  ];
-
-  function camelToKebab(str: string) {
-    return str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-  }
-
-  function renderDataToHTML(data: any) {
-    return data
-      .map((item: any) => {
-        const styleString = Object.entries(item.style || {})
-          .map(([key, value]) => `${camelToKebab(key)}: ${value};`)
-          .join(" ");
-
-        return `<div style="${styleString}">${item.value}</div>`;
-      })
-      .join("");
-  }
-
-  const renderedHTML = renderDataToHTML(data);
+  const aimsId = String(printReceiptData.aimsID ?? "").trim();
+  const itemsNumber = Number(printReceiptData.itemsNumber ?? 0);
+  const itemsLabel = `${itemsNumber}`;
+  const barcode = aimsId.length > 0 ? generateCode128BarcodeSvg(aimsId) : "";
 
   const htmlContent = `
           <!doctype html>
@@ -201,14 +121,42 @@ export async function printReceipt(printReceiptData: any) {
                   <meta charset="UTF-8" />
                   <title>Print preview</title>
               </head>
-              <body style="width: 115mm;margin-top: 24px;">
-                <div style="">
-                ${renderedHTML}
-                <div style="margin-top: 4px;">
-                <div style="text-align: center; font-size: 12px;">If storing valuables like passports, please inform us.</div>
-                <div style="text-align: center; font-size: 12px;">On Sunday, collect items promptly after Huzoor’s final address.</div>
-                </div>
-                </div>
+              <body style="width: 80mm; margin: 0; padding: 12px 10px 16px; font-family: Arial, Helvetica, sans-serif; color: #111;">
+                <main style="width: 100%;">
+                  <header style="text-align: center; border-bottom: 1px solid #111; padding-bottom: 8px; margin-bottom: 10px;">
+                    <div style="font-size: 20px; font-weight: 800; letter-spacing: 0.4px;">JALSA SALANA UK</div>
+                    <div style="font-size: 14px; font-weight: 700; margin-top: 2px;">Amaanat Department</div>
+                    <div style="font-size: 11px; margin-top: 4px;">${escapeHtml(formatDate(new Date()))}</div>
+                  </header>
+
+                  <section style="text-align: center; margin-bottom: 10px;">
+                    ${barcode}
+                    <div style="font-size: 11px; margin-top: 4px;">
+                      <strong>${escapeHtml(aimsId || "N/A")}</strong>
+                    </div>
+                  </section>
+
+                  <section style="border-top: 1px dashed #444; border-bottom: 1px dashed #444; padding: 8px 0; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px;">
+                      <span>Items stored</span>
+                      <strong>${escapeHtml(itemsLabel)}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px; margin-top: 6px;">
+                      <span>Office ref</span>
+                      <strong>${escapeHtml(printReceiptData.location ?? "N/A")}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px; margin-top: 6px;">
+                      <span>Desk</span>
+                      <strong>${escapeHtml(printReceiptData.computerName ?? "N/A")}</strong>
+                    </div>
+                  </section>
+
+                  <section style="font-size: 11px; line-height: 1.35; text-align: center;">
+                    <div style="font-weight: 700; margin-bottom: 4px;">Please keep this receipt for collection.</div>
+                    <div>If storing valuables like passports, please inform us.</div>
+                    <div>On Sunday, collect items promptly after Huzoor's final address.</div>
+                  </section>
+                </main>
               </body>
           </html>
 
@@ -230,7 +178,7 @@ export async function printReceipt(printReceiptData: any) {
     if (printerToUse) {
       printingWindow.webContents.print(
         {
-          silent: true, // Print without showing dialog
+          silent: false, // Print without showing dialog
           printBackground: true,
           deviceName: printerToUse.name, // Use the selected printer
           margins: {
@@ -250,6 +198,183 @@ export async function printReceipt(printReceiptData: any) {
       console.error("Printer not found");
     }
   });
+}
+
+const CODE_128_PATTERNS = [
+  "212222",
+  "222122",
+  "222221",
+  "121223",
+  "121322",
+  "131222",
+  "122213",
+  "122312",
+  "132212",
+  "221213",
+  "221312",
+  "231212",
+  "112232",
+  "122132",
+  "122231",
+  "113222",
+  "123122",
+  "123221",
+  "223211",
+  "221132",
+  "221231",
+  "213212",
+  "223112",
+  "312131",
+  "311222",
+  "321122",
+  "321221",
+  "312212",
+  "322112",
+  "322211",
+  "212123",
+  "212321",
+  "232121",
+  "111323",
+  "131123",
+  "131321",
+  "112313",
+  "132113",
+  "132311",
+  "211313",
+  "231113",
+  "231311",
+  "112133",
+  "112331",
+  "132131",
+  "113123",
+  "113321",
+  "133121",
+  "313121",
+  "211331",
+  "231131",
+  "213113",
+  "213311",
+  "213131",
+  "311123",
+  "311321",
+  "331121",
+  "312113",
+  "312311",
+  "332111",
+  "314111",
+  "221411",
+  "431111",
+  "111224",
+  "111422",
+  "121124",
+  "121421",
+  "141122",
+  "141221",
+  "112214",
+  "112412",
+  "122114",
+  "122411",
+  "142112",
+  "142211",
+  "241211",
+  "221114",
+  "413111",
+  "241112",
+  "134111",
+  "111242",
+  "121142",
+  "121241",
+  "114212",
+  "124112",
+  "124211",
+  "411212",
+  "421112",
+  "421211",
+  "212141",
+  "214121",
+  "412121",
+  "111143",
+  "111341",
+  "131141",
+  "114113",
+  "114311",
+  "411113",
+  "411311",
+  "113141",
+  "114131",
+  "311141",
+  "411131",
+  "211412",
+  "211214",
+  "211232",
+  "2331112",
+];
+
+function generateCode128BarcodeSvg(value: string) {
+  const cleanedValue = value.trim();
+  const codes = [104];
+
+  for (const char of cleanedValue) {
+    const code = char.charCodeAt(0) - 32;
+
+    if (code < 0 || code > 94) {
+      return "";
+    }
+
+    codes.push(code);
+  }
+
+  const checksum =
+    codes.reduce((total, code, index) => {
+      if (index === 0) {
+        return total + code;
+      }
+
+      return total + code * index;
+    }, 0) % 103;
+
+  codes.push(checksum, 106);
+
+  const bars: string[] = [];
+  let x = 0;
+
+  for (const code of codes) {
+    const pattern = CODE_128_PATTERNS[code];
+
+    for (let index = 0; index < pattern.length; index += 1) {
+      const width = Number(pattern[index]);
+
+      if (index % 2 === 0) {
+        bars.push(`<rect x="${x}" y="0" width="${width}" height="58" />`);
+      }
+
+      x += width;
+    }
+  }
+
+  return `
+    <svg
+      role="img"
+      aria-label="AIMS barcode ${escapeHtml(cleanedValue)}"
+      viewBox="0 0 ${x} 58"
+      width="260"
+      height="58"
+      preserveAspectRatio="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style="display: inline-block; max-width: 100%;"
+    >
+      ${bars.join("")}
+    </svg>
+  `;
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function formatDate(inputDate: Date) {

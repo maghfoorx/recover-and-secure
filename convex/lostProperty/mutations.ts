@@ -3,6 +3,7 @@ import { v } from "convex/values";
 
 export const postLostItem = mutation({
   args: {
+    category_slug: v.optional(v.string()),
     name: v.string(),
     details: v.optional(v.string()),
     location_lost: v.optional(v.string()),
@@ -13,6 +14,7 @@ export const postLostItem = mutation({
   handler: async (ctx, args) => {
     const lostItemId = await ctx.db.insert("lost_items", {
       date_reported: Date.now(),
+      category_slug: args.category_slug,
       name: args.name,
       details: args.details,
       location_lost: args.location_lost,
@@ -28,6 +30,7 @@ export const postLostItem = mutation({
 
 export const postFoundItem = mutation({
   args: {
+    category_slug: v.optional(v.string()),
     name: v.string(),
     details: v.optional(v.string()),
     location_found: v.optional(v.string()),
@@ -39,6 +42,7 @@ export const postFoundItem = mutation({
   handler: async (ctx, args) => {
     const foundItemId = await ctx.db.insert("found_items", {
       found_date: Date.now(),
+      category_slug: args.category_slug,
       name: args.name,
       details: args.details,
       location_found: args.location_found,
@@ -253,6 +257,7 @@ export const unmatchItems = mutation({
 export const updateLostItem = mutation({
   args: {
     id: v.id("lost_items"),
+    category_slug: v.optional(v.string()),
     name: v.optional(v.string()),
     details: v.optional(v.string()),
     location_lost: v.optional(v.string()),
@@ -284,6 +289,7 @@ export const updateLostItem = mutation({
 export const updateFoundItem = mutation({
   args: {
     id: v.id("found_items"),
+    category_slug: v.optional(v.string()),
     name: v.optional(v.string()),
     details: v.optional(v.string()),
     location_found: v.optional(v.string()),

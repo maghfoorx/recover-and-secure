@@ -44,6 +44,21 @@ import {
 import { cn } from "@/lib/utils";
 import { Infer } from "convex/values";
 import { getUserAmaanatItems } from "convex/amaanat/queries";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  getLostItemCategoryDisplayLabel,
+  getLostItemCategoryLabel,
+  LOST_ITEM_CATEGORIES,
+  OTHER_LOST_ITEM_CATEGORY,
+} from "@/lib/lostItemCategories";
+
+const ALL_CATEGORIES_VALUE = "all_categories";
 
 // Types based on your Convex schema
 type AmaanatUserType = {
@@ -58,17 +73,101 @@ type AmaanatUserType = {
 type AmaanatUserItemType = {
   _id: Id<"amaanat_items">;
   user_id: Id<"amaanat_users">;
+  category_slug?: string;
   name: string;
   details?: string;
   location_id: Id<"amaanat_locations">;
   locationNumber: number | null;
   locationSize: string | null;
+  locationAreaName: string | null;
+  locationAreaCode: string | null;
   entry_date: number;
   returned_by?: string;
   is_returned: boolean;
   returned_at?: number;
   _creationTime: number;
 };
+
+type AvailableLocationOption = {
+  _id: Id<"amaanat_locations">;
+  number: number;
+  is_occupied: boolean;
+  area_name: string | null;
+  area_code: string | null;
+};
+
+function formatLocationFromParts(
+  areaCode: string | null | undefined,
+  locationNumber: number | null | undefined,
+) {
+  if (locationNumber == null) {
+    return "N/A";
+  }
+
+  return areaCode ? `${areaCode}-${locationNumber}` : `${locationNumber}`;
+}
+
+function formatAmaanatLocation(item: {
+  locationAreaCode: string | null;
+  locationNumber: number | null;
+}) {
+  return formatLocationFromParts(item.locationAreaCode, item.locationNumber);
+}
+
+function formatAmaanatLocationDetails(item: {
+  locationAreaName: string | null;
+  locationAreaCode: string | null;
+}) {
+  if (item.locationAreaName && item.locationAreaCode) {
+    return `${item.locationAreaName}, ${item.locationAreaCode}`;
+  }
+
+  if (item.locationAreaName) {
+    return item.locationAreaName;
+  }
+
+  if (item.locationAreaCode) {
+    return item.locationAreaCode;
+  }
+
+  return null;
+}
+
+function groupLocationsByArea(locations: AvailableLocationOption[]) {
+  const groups = new Map<
+    string,
+    {
+      areaName: string | null;
+      areaCode: string | null;
+      locations: AvailableLocationOption[];
+    }
+  >();
+
+  for (const location of locations) {
+    const key = `${location.area_code ?? "UNASSIGNED"}::${location.area_name ?? "Unassigned area"}`;
+
+    if (!groups.has(key)) {
+      groups.set(key, {
+        areaName: location.area_name,
+        areaCode: location.area_code,
+        locations: [],
+      });
+    }
+
+    groups.get(key)!.locations.push(location);
+  }
+
+  return Array.from(groups.values())
+    .map((group) => ({
+      ...group,
+      locations: group.locations.sort((a, b) => a.number - b.number),
+    }))
+    .sort((a, b) =>
+      `${a.areaName ?? ""}${a.areaCode ?? ""}`.localeCompare(
+        `${b.areaName ?? ""}${b.areaCode ?? ""}`,
+      ),
+    );
+}
 
 export default function AmaanatUserPage() {
   const { userId } = useParams();
@@ -105,7 +204,7 @@ export default function AmaanatUserPage() {
     }
 
     const storedLocationString = Array.from(
-      new Set(storedItems.map((item) => item.locationNumber)),
+      new Set(storedItems.map((item) => formatAmaanatLocation(item))),
     ).join(" | ");
     const capitalizedComputerName =
       computerName.charAt(0).toUpperCase() + computerName.slice(1);
@@ -160,15 +259,24 @@ function Header({ onPrint, userId }: HeaderProps) {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   return (
     <>
-      <div className="flex justify-between items-start">
-        <Button variant="link" asChild>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <Button variant="outline" size="lg" asChild className="w-full lg:w-auto">
           <Link to="/">← Back to all users</Link>
         </Button>
-        <div className="flex flex-row gap-2">
-          <Button size="sm" onClick={onPrint} variant="secondary">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:w-auto">
+          <Button
+            size="lg"
+            onClick={onPrint}
+            variant="secondary"
+            className="w-full"
+          >
             Print receipt
           </Button>
-          <Button size="sm" onClick={() => setOpenAddDialog(true)}>
+          <Button
+            size="lg"
+            onClick={() => setOpenAddDialog(true)}
+            className="w-full"
+          >
             Add new items
           </Button>
         </div>
@@ -189,28 +297,28 @@ interface UserInfoCardProps {
 function UserInfoCard({ user }: UserInfoCardProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-4xl">{user.name}</CardTitle>
+      <CardHeader className="pb-4">
+        <CardTitle className="text-3xl md:text-4xl">{user.name}</CardTitle>
       </CardHeader>
-      <CardContent className="text-sm">
-        <table className="min-w-full table-auto">
-          <thead>
-            <tr>
-              <th className="border-b px-2 py-1 text-left">AIMS number</th>
-              <th className="border-b px-2 py-1 text-left">Jamaat</th>
-              <th className="border-b px-2 py-1 text-left">Phone number</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border-b px-2 py-1">{user.aims_number}</td>
-              <td className="border-b px-2 py-1">{user.jamaat || "N/A"}</td>
-              <td className="border-b px-2 py-1">{user.phone_number}</td>
-            </tr>
-          </tbody>
-        </table>
+      <CardContent className="pt-0">
+        <div className="grid gap-3 md:grid-cols-3">
+          <InfoTile label="AIMS number" value={user.aims_number || "N/A"} />
+          <InfoTile label="Jamaat" value={user.jamaat || "N/A"} />
+          <InfoTile label="Phone number" value={user.phone_number || "N/A"} />
+        </div>
       </CardContent>
     </Card>
+  );
+}
+
+function InfoTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3">
+      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+        {label}
+      </div>
+      <div className="mt-1 text-lg font-semibold text-slate-950">{value}</div>
+    </div>
   );
 }
 
@@ -238,7 +346,8 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
   }, [allAvailableLocationsBySize]);
 
   const addItemSchema = z.object({
-    name: z.string().min(1, "Name is required"),
+    category_slug: z.string().min(1, "Item category is required"),
+    name: z.string(),
     details: z.string().optional(),
     location: z
       .string()
@@ -248,22 +357,66 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
           message: "Please select a valid location",
         },
       ),
+  }).superRefine((data, ctx) => {
+    if (
+      data.category_slug === OTHER_LOST_ITEM_CATEGORY &&
+      data.name.trim().length === 0
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Item name is required",
+        path: ["name"],
+      });
+    }
   });
 
   const addForm = useForm({
     resolver: zodResolver(addItemSchema),
     defaultValues: {
+      category_slug: "",
       name: "",
       details: "",
       location: "",
     },
   });
 
+  const selectedCategory = addForm.watch("category_slug");
+  const isCustomCategory = selectedCategory === OTHER_LOST_ITEM_CATEGORY;
+  const selectedCategoryDisplayLabel =
+    getLostItemCategoryDisplayLabel(selectedCategory);
+
+  const handleCategoryChange = (value: string) => {
+    addForm.setValue("category_slug", value, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
+    if (value === OTHER_LOST_ITEM_CATEGORY) {
+      addForm.setValue("name", "", {
+        shouldDirty: true,
+        shouldValidate: false,
+      });
+      addForm.clearErrors("name");
+      return;
+    }
+
+    addForm.setValue("name", getLostItemCategoryLabel(value), {
+      shouldDirty: true,
+      shouldValidate: false,
+    });
+    addForm.clearErrors("name");
+  };
+
   const handleAddItem = async (data: any) => {
     try {
+      const resolvedName = isCustomCategory
+        ? data.name.trim()
+        : getLostItemCategoryLabel(data.category_slug);
+
       await addAmaanatItem({
         user_id: userId,
-        name: data.name,
+        category_slug: data.category_slug,
+        name: resolvedName,
         details: data.details,
         location: data.location,
       });
@@ -279,6 +432,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
       );
 
       addForm.reset({
+        category_slug: "",
         name: "",
         details: "",
         location: "",
@@ -291,6 +445,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
 
   const handleCloseDialog = () => {
     addForm.reset({
+      category_slug: "",
       name: "",
       details: "",
       location: "",
@@ -315,19 +470,74 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
             >
               <FormField
                 control={addForm.control}
+                name="category_slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Item category*</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={handleCategoryChange}
+                      >
+                        <SelectTrigger className="my-0">
+                          <SelectValue placeholder="Select item category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {LOST_ITEM_CATEGORIES.map((category, index) => (
+                            <SelectItem
+                              key={category.value}
+                              value={category.value}
+                            >
+                              {index + 1}. {category.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {isCustomCategory ? (
+                <FormField
+                  control={addForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Item name*</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="my-0"
+                          {...field}
+                          placeholder="phone"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : selectedCategoryDisplayLabel ? (
+                <div className="rounded-md border bg-slate-50 px-3 py-3">
+                  <div className="text-sm font-medium text-slate-900">
+                    Selected item
+                  </div>
+                  <div className="mt-1 text-sm text-slate-600">
+                    This Amaanat item will be saved as{" "}
+                    <span className="font-medium">
+                      {selectedCategoryDisplayLabel}
+                    </span>
+                    .
+                  </div>
+                </div>
+              ) : null}
+
+              <FormField
+                control={addForm.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name*</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="my-0"
-                        {...field}
-                        required
-                        placeholder="phone"
-                      />
-                    </FormControl>
-                    <FormMessage />
+                    <input type="hidden" {...field} />
                   </FormItem>
                 )}
               />
@@ -421,58 +631,71 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                           ] as const
                         ).map((size) => (
                           <TabsContent key={size} value={size}>
-                            <div className="flex flex-wrap gap-2 p-2 mt-4 h-[200px] overflow-y-auto items-start content-start">
-                              {(allAvailableLocationsBySize?.[size] || [])
-                                .length === 0 && (
+                            <div className="p-2 mt-4 h-[260px] overflow-y-auto">
+                              {(allAvailableLocationsBySize?.[size] || []).length ===
+                                0 && (
                                 <div className="px-2">
                                   All {size} locations are occupied by other
                                   users
                                 </div>
                               )}
-                              {(allAvailableLocationsBySize?.[size] || [])
-                                .sort((a, b) => {
-                                  // Sort occupied locations (by current user) first
-                                  const aOccupied = a.is_occupied ? 1 : 0;
-                                  const bOccupied = b.is_occupied ? 1 : 0;
-                                  return bOccupied - aOccupied;
-                                })
-                                .map((loc) => {
-                                  // Check if this location is already used by current user
-                                  const isUsedByCurrentUser =
-                                    allAvailableLocationsBySize?.[size]?.some(
-                                      (availableLoc) =>
-                                        availableLoc._id === loc._id &&
-                                        availableLoc.is_occupied,
-                                    );
+                              {groupLocationsByArea(
+                                ((allAvailableLocationsBySize?.[size] ||
+                                  []) as AvailableLocationOption[]).sort(
+                                  (a, b) => {
+                                    const aOccupied = a.is_occupied ? 1 : 0;
+                                    const bOccupied = b.is_occupied ? 1 : 0;
+                                    return bOccupied - aOccupied;
+                                  },
+                                ),
+                              ).map((group) => (
+                                <div key={`${group.areaCode}-${group.areaName}`} className="mb-4 last:mb-0">
+                                  <div className="mb-2 px-1 text-xs font-medium uppercase tracking-wide text-slate-500">
+                                    {group.areaName ?? "Unassigned area"}
+                                    {group.areaCode ? ` • ${group.areaCode}` : ""}
+                                  </div>
+                                  <div className="flex flex-wrap gap-2 items-start content-start">
+                                    {group.locations.map((loc) => {
+                                      const isUsedByCurrentUser =
+                                        allAvailableLocationsBySize?.[size]?.some(
+                                          (availableLoc) =>
+                                            availableLoc._id === loc._id &&
+                                            availableLoc.is_occupied,
+                                        );
 
-                                  return (
-                                    <Button
-                                      size={"sm"}
-                                      variant={"outline"}
-                                      key={loc._id}
-                                      type="button"
-                                      onClick={() => field.onChange(loc._id)}
-                                      className={cn(
-                                        "px-3 py-1 rounded-md border text-sm transition hover:opacity-55 relative",
-                                        {
-                                          "bg-blue-600 text-white border-blue-600 hover:bg-opacity-55 hover:bg-blue-600 hover:text-white":
-                                            field.value === loc._id,
-                                          "text-gray-800 border-gray-300 hover:bg-opacity-55":
-                                            field.value !== loc._id,
-                                          [LOCATION_COLOUR_BY_SIZE[size]]:
-                                            field.value !== loc._id,
-                                          "ring-4 ring-green-400":
-                                            isUsedByCurrentUser,
-                                        },
-                                      )}
-                                    >
-                                      {loc.number}
-                                      {isUsedByCurrentUser && (
-                                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></span>
-                                      )}
-                                    </Button>
-                                  );
-                                })}
+                                      return (
+                                        <Button
+                                          size={"sm"}
+                                          variant={"outline"}
+                                          key={loc._id}
+                                          type="button"
+                                          onClick={() => field.onChange(loc._id)}
+                                          className={cn(
+                                            "h-11 min-w-[72px] px-3 rounded-md border text-sm transition hover:opacity-55 relative",
+                                            {
+                                              "bg-blue-600 text-white border-blue-600 hover:bg-opacity-55 hover:bg-blue-600 hover:text-white":
+                                                field.value === loc._id,
+                                              "text-gray-800 border-gray-300 hover:bg-opacity-55":
+                                                field.value !== loc._id,
+                                              [LOCATION_COLOUR_BY_SIZE[size]]:
+                                                field.value !== loc._id,
+                                              "ring-4 ring-green-400":
+                                                isUsedByCurrentUser,
+                                            },
+                                          )}
+                                        >
+                                          <span className="text-base font-semibold leading-none">
+                                            {loc.number}
+                                          </span>
+                                          {isUsedByCurrentUser && (
+                                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></span>
+                                          )}
+                                        </Button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </TabsContent>
                         ))}
@@ -489,6 +712,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                   variant="outline"
                   onClick={() => {
                     addForm.reset({
+                      category_slug: "",
                       name: "",
                       details: "",
                       location: "",
@@ -519,17 +743,53 @@ function ItemsTabs({ items }: ItemsTabsProps) {
   );
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(
+    localStorage.getItem("filterAmaanatItemsByCategory") ||
+      ALL_CATEGORIES_VALUE,
+  );
 
   const returnAmaanatItem = useMutation(
     api.amaanat.mutations.returnAmaanatItem,
   );
 
-  const storedItems = items.filter((item) => !item.is_returned);
-  const returnedItems = items.filter((item) => item.is_returned);
+  const storedItems = useMemo(
+    () => items.filter((item) => !item.is_returned),
+    [items],
+  );
+  const returnedItems = useMemo(
+    () => items.filter((item) => item.is_returned),
+    [items],
+  );
+
+  const filteredStoredItems = useMemo(() => {
+    if (selectedCategory === ALL_CATEGORIES_VALUE) {
+      return storedItems;
+    }
+
+    return storedItems.filter((item) => item.category_slug === selectedCategory);
+  }, [selectedCategory, storedItems]);
+
+  const filteredReturnedItems = useMemo(() => {
+    if (selectedCategory === ALL_CATEGORIES_VALUE) {
+      return returnedItems;
+    }
+
+    return returnedItems.filter(
+      (item) => item.category_slug === selectedCategory,
+    );
+  }, [selectedCategory, returnedItems]);
 
   const selectedItemsDetails = storedItems.filter((item) =>
     selectedItems.includes(item._id),
   );
+
+  useEffect(() => {
+    setSelectedItems((previous) =>
+      previous.filter((id) =>
+        filteredStoredItems.some((item) => item._id === id),
+      ),
+    );
+  }, [filteredStoredItems]);
 
   const handleReturnItemsSubmit = async (returned_by: string) => {
     try {
@@ -551,26 +811,67 @@ function ItemsTabs({ items }: ItemsTabsProps) {
   return (
     <>
       <Tabs defaultValue="stored">
-        <div className="flex flex-row justify-between">
-          <TabsList>
-            <TabsTrigger value="stored">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <TabsList className="grid h-12 w-full grid-cols-2 lg:max-w-md">
+            <TabsTrigger value="stored" className="text-base">
               Stored ({storedItems.length})
             </TabsTrigger>
-            <TabsTrigger value="returned">
+            <TabsTrigger value="returned" className="text-base">
               Returned ({returnedItems.length})
             </TabsTrigger>
           </TabsList>
 
-          <div>
+          <div className="w-full lg:w-auto">
             <Button
-              size="sm"
+              size="lg"
               variant="outline"
               onClick={() => setReturnDialogOpen(true)}
               disabled={selectedItems.length === 0}
+              className="w-full lg:w-auto"
             >
-              Return selected items
+              {selectedItems.length > 0
+                ? `Return selected items (${selectedItems.length})`
+                : "Return selected items"}
             </Button>
           </div>
+        </div>
+        {selectedItems.length > 0 && (
+          <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+            {selectedItems.length} item
+            {selectedItems.length === 1 ? "" : "s"} selected for return
+          </div>
+        )}
+        <div className="mt-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="w-full max-w-sm">
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                localStorage.setItem("filterAmaanatItemsByCategory", value);
+                setSelectedCategory(value);
+              }}
+            >
+              <SelectTrigger className="h-11 bg-white">
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_CATEGORIES_VALUE}>
+                  All categories
+                </SelectItem>
+                {LOST_ITEM_CATEGORIES.map((category) => (
+                  <SelectItem key={category.value} value={category.value}>
+                    {getLostItemCategoryDisplayLabel(category.value)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <p className="text-sm text-slate-500">
+            Showing{" "}
+            <span className="font-semibold text-slate-900">
+              {filteredStoredItems.length + filteredReturnedItems.length}
+            </span>{" "}
+            of {items.length} items
+          </p>
         </div>
         <TabsContent value="stored">
           <Table>
@@ -578,29 +879,34 @@ function ItemsTabs({ items }: ItemsTabsProps) {
               <TableRow>
                 <TableHead>Select</TableHead>
                 <TableHead>Item name</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead>Details</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead>Date stored</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {storedItems.length === 0 && (
+              {filteredStoredItems.length === 0 && (
                 <TableRow>
-                  <TableCell className="text-center" colSpan={7}>
-                    No items stored for this user
+                  <TableCell className="text-center" colSpan={6}>
+                    {selectedCategory === ALL_CATEGORIES_VALUE
+                      ? "No items stored for this user"
+                      : "No stored items match the current category filter"}
                   </TableCell>
                 </TableRow>
               )}
-              {storedItems.map((item) => (
+              {filteredStoredItems.map((item) => (
                 <TableRow
                   key={item._id}
                   onClick={() => {
                     setSelectedItem(item);
                     setDetailDialogOpen(true);
                   }}
+                  className="cursor-pointer"
                 >
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
+                      className="h-5 w-5"
                       checked={selectedItems.includes(item._id)}
                       onCheckedChange={(checked) =>
                         setSelectedItems((prev) =>
@@ -612,6 +918,11 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                     />
                   </TableCell>
                   <TableCell>{item.name}</TableCell>
+                  <TableCell>
+                    {item.category_slug
+                      ? getLostItemCategoryDisplayLabel(item.category_slug)
+                      : "Uncategorized"}
+                  </TableCell>
                   <TableCell>
                     {(item?.details?.length ?? 0) > 30
                       ? `${item?.details?.slice(0, 45)}...`
@@ -634,7 +945,14 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                       ]),
                     })}
                   >
-                    {item.locationNumber}
+                    <div className="font-medium">
+                      {item.locationNumber ?? "N/A"}
+                      {formatAmaanatLocationDetails(item) && (
+                        <span className="ml-1 text-xs font-normal text-slate-500">
+                          ({formatAmaanatLocationDetails(item)})
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>{formatDate(item.entry_date)}</TableCell>
                 </TableRow>
@@ -647,28 +965,37 @@ function ItemsTabs({ items }: ItemsTabsProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Item name</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead>Details</TableHead>
                 <TableHead>Returned by</TableHead>
                 <TableHead>Returned date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {returnedItems.length === 0 && (
+              {filteredReturnedItems.length === 0 && (
                 <TableRow>
                   <TableCell className="text-center" colSpan={5}>
-                    No items returned for this user
+                    {selectedCategory === ALL_CATEGORIES_VALUE
+                      ? "No items returned for this user"
+                      : "No returned items match the current category filter"}
                   </TableCell>
                 </TableRow>
               )}
-              {returnedItems.map((item) => (
+              {filteredReturnedItems.map((item) => (
                 <TableRow
                   key={item._id}
                   onClick={() => {
                     setSelectedItem(item);
                     setDetailDialogOpen(true);
                   }}
+                  className="cursor-pointer"
                 >
                   <TableCell>{item.name}</TableCell>
+                  <TableCell>
+                    {item.category_slug
+                      ? getLostItemCategoryDisplayLabel(item.category_slug)
+                      : "Uncategorized"}
+                  </TableCell>
                   <TableCell>
                     {(item?.details?.length ?? 0) > 30
                       ? `${item?.details?.slice(0, 45)}...`
@@ -723,6 +1050,16 @@ function ItemDetailDialog({ item, open, onClose }: ItemDetailDialogProps) {
                 <dt className="text-sm font-medium text-gray-500">Details</dt>
                 <dd className="text-sm text-gray-900">{item.details}</dd>
               </div>
+              {item.category_slug && (
+                <div className="flex justify-between">
+                  <dt className="text-sm font-medium text-gray-500">
+                    Category
+                  </dt>
+                  <dd className="text-sm text-gray-900">
+                    {getLostItemCategoryDisplayLabel(item.category_slug)}
+                  </dd>
+                </div>
+              )}
               <div className="flex justify-between">
                 <dt className="text-sm font-medium text-gray-500">Stored</dt>
                 <dd className="text-sm text-gray-900">
@@ -748,7 +1085,14 @@ function ItemDetailDialog({ item, open, onClose }: ItemDetailDialogProps) {
                     ]),
                   })}
                 >
-                  {item?.locationNumber}
+                  <div className="text-right">
+                    <div>{item.locationNumber ?? "N/A"}</div>
+                    {formatAmaanatLocationDetails(item) && (
+                      <div className="text-xs text-slate-500">
+                        {formatAmaanatLocationDetails(item)}
+                      </div>
+                    )}
+                  </div>
                 </dd>
               </div>
               {item.is_returned && (

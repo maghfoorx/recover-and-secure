@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Lock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -20,6 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { enableSelfServeMode } from "@/lib/selfServeMode";
+
+const SELF_SERVE_PASSCODE = "lost2026";
 
 export default function SettingsPage() {
   const [printerName, setPrinterName] = useState("UNKNOWN");
@@ -37,6 +42,7 @@ export default function SettingsPage() {
         printerName={printerName}
         setPrinterName={setPrinterName}
       />
+      <SelfServeModeSettings />
     </div>
   );
 }
@@ -66,6 +72,89 @@ const UpdatedComputerNameSelect = () => {
           </SelectGroup>
         </SelectContent>
       </Select>
+    </div>
+  );
+};
+
+const SelfServeModeSettings = () => {
+  const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [passcode, setPasscode] = useState("");
+
+  const handleEnableSelfServe = () => {
+    if (passcode !== SELF_SERVE_PASSCODE) {
+      toast.error("Incorrect passcode", {
+        style: { backgroundColor: "red", color: "white" },
+      });
+      return;
+    }
+
+    enableSelfServeMode();
+    setPasscode("");
+    setDialogOpen(false);
+    navigate("/kiosk/lost-report", { replace: true });
+    toast.success("Self serve enabled", {
+      style: { backgroundColor: "green", color: "white" },
+    });
+  };
+
+  return (
+    <div className="max-w-[400px] space-y-2">
+      <Label className="text-sm text-muted-foreground">Self serve</Label>
+      <div className="text-sm text-muted-foreground">
+        Enable lost-item self-serve mode on this device.
+      </div>
+
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            setPasscode("");
+          }
+        }}
+      >
+        <DialogTrigger asChild>
+          <Button>Self serve enable</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Enable self serve</DialogTitle>
+            <DialogDescription>
+              Enter the passcode to switch this device into self-serve mode.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <Label htmlFor="self-serve-passcode">Passcode</Label>
+            <Input
+              id="self-serve-passcode"
+              type="password"
+              value={passcode}
+              onChange={(event) => setPasscode(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  handleEnableSelfServe();
+                }
+              }}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDialogOpen(false);
+                setPasscode("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleEnableSelfServe}>Enable</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

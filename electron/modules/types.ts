@@ -49,3 +49,23 @@ export type PrintReceiptDataType = {
   location: string;
   computerName: string;
 };
+
+export type EventReportPdfData = {
+  generatedAt: string;
+  summary: {
+    lostItems: number;
+    lostItemsFound: number;
+    foundItems: number;
+    foundItemsReturned: number;
+    amaanatUsers: number;
+    amaanatItems: number;
+    amaanatItemsStored: number;
+  };
+  categoryTotals: {
+    lost: Record<string, number>;
+    found: Record<string, number>;
+    amaanat: Record<string, number>;
+    unreturnedFound: Record<string, number>;
+  };
+  unreturnedFoundItems: Array<Record<string, string>>;
+};

@@ -23,6 +23,7 @@ import {
 import {
   AddAmaanatItemType,
   AmaanatUserType,
+  EventReportPdfData,
   PostFoundItem,
   PostLostItemType,
   PrintReceiptDataType,
@@ -30,6 +31,7 @@ import {
   ReturnFormType,
 } from "../modules/types";
 import { printReceipt } from "../modules/printing/printer";
+import { generateEventReportPdf } from "../modules/reports/eventReportPdf";
 import { isIP } from "node:net";
 
 export const registerIpcHandlers = () => {
@@ -126,6 +128,13 @@ export const registerIpcHandlers = () => {
     async (event, args: PrintReceiptDataType) => {
       const response = await printReceipt(args);
       return response;
+    },
+  );
+
+  ipcMain.handle(
+    "GENERATE_EVENT_REPORT_PDF",
+    async (event, args: EventReportPdfData) => {
+      return await generateEventReportPdf(args);
     },
   );
 

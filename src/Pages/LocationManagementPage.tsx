@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
-import { Doc } from "convex/_generated/dataModel";
+import { Doc, Id } from "convex/_generated/dataModel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { LOCATION_COLOUR_BY_SIZE } from "../../convex/types";
@@ -24,6 +24,7 @@ export default function LocationManagementPage() {
   const allLocationsGroupedBySize = useQuery(
     api.location.queries.getAllLocations,
   );
+  const storageAreas = useQuery(api.location.queries.getStorageAreas);
 
   const extraSmallLocations = allLocationsGroupedBySize?.x_small ?? [];
   const smallLocations = allLocationsGroupedBySize?.small ?? [];
@@ -31,6 +32,14 @@ export default function LocationManagementPage() {
   const largeLocations = allLocationsGroupedBySize?.large ?? [];
   const extraLargeLocations = allLocationsGroupedBySize?.x_large ?? [];
   const bulkyStorageLocations = allLocationsGroupedBySize?.bulky_storage ?? [];
+  const allLocations = [
+    ...extraSmallLocations,
+    ...smallLocations,
+    ...mediumLocations,
+    ...largeLocations,
+    ...extraLargeLocations,
+    ...bulkyStorageLocations,
+  ];
 
   const totalLocationsNumber =
     extraSmallLocations.length +
@@ -39,15 +48,10 @@ export default function LocationManagementPage() {
     largeLocations.length +
     extraLargeLocations.length +
     bulkyStorageLocations.length;
+  const unassignedLocations = allLocations.filter((location) => !location.area_id)
+    .length;
 
-  const numberGroupsBySize = groupNumbersBySize([
-    ...extraSmallLocations,
-    ...smallLocations,
-    ...mediumLocations,
-    ...largeLocations,
-    ...extraLargeLocations,
-    ...bulkyStorageLocations,
-  ]);
+  const numberGroupsBySize = groupNumbersBySize(allLocations);
 
   const extraSmallStats = summarize(extraSmallLocations);
   const smallStats = summarize(smallLocations);
@@ -56,7 +60,7 @@ export default function LocationManagementPage() {
   const extraLargeStats = summarize(extraLargeLocations);
   const bulkyStorageStats = summarize(bulkyStorageLocations);
 
-  if (allLocationsGroupedBySize === undefined) {
+  if (allLocationsGroupedBySize === undefined || storageAreas === undefined) {
     return (
       <div className="h-full px-2 py-6">
         <h1 className="text-3xl font-bold">Location management</h1>
@@ -73,6 +77,11 @@ export default function LocationManagementPage() {
       <div className="text-muted-foreground mb-6">
         Total locations: {totalLocationsNumber}
       </div>
+
+      <StorageAreasCard
+        storageAreas={storageAreas}
+        unassignedLocations={unassignedLocations}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <LocationStatsCard
@@ -114,17 +123,31 @@ export default function LocationManagementPage() {
         />
       </div>
 
-      <CreateLocationBatchForm />
+      <CreateLocationBatchForm storageAreas={storageAreas} />
     </div>
   );
 }
 
 interface CreateLocationFormData {
+  areaId: string;
   endingNumber: number;
   size: "x_small" | "small" | "medium" | "large" | "x_large" | "bulky_storage";
 }
 
-function CreateLocationBatchForm() {
+interface StorageAreaFormData {
+  name: string;
+  code: string;
+}
+
+function CreateLocationBatchForm({
+  storageAreas,
+}: {
+  storageAreas: Array<
+    Doc<"storage_areas"> & {
+      locationCount: number;
+    }
+  >;
+}) {
   const createLocations = useMutation(
     api.location.mutations.createLocationsBatch,
   );
@@ -142,6 +165,7 @@ function CreateLocationBatchForm() {
     reset,
   } = useForm<CreateLocationFormData>({
     defaultValues: {
+      areaId: "",
       endingNumber: startingNumber,
       size: "x_small",
     },
@@ -151,6 +175,7 @@ function CreateLocationBatchForm() {
     if (latestLocationNumber !== undefined) {
       const starting = latestLocationNumber + 1;
       reset({
+        areaId: "",
         endingNumber: starting,
         size: "x_small",
       });
@@ -158,7 +183,6 @@ function CreateLocationBatchForm() {
   }, [latestLocationNumber, reset]);
 
   const handleCreate = async (data: CreateLocationFormData) => {
-    console.log(data, "HANDLE_CREATE_DATA");
     if (data.endingNumber < startingNumber) {
       toast.error(
         "Ending number must be greater than or equal to starting number.",
@@ -170,29 +194,75 @@ function CreateLocationBatchForm() {
       await createLocations({
         from: startingNumber,
         to: Number(data.endingNumber),
+        areaId: data.areaId as Id<"storage_areas">,
         size: data.size,
       });
+      const selectedArea = storageAreas.find((area) => area._id === data.areaId);
       toast.success(
-        `Created ${data.endingNumber - startingNumber + 1} ${data.size} locations.`,
+        `Created ${data.endingNumber - startingNumber + 1} ${data.size} locations in ${selectedArea?.name ?? "the selected area"}.`,
       );
-      reset({ endingNumber: endingNumberValue, size: "small" });
+      reset({
+        areaId: "",
+        endingNumber: data.endingNumber + 1,
+        size: data.size,
+      });
     } catch (error) {
       console.error(error);
-      toast.error("Failed to create locations.");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create locations.",
+      );
     }
   };
 
   const selectedSize = watch("size");
-
   const endingNumberValue = watch("endingNumber");
-
   const totalNewLocationsBeingCreated =
     endingNumberValue - (startingNumber - 1);
+  const hasAreas = storageAreas.length > 0;
 
   return (
     <div className="max-w-md mt-8">
       <h3 className="text-2xl font-semibold mb-4">Create new locations</h3>
       <form onSubmit={handleSubmit(handleCreate)} className="space-y-4">
+        <input
+          type="hidden"
+          {...register("areaId", {
+            required: "Area is required",
+          })}
+        />
+        <div>
+          <Label htmlFor="areaId">Area*</Label>
+          <Select
+            value={watch("areaId") || undefined}
+            onValueChange={(val) =>
+              setValue("areaId", val, {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+            }
+            disabled={!hasAreas}
+          >
+            <SelectTrigger id="areaId" className="w-full">
+              <SelectValue placeholder="Select area" />
+            </SelectTrigger>
+            <SelectContent>
+              {storageAreas.map((area) => (
+                <SelectItem key={area._id} value={area._id}>
+                  {area.name} ({area.code})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {!hasAreas && (
+            <p className="text-sm text-amber-700 mt-1">
+              Create an area first before adding new locations.
+            </p>
+          )}
+          {errors.areaId && (
+            <p className="text-sm text-red-500 mt-1">{errors.areaId.message}</p>
+          )}
+        </div>
+
         <div>
           <Label>Starting Number</Label>
           <Input disabled value={startingNumber} />
@@ -226,13 +296,13 @@ function CreateLocationBatchForm() {
           <Label htmlFor="size">Size</Label>
           <Select
             onValueChange={(val) => {
-              console.log(val, "IS_VALUE");
               setValue(
                 "size",
-                val as "x_small" | "small" | "medium" | "large" | "x_large",
+                val as CreateLocationFormData["size"],
+                { shouldDirty: true },
               );
             }}
-            defaultValue="x_small"
+            value={selectedSize}
           >
             <SelectTrigger
               className={cn("w-full", {
@@ -285,12 +355,189 @@ function CreateLocationBatchForm() {
         <div>
           Number of new locations being created: {totalNewLocationsBeingCreated}
         </div>
-        <Button type="submit" disabled={isSubmitting} className="w-full">
+        <Button
+          type="submit"
+          disabled={isSubmitting || !hasAreas}
+          className="w-full"
+        >
           {isSubmitting
             ? "Creating..."
             : `Create ${totalNewLocationsBeingCreated} new ${totalNewLocationsBeingCreated === 1 ? "location" : "locations"}`}
         </Button>
       </form>
+    </div>
+  );
+}
+
+function StorageAreasCard({
+  storageAreas,
+  unassignedLocations,
+}: {
+  storageAreas: Array<
+    Doc<"storage_areas"> & {
+      locationCount: number;
+    }
+  >;
+  unassignedLocations: number;
+}) {
+  const createStorageArea = useMutation(api.location.mutations.createStorageArea);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { dirtyFields, errors, isSubmitting },
+  } = useForm<StorageAreaFormData>({
+    defaultValues: {
+      name: "",
+      code: "",
+    },
+  });
+
+  const areaCode = normalizeAreaCode(watch("code"));
+  const existingCodeMatch = storageAreas.find((area) => area.code === areaCode);
+
+  const handleAreaNameChange = (name: string) => {
+    setValue("name", name, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
+    if (!dirtyFields.code) {
+      setValue("code", getSuggestedAreaCode(name), {
+        shouldDirty: false,
+        shouldValidate: true,
+      });
+    }
+  };
+
+  const handleCreateArea = async (data: StorageAreaFormData) => {
+    try {
+      await createStorageArea({
+        name: data.name,
+        code: data.code,
+      });
+      toast.success("Area created.");
+      reset({
+        name: "",
+        code: "",
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create area.",
+      );
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_0.8fr] mb-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Storage areas</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {storageAreas.map((area) => (
+              <div
+                key={area._id}
+                className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3"
+              >
+                <div className="text-sm font-semibold text-slate-950">
+                  {area.name}
+                </div>
+                <div className="mt-1 text-xs uppercase tracking-wide text-slate-500">
+                  {area.code}
+                </div>
+                <div className="mt-2 text-sm text-slate-600">
+                  {area.locationCount} location
+                  {area.locationCount === 1 ? "" : "s"}
+                </div>
+              </div>
+            ))}
+            {storageAreas.length === 0 && (
+              <div className="rounded-md border border-dashed border-slate-300 px-4 py-6 text-sm text-slate-500">
+                No areas yet.
+              </div>
+            )}
+          </div>
+          {unassignedLocations > 0 && (
+            <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              {unassignedLocations} existing location
+              {unassignedLocations === 1 ? "" : "s"} do not have an area yet.
+              New locations will use the area system from now on.
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Add new area</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(handleCreateArea)} className="space-y-4">
+            <div>
+              <Label htmlFor="areaName">Area name*</Label>
+              <Input
+                id="areaName"
+                placeholder="Rack A"
+                {...register("name", {
+                  required: "Area name is required",
+                  onChange: (event) => handleAreaNameChange(event.target.value),
+                })}
+              />
+              {errors.name && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.name.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="areaCode">Short code*</Label>
+              <Input
+                id="areaCode"
+                placeholder="RA"
+                {...register("code", {
+                  required: "Short code is required",
+                })}
+                onChange={(event) =>
+                  setValue("code", normalizeAreaCode(event.target.value), {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              />
+              {errors.code && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.code.message}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                Existing codes:{" "}
+                {storageAreas.length > 0
+                  ? storageAreas.map((area) => area.code).join(", ")
+                  : "None yet"}
+              </p>
+              {existingCodeMatch && (
+                <p className="text-sm text-amber-700 mt-1">
+                  Code "{areaCode}" is already used by {existingCodeMatch.name}.
+                </p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting || !!existingCodeMatch}
+              className="w-full"
+            >
+              {isSubmitting ? "Creating..." : "Create area"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -387,4 +634,27 @@ function compactNumberRanges(numbers: number[]): string {
   ranges.push(start === end ? `${start}` : `${start}–${end}`);
 
   return ranges.join(", ");
+}
+
+function normalizeAreaCode(code: string) {
+  return code.trim().toUpperCase().replace(/\s+/g, "");
+}
+
+function getSuggestedAreaCode(name: string) {
+  const parts = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.replace(/[^a-zA-Z0-9]/g, ""))
+    .filter(Boolean);
+
+  if (parts.length === 0) {
+    return "";
+  }
+
+  if (parts.length === 1) {
+    return normalizeAreaCode(parts[0].slice(0, 2));
+  }
+
+  return normalizeAreaCode(parts.slice(0, 2).map((part) => part[0]).join(""));
 }
