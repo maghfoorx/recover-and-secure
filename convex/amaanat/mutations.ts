@@ -23,6 +23,7 @@ export const addAmaanatUser = mutation({
 export const addAmaanatItem = mutation({
   args: {
     user_id: v.id("amaanat_users"),
+    category_slug: v.optional(v.string()),
     name: v.string(),
     details: v.optional(v.string()),
     location: v.id("amaanat_locations"),
@@ -64,6 +65,7 @@ export const addAmaanatItem = mutation({
 
     const itemId = await db.insert("amaanat_items", {
       user_id: args.user_id,
+      category_slug: args.category_slug,
       name: args.name,
       details: args.details,
       location_id: args.location,

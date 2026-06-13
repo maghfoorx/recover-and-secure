@@ -44,6 +44,19 @@ import {
 import { cn } from "@/lib/utils";
 import { Infer } from "convex/values";
 import { getUserAmaanatItems } from "convex/amaanat/queries";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  getLostItemCategoryDisplayLabel,
+  getLostItemCategoryLabel,
+  LOST_ITEM_CATEGORIES,
+  OTHER_LOST_ITEM_CATEGORY,
+} from "@/lib/lostItemCategories";
 
 // Types based on your Convex schema
 type AmaanatUserType = {
@@ -58,6 +71,7 @@ type AmaanatUserType = {
 type AmaanatUserItemType = {
   _id: Id<"amaanat_items">;
   user_id: Id<"amaanat_users">;
+  category_slug?: string;
   name: string;
   details?: string;
   location_id: Id<"amaanat_locations">;
@@ -238,7 +252,8 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
   }, [allAvailableLocationsBySize]);
 
   const addItemSchema = z.object({
-    name: z.string().min(1, "Name is required"),
+    category_slug: z.string().min(1, "Item category is required"),
+    name: z.string(),
     details: z.string().optional(),
     location: z
       .string()
@@ -248,22 +263,66 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
           message: "Please select a valid location",
         },
       ),
+  }).superRefine((data, ctx) => {
+    if (
+      data.category_slug === OTHER_LOST_ITEM_CATEGORY &&
+      data.name.trim().length === 0
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Item name is required",
+        path: ["name"],
+      });
+    }
   });
 
   const addForm = useForm({
     resolver: zodResolver(addItemSchema),
     defaultValues: {
+      category_slug: "",
       name: "",
       details: "",
       location: "",
     },
   });
 
+  const selectedCategory = addForm.watch("category_slug");
+  const isCustomCategory = selectedCategory === OTHER_LOST_ITEM_CATEGORY;
+  const selectedCategoryDisplayLabel =
+    getLostItemCategoryDisplayLabel(selectedCategory);
+
+  const handleCategoryChange = (value: string) => {
+    addForm.setValue("category_slug", value, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
+    if (value === OTHER_LOST_ITEM_CATEGORY) {
+      addForm.setValue("name", "", {
+        shouldDirty: true,
+        shouldValidate: false,
+      });
+      addForm.clearErrors("name");
+      return;
+    }
+
+    addForm.setValue("name", getLostItemCategoryLabel(value), {
+      shouldDirty: true,
+      shouldValidate: false,
+    });
+    addForm.clearErrors("name");
+  };
+
   const handleAddItem = async (data: any) => {
     try {
+      const resolvedName = isCustomCategory
+        ? data.name.trim()
+        : getLostItemCategoryLabel(data.category_slug);
+
       await addAmaanatItem({
         user_id: userId,
-        name: data.name,
+        category_slug: data.category_slug,
+        name: resolvedName,
         details: data.details,
         location: data.location,
       });
@@ -279,6 +338,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
       );
 
       addForm.reset({
+        category_slug: "",
         name: "",
         details: "",
         location: "",
@@ -291,6 +351,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
 
   const handleCloseDialog = () => {
     addForm.reset({
+      category_slug: "",
       name: "",
       details: "",
       location: "",
@@ -315,19 +376,74 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
             >
               <FormField
                 control={addForm.control}
+                name="category_slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Item category*</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={handleCategoryChange}
+                      >
+                        <SelectTrigger className="my-0">
+                          <SelectValue placeholder="Select item category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {LOST_ITEM_CATEGORIES.map((category, index) => (
+                            <SelectItem
+                              key={category.value}
+                              value={category.value}
+                            >
+                              {index + 1}. {category.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {isCustomCategory ? (
+                <FormField
+                  control={addForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Item name*</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="my-0"
+                          {...field}
+                          placeholder="phone"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : selectedCategoryDisplayLabel ? (
+                <div className="rounded-md border bg-slate-50 px-3 py-3">
+                  <div className="text-sm font-medium text-slate-900">
+                    Selected item
+                  </div>
+                  <div className="mt-1 text-sm text-slate-600">
+                    This Amaanat item will be saved as{" "}
+                    <span className="font-medium">
+                      {selectedCategoryDisplayLabel}
+                    </span>
+                    .
+                  </div>
+                </div>
+              ) : null}
+
+              <FormField
+                control={addForm.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name*</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="my-0"
-                        {...field}
-                        required
-                        placeholder="phone"
-                      />
-                    </FormControl>
-                    <FormMessage />
+                    <input type="hidden" {...field} />
                   </FormItem>
                 )}
               />
@@ -489,6 +605,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                   variant="outline"
                   onClick={() => {
                     addForm.reset({
+                      category_slug: "",
                       name: "",
                       details: "",
                       location: "",

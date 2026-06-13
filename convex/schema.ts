@@ -11,6 +11,7 @@ export default defineSchema({
 
   amaanat_items: defineTable({
     user_id: v.id("amaanat_users"),
+    category_slug: v.optional(v.string()),
     name: v.string(),
     details: v.optional(v.string()),
     location_id: v.id("amaanat_locations"),
