@@ -10,7 +10,7 @@ import {
   Link2,
   Search,
 } from "lucide-react";
-import { useQuery } from "convex/react";
+import { useConvex, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -19,55 +19,30 @@ import { getLostItemCategoryLabel } from "@/lib/lostItemCategories";
 
 export default function Dashboard(): JSX.Element {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const convex = useConvex();
 
-  // Fetch all data using Convex queries
-  const lostItems =
-    useQuery(api.lostProperty.queries.getLostItemsReported) || [];
-  const foundItems =
-    useQuery(api.lostProperty.queries.getFoundItemsReported) || [];
-  const amaanatUsers = useQuery(api.amaanat.queries.getAllAmaanatUsers) || [];
-  const amaanatItems = useQuery(api.amaanat.queries.getTotalAmaanatItems) || [];
-
-  const lostItemsFound = lostItems.filter((item) => item.is_found).length;
-  const openLostReports = lostItems.length - lostItemsFound;
-  const foundItemsReturned = foundItems.filter((item) => item.is_returned)
-    .length;
-  const foundItemsInStorage = foundItems.length - foundItemsReturned;
-  const matchedItems = foundItems.filter((item) => item.lost_item_id != null)
-    .length;
-  const amaanatItemsStored = amaanatItems.filter((item) => !item.is_returned)
-    .length;
-  const storedItemUsers = amaanatUsers.filter((user) =>
-    amaanatItems.some((item) => item.user_id === user._id && !item.is_returned),
-  ).length;
-  const totalOpenInventory = foundItemsInStorage + amaanatItemsStored;
+  const metrics =
+    useQuery(api.lostProperty.queries.getDashboardMetrics) ?? DEFAULT_METRICS;
 
   const handleGenerateReport = async () => {
     setIsGeneratingReport(true);
 
     try {
-      const unreturnedFoundItems = foundItems.filter(
-        (item) => !item.is_returned,
+      const reportData = await convex.query(
+        api.lostProperty.queries.getDashboardReportData,
       );
 
-      const reportData = {
-        generatedAt: new Date().toLocaleString("en-GB"),
-        summary: {
-          lostItems: lostItems.length,
-          lostItemsFound,
-          foundItems: foundItems.length,
-          foundItemsReturned,
-          amaanatUsers: amaanatUsers.length,
-          amaanatItems: amaanatItems.length,
-          amaanatItemsStored,
-        },
+      const printableReportData = {
+        ...reportData,
         categoryTotals: {
-          lost: buildCategoryTotals(lostItems),
-          found: buildCategoryTotals(foundItems),
-          amaanat: buildCategoryTotals(amaanatItems),
-          unreturnedFound: buildCategoryTotals(unreturnedFoundItems),
+          lost: relabelCategoryTotals(reportData.categoryTotals.lost),
+          found: relabelCategoryTotals(reportData.categoryTotals.found),
+          amaanat: relabelCategoryTotals(reportData.categoryTotals.amaanat),
+          unreturnedFound: relabelCategoryTotals(
+            reportData.categoryTotals.unreturnedFound,
+          ),
         },
-        unreturnedFoundItems: unreturnedFoundItems.map((item) => ({
+        unreturnedFoundItems: reportData.unreturnedFoundItems.map((item) => ({
           Item: item.name,
           Category: getCategoryName(item.category_slug),
           Details: item.details || "-",
@@ -79,7 +54,8 @@ export default function Dashboard(): JSX.Element {
         })),
       };
 
-      const result = await window.ipcApi.generateEventReportPdf(reportData);
+      const result =
+        await window.ipcApi.generateEventReportPdf(printableReportData);
 
       toast.success(`Report saved to ${result.filePath}`);
     } catch (error) {
@@ -106,37 +82,37 @@ export default function Dashboard(): JSX.Element {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           <KpiCard
             title="Open lost reports"
-            value={openLostReports}
-            subtitle={`${lostItemsFound} marked found`}
+            value={metrics.openLostReports}
+            subtitle={`${metrics.lostItemsFound} marked found`}
             icon={Search}
           />
           <KpiCard
             title="Matched lost/found items"
-            value={matchedItems}
+            value={metrics.matchedItems}
             subtitle="Confirmed links"
             icon={Link2}
           />
           <KpiCard
             title="Found items in storage"
-            value={foundItemsInStorage}
-            subtitle={`${foundItemsReturned} returned`}
+            value={metrics.foundItemsInStorage}
+            subtitle={`${metrics.foundItemsReturned} returned`}
             icon={Archive}
           />
           <KpiCard
             title="Amaanat items stored"
-            value={amaanatItemsStored}
-            subtitle={`${storedItemUsers} users with stored items`}
+            value={metrics.amaanatItemsStored}
+            subtitle={`${metrics.storedItemUsers} users with stored items`}
             icon={Box}
           />
           <KpiCard
             title="Items returned"
-            value={foundItemsReturned}
+            value={metrics.foundItemsReturned}
             subtitle="Found-property returns"
             icon={CheckCircle2}
           />
           <KpiCard
             title="Total open inventory"
-            value={totalOpenInventory}
+            value={metrics.totalOpenInventory}
             subtitle="Found storage + Amaanat storage"
             icon={FilePlus}
           />
@@ -156,7 +132,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {lostItems.length}
+                {metrics.lostItems}
               </p>
             </CardContent>
           </Card>
@@ -170,7 +146,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {lostItemsFound}
+                {metrics.lostItemsFound}
               </p>
             </CardContent>
           </Card>
@@ -190,7 +166,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {foundItems.length}
+                {metrics.foundItems}
               </p>
             </CardContent>
           </Card>
@@ -204,7 +180,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {foundItemsReturned}
+                {metrics.foundItemsReturned}
               </p>
             </CardContent>
           </Card>
@@ -224,7 +200,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {amaanatUsers.length}
+                {metrics.amaanatUsers}
               </p>
             </CardContent>
           </Card>
@@ -238,7 +214,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {amaanatItems.length}
+                {metrics.amaanatItems}
               </p>
             </CardContent>
           </Card>
@@ -252,7 +228,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {storedItemUsers}
+                {metrics.storedItemUsers}
               </p>
             </CardContent>
           </Card>
@@ -266,7 +242,7 @@ export default function Dashboard(): JSX.Element {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-semibold text-center">
-                {amaanatItemsStored}
+                {metrics.amaanatItemsStored}
               </p>
             </CardContent>
           </Card>
@@ -275,6 +251,21 @@ export default function Dashboard(): JSX.Element {
     </div>
   );
 }
+
+const DEFAULT_METRICS = {
+  lostItems: 0,
+  lostItemsFound: 0,
+  openLostReports: 0,
+  foundItems: 0,
+  foundItemsReturned: 0,
+  foundItemsInStorage: 0,
+  matchedItems: 0,
+  amaanatUsers: 0,
+  amaanatItems: 0,
+  amaanatItemsStored: 0,
+  storedItemUsers: 0,
+  totalOpenInventory: 0,
+};
 
 function KpiCard({
   title,
@@ -303,16 +294,18 @@ function KpiCard({
   );
 }
 
-function buildCategoryTotals(items: Array<{ category_slug?: string }>) {
-  return items.reduce<Record<string, number>>((totals, item) => {
-    const category = getCategoryName(item.category_slug);
-    totals[category] = (totals[category] ?? 0) + 1;
-    return totals;
-  }, {});
+function relabelCategoryTotals(categoryTotals: Record<string, number>) {
+  return Object.entries(categoryTotals).reduce<Record<string, number>>(
+    (totals, [categorySlug, count]) => {
+      totals[getCategoryName(categorySlug)] = count;
+      return totals;
+    },
+    {},
+  );
 }
 
 function getCategoryName(categorySlug?: string) {
-  if (!categorySlug) {
+  if (!categorySlug || categorySlug === "uncategorized") {
     return "Uncategorized";
   }
 

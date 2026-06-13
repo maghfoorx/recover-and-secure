@@ -401,7 +401,7 @@ The best order is to build shared foundations first, then the device-specific fl
 
 ### Phase 6: Analytics
 
-- [ ] Replace current dashboard queries with aggregated operational queries.
+- [x] Replace current dashboard queries with aggregated operational queries.
 - [x] Add KPI cards for lost, found, matched, returned, and open inventory.
 - [ ] Add category breakdown tables/charts.
 - [ ] Add storage utilization reporting by rack and zone.
