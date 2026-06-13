@@ -373,7 +373,7 @@ The best order is to build shared foundations first, then the device-specific fl
 - [x] Add route guards and a kiosk layout without sidebar/navigation.
 - [x] Add an `Exit self serve` action inside the kiosk view.
 - [x] Require passcode `lost2026` before leaving self-serve mode.
-- [ ] Add inactivity reset behavior for kiosk screens.
+- [x] Add inactivity reset behavior for kiosk screens.
 - [ ] Add barcode or QR output to Amaanat receipts using the AIMS number.
 - [ ] Add scanner-aware search input with auto-submit on scan completion.
 

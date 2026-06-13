@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -15,10 +15,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { disableSelfServeMode } from "@/lib/selfServeMode";
 import { api } from "../../convex/_generated/api";
 
 const SELF_SERVE_PASSCODE = "lost2026";
+const SELF_SERVE_INACTIVITY_TIMEOUT_MS = 60000;
+const SELF_SERVE_WARNING_COUNTDOWN_MS = 10000;
 
 interface SelfServeLostItemFormData {
   reporter_name: string;
@@ -35,12 +38,21 @@ export default function SelfServeLostItemPage() {
   const [exitDialogOpen, setExitDialogOpen] = useState(false);
   const [passcode, setPasscode] = useState("");
   const [lastSubmittedName, setLastSubmittedName] = useState("");
+  const [warningDialogOpen, setWarningDialogOpen] = useState(false);
+  const [warningTimeRemainingMs, setWarningTimeRemainingMs] = useState(
+    SELF_SERVE_WARNING_COUNTDOWN_MS,
+  );
+  const warningTimeoutRef = useRef<number>();
+  const resetTimeoutRef = useRef<number>();
+  const warningIntervalRef = useRef<number>();
+  const warningDeadlineRef = useRef<number>();
+  const warningDialogOpenRef = useRef(false);
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<SelfServeLostItemFormData>({
     defaultValues: {
       reporter_name: "",
@@ -93,10 +105,82 @@ export default function SelfServeLostItemPage() {
     }
   };
 
+  const blurActiveElement = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
+
+  const setWarningDialogState = (open: boolean) => {
+    warningDialogOpenRef.current = open;
+    setWarningDialogOpen(open);
+  };
+
+  const clearInactivityTimers = () => {
+    if (warningTimeoutRef.current) {
+      window.clearTimeout(warningTimeoutRef.current);
+      warningTimeoutRef.current = undefined;
+    }
+
+    if (resetTimeoutRef.current) {
+      window.clearTimeout(resetTimeoutRef.current);
+      resetTimeoutRef.current = undefined;
+    }
+
+    if (warningIntervalRef.current) {
+      window.clearInterval(warningIntervalRef.current);
+      warningIntervalRef.current = undefined;
+    }
+  };
+
   const startNewReport = () => {
+    blurActiveElement();
     setLastSubmittedName("");
+    setWarningDialogState(false);
+    setWarningTimeRemainingMs(SELF_SERVE_WARNING_COUNTDOWN_MS);
     reset();
     window.scrollTo({ top: 0, behavior: "auto" });
+  };
+
+  const resetAfterInactivity = () => {
+    clearInactivityTimers();
+    startNewReport();
+  };
+
+  const armInactivityTimers = () => {
+    clearInactivityTimers();
+
+    if (!isDirty || lastSubmittedName || exitDialogOpen) {
+      setWarningDialogState(false);
+      setWarningTimeRemainingMs(SELF_SERVE_WARNING_COUNTDOWN_MS);
+      return;
+    }
+
+    warningTimeoutRef.current = window.setTimeout(() => {
+      setWarningDialogState(true);
+      setWarningTimeRemainingMs(SELF_SERVE_WARNING_COUNTDOWN_MS);
+      warningDeadlineRef.current = Date.now() + SELF_SERVE_WARNING_COUNTDOWN_MS;
+
+      warningIntervalRef.current = window.setInterval(() => {
+        const deadline = warningDeadlineRef.current;
+        if (!deadline) {
+          return;
+        }
+
+        const remaining = Math.max(deadline - Date.now(), 0);
+        setWarningTimeRemainingMs(remaining);
+      }, 100);
+    }, SELF_SERVE_INACTIVITY_TIMEOUT_MS - SELF_SERVE_WARNING_COUNTDOWN_MS);
+
+    resetTimeoutRef.current = window.setTimeout(() => {
+      resetAfterInactivity();
+    }, SELF_SERVE_INACTIVITY_TIMEOUT_MS);
+  };
+
+  const handleStillActive = () => {
+    setWarningDialogState(false);
+    setWarningTimeRemainingMs(SELF_SERVE_WARNING_COUNTDOWN_MS);
+    armInactivityTimers();
   };
 
   useEffect(() => {
@@ -112,6 +196,48 @@ export default function SelfServeLostItemPage() {
       window.clearTimeout(timeoutId);
     };
   }, [lastSubmittedName]);
+
+  useEffect(() => {
+    if (lastSubmittedName || exitDialogOpen) {
+      clearInactivityTimers();
+      setWarningDialogState(false);
+      return;
+    }
+
+    const scheduleReset = () => {
+      if (!warningDialogOpenRef.current) {
+        armInactivityTimers();
+      }
+    };
+
+    const activityEvents: Array<keyof WindowEventMap> = [
+      "click",
+      "input",
+      "keydown",
+      "scroll",
+      "touchstart",
+    ];
+
+    armInactivityTimers();
+
+    activityEvents.forEach((eventName) => {
+      window.addEventListener(eventName, scheduleReset, { passive: true });
+    });
+
+    return () => {
+      clearInactivityTimers();
+      activityEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, scheduleReset);
+      });
+    };
+  }, [exitDialogOpen, isDirty, lastSubmittedName]);
+
+  const warningProgressValue =
+    (warningTimeRemainingMs / SELF_SERVE_WARNING_COUNTDOWN_MS) * 100;
+  const warningSecondsRemaining = Math.max(
+    0,
+    Math.ceil(warningTimeRemainingMs / 1000),
+  );
 
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-8">
@@ -267,6 +393,39 @@ export default function SelfServeLostItemPage() {
               Cancel
             </Button>
             <Button onClick={handleExit}>Disable self serve</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={warningDialogOpen}
+        onOpenChange={(open) => {
+          if (open) {
+            setWarningDialogState(true);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md" hideCross={true}>
+          <DialogHeader>
+            <DialogTitle>Are you still active?</DialogTitle>
+            <DialogDescription>
+              This screen will reset soon to protect the self-serve flow for the
+              next person.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <div className="text-sm font-medium text-slate-700">
+              Resetting in {warningSecondsRemaining}{" "}
+              {warningSecondsRemaining === 1 ? "second" : "seconds"}
+            </div>
+            <Progress value={warningProgressValue} className="h-3" />
+          </div>
+
+          <DialogFooter>
+            <Button className="w-full sm:w-full" onClick={handleStillActive}>
+              I&apos;m still active
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
