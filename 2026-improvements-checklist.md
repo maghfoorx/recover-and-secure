@@ -379,7 +379,7 @@ The best order is to build shared foundations first, then the device-specific fl
 
 ### Phase 4: Workflow UX
 
-- [ ] Optimize the existing Amaanat staff workflow for tablet use.
+- [x] Optimize the existing Amaanat staff workflow for tablet use.
 - [x] Make the AIMS lookup field scanner-first in the staff workflow.
 - [x] Build the lost-property self-serve kiosk page.
 - [x] Restrict the self-serve kiosk page to lost-item creation only.

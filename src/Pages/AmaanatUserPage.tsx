@@ -176,15 +176,24 @@ function Header({ onPrint, userId }: HeaderProps) {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   return (
     <>
-      <div className="flex justify-between items-start">
-        <Button variant="link" asChild>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <Button variant="outline" size="lg" asChild className="w-full lg:w-auto">
           <Link to="/">← Back to all users</Link>
         </Button>
-        <div className="flex flex-row gap-2">
-          <Button size="sm" onClick={onPrint} variant="secondary">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:w-auto">
+          <Button
+            size="lg"
+            onClick={onPrint}
+            variant="secondary"
+            className="w-full"
+          >
             Print receipt
           </Button>
-          <Button size="sm" onClick={() => setOpenAddDialog(true)}>
+          <Button
+            size="lg"
+            onClick={() => setOpenAddDialog(true)}
+            className="w-full"
+          >
             Add new items
           </Button>
         </div>
@@ -205,28 +214,28 @@ interface UserInfoCardProps {
 function UserInfoCard({ user }: UserInfoCardProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-4xl">{user.name}</CardTitle>
+      <CardHeader className="pb-4">
+        <CardTitle className="text-3xl md:text-4xl">{user.name}</CardTitle>
       </CardHeader>
-      <CardContent className="text-sm">
-        <table className="min-w-full table-auto">
-          <thead>
-            <tr>
-              <th className="border-b px-2 py-1 text-left">AIMS number</th>
-              <th className="border-b px-2 py-1 text-left">Jamaat</th>
-              <th className="border-b px-2 py-1 text-left">Phone number</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="border-b px-2 py-1">{user.aims_number}</td>
-              <td className="border-b px-2 py-1">{user.jamaat || "N/A"}</td>
-              <td className="border-b px-2 py-1">{user.phone_number}</td>
-            </tr>
-          </tbody>
-        </table>
+      <CardContent className="pt-0">
+        <div className="grid gap-3 md:grid-cols-3">
+          <InfoTile label="AIMS number" value={user.aims_number || "N/A"} />
+          <InfoTile label="Jamaat" value={user.jamaat || "N/A"} />
+          <InfoTile label="Phone number" value={user.phone_number || "N/A"} />
+        </div>
       </CardContent>
     </Card>
+  );
+}
+
+function InfoTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3">
+      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+        {label}
+      </div>
+      <div className="mt-1 text-lg font-semibold text-slate-950">{value}</div>
+    </div>
   );
 }
 
@@ -706,27 +715,36 @@ function ItemsTabs({ items }: ItemsTabsProps) {
   return (
     <>
       <Tabs defaultValue="stored">
-        <div className="flex flex-row justify-between">
-          <TabsList>
-            <TabsTrigger value="stored">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <TabsList className="grid h-12 w-full grid-cols-2 lg:max-w-md">
+            <TabsTrigger value="stored" className="text-base">
               Stored ({storedItems.length})
             </TabsTrigger>
-            <TabsTrigger value="returned">
+            <TabsTrigger value="returned" className="text-base">
               Returned ({returnedItems.length})
             </TabsTrigger>
           </TabsList>
 
-          <div>
+          <div className="w-full lg:w-auto">
             <Button
-              size="sm"
+              size="lg"
               variant="outline"
               onClick={() => setReturnDialogOpen(true)}
               disabled={selectedItems.length === 0}
+              className="w-full lg:w-auto"
             >
-              Return selected items
+              {selectedItems.length > 0
+                ? `Return selected items (${selectedItems.length})`
+                : "Return selected items"}
             </Button>
           </div>
         </div>
+        {selectedItems.length > 0 && (
+          <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+            {selectedItems.length} item
+            {selectedItems.length === 1 ? "" : "s"} selected for return
+          </div>
+        )}
         <div className="mt-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="w-full max-w-sm">
             <Select
@@ -736,7 +754,7 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                 setSelectedCategory(value);
               }}
             >
-              <SelectTrigger className="bg-white">
+              <SelectTrigger className="h-11 bg-white">
                 <SelectValue placeholder="Filter by category" />
               </SelectTrigger>
               <SelectContent>
@@ -788,9 +806,11 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                     setSelectedItem(item);
                     setDetailDialogOpen(true);
                   }}
+                  className="cursor-pointer"
                 >
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
+                      className="h-5 w-5"
                       checked={selectedItems.includes(item._id)}
                       onCheckedChange={(checked) =>
                         setSelectedItems((prev) =>
@@ -865,6 +885,7 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                     setSelectedItem(item);
                     setDetailDialogOpen(true);
                   }}
+                  className="cursor-pointer"
                 >
                   <TableCell>{item.name}</TableCell>
                   <TableCell>
