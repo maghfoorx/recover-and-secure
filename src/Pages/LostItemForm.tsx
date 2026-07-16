@@ -6,19 +6,27 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Textarea } from "@/components/ui/textarea";
+import SearchableSelect from "@/components/SearchableSelect";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  getLostItemCategoryDisplayLabel,
   getLostItemCategoryLabel,
   LOST_ITEM_CATEGORIES,
   OTHER_LOST_ITEM_CATEGORY,
 } from "@/lib/lostItemCategories";
+
+// Numbered options for the searchable dropdown, so staff can type the
+// name ("phone") or a memorised number ("1"). "Not listed" is offered
+// via the fallback row when a search yields no matches.
+const NUMBERED_LOST_CATEGORY_OPTIONS = LOST_ITEM_CATEGORIES.filter(
+  (category) => category.value !== OTHER_LOST_ITEM_CATEGORY,
+).map((category, index) => ({
+  value: category.value,
+  label: `${index + 1}. ${category.label}`,
+}));
+
+const FALLBACK_OTHER_OPTION = {
+  value: OTHER_LOST_ITEM_CATEGORY,
+  label: "Other: specify in details",
+};
 
 // Define form data type
 interface LostItemFormData {
@@ -57,8 +65,6 @@ export default function LostItemForm() {
 
   const selectedCategory = watch("category_slug");
   const isCustomCategory = selectedCategory === OTHER_LOST_ITEM_CATEGORY;
-  const selectedCategoryDisplayLabel =
-    getLostItemCategoryDisplayLabel(selectedCategory);
 
   const handleCategoryChange = (value: string) => {
     setValue("category_slug", value, {
@@ -132,18 +138,17 @@ export default function LostItemForm() {
         />
         <div>
           <Label htmlFor="category_slug">Item category*</Label>
-          <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="Select item category" />
-            </SelectTrigger>
-            <SelectContent>
-              {LOST_ITEM_CATEGORIES.map((category, index) => (
-                <SelectItem key={category.value} value={category.value}>
-                  {index + 1}. {category.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="mt-1">
+            <SearchableSelect
+              options={NUMBERED_LOST_CATEGORY_OPTIONS}
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+              placeholder="Select item category"
+              searchPlaceholder="Search categories..."
+              emptyMessage="No categories match your search."
+              fallbackOption={FALLBACK_OTHER_OPTION}
+            />
+          </div>
           {errors.category_slug && (
             <p className="text-red-500 text-xs mt-1">
               {errors.category_slug.message}
@@ -165,19 +170,6 @@ export default function LostItemForm() {
             {errors.name && (
               <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
             )}
-          </div>
-        ) : selectedCategoryDisplayLabel ? (
-          <div className="rounded-md border bg-slate-50 px-3 py-3">
-            <div className="text-sm font-medium text-slate-900">
-              Selected item
-            </div>
-            <div className="mt-1 text-sm text-slate-600">
-              This report will be saved as{" "}
-              <span className="font-medium">
-                {selectedCategoryDisplayLabel}
-              </span>
-              .
-            </div>
           </div>
         ) : null}
         <div>

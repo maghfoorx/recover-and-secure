@@ -20,18 +20,23 @@ import { disableSelfServeMode } from "@/lib/selfServeMode";
 import { verifyAdminPassword } from "@/lib/adminAuth";
 import { api } from "../../convex/_generated/api";
 import {
-  getLostItemCategoryDisplayLabel,
   getLostItemCategoryLabel,
   LOST_ITEM_CATEGORIES,
   OTHER_LOST_ITEM_CATEGORY,
 } from "@/lib/lostItemCategories";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import SearchableSelect from "@/components/SearchableSelect";
+
+const NUMBERED_LOST_CATEGORY_OPTIONS = LOST_ITEM_CATEGORIES.filter(
+  (category) => category.value !== OTHER_LOST_ITEM_CATEGORY,
+).map((category, index) => ({
+  value: category.value,
+  label: `${index + 1}. ${category.label}`,
+}));
+
+const FALLBACK_OTHER_OPTION = {
+  value: OTHER_LOST_ITEM_CATEGORY,
+  label: "Other: specify in details",
+};
 
 const SELF_SERVE_INACTIVITY_TIMEOUT_MS = 60000;
 const SELF_SERVE_WARNING_COUNTDOWN_MS = 10000;
@@ -84,8 +89,6 @@ export default function SelfServeLostItemPage() {
 
   const selectedCategory = watch("category_slug");
   const isCustomCategory = selectedCategory === OTHER_LOST_ITEM_CATEGORY;
-  const selectedCategoryDisplayLabel =
-    getLostItemCategoryDisplayLabel(selectedCategory);
 
   const handleCategoryChange = (value: string) => {
     setValue("category_slug", value, {
@@ -336,18 +339,18 @@ export default function SelfServeLostItemPage() {
               htmlFor="category_slug"
               error={errors.category_slug?.message}
             >
-              <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-                <SelectTrigger className="mt-2 h-14 rounded-xl text-lg">
-                  <SelectValue placeholder="Select item category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {LOST_ITEM_CATEGORIES.map((category, index) => (
-                    <SelectItem key={category.value} value={category.value}>
-                      {index + 1}. {category.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="mt-2">
+                <SearchableSelect
+                  options={NUMBERED_LOST_CATEGORY_OPTIONS}
+                  value={selectedCategory}
+                  onChange={handleCategoryChange}
+                  placeholder="Select item category"
+                  searchPlaceholder="Search categories..."
+                  emptyMessage="No categories match your search."
+                  fallbackOption={FALLBACK_OTHER_OPTION}
+                  triggerClassName="h-14 rounded-xl text-lg"
+                />
+              </div>
             </FormFieldBlock>
 
             {isCustomCategory ? (
@@ -367,19 +370,6 @@ export default function SelfServeLostItemPage() {
                   })}
                 />
               </FormFieldBlock>
-            ) : selectedCategoryDisplayLabel ? (
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                <div className="text-base font-semibold text-slate-900">
-                  Selected item
-                </div>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
-                  This report will be submitted as{" "}
-                  <span className="font-semibold">
-                    {selectedCategoryDisplayLabel}
-                  </span>
-                  .
-                </p>
-              </div>
             ) : null}
 
             <FormFieldBlock
