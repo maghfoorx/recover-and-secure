@@ -52,6 +52,37 @@ export const createStorageArea = mutation({
   },
 });
 
+/**
+ * Wipes every storage area and every numbered location. Guarded server-side
+ * by refusing to run if any location is still occupied, so an accidental
+ * click can't strand real Amaanat items. Callers must still gate this
+ * behind the admin password in the UI.
+ */
+export const resetAllLocations = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const locations = await ctx.db.query("amaanat_locations").collect();
+    const occupied = locations.filter((location) => location.is_occupied);
+    if (occupied.length > 0) {
+      throw new Error(
+        `Cannot reset — ${occupied.length} location${occupied.length === 1 ? " is" : "s are"} still occupied. Return all Amaanat items first.`,
+      );
+    }
+
+    const areas = await ctx.db.query("storage_areas").collect();
+
+    await Promise.all([
+      ...locations.map((location) => ctx.db.delete(location._id)),
+      ...areas.map((area) => ctx.db.delete(area._id)),
+    ]);
+
+    return {
+      deletedLocations: locations.length,
+      deletedAreas: areas.length,
+    };
+  },
+});
+
 export const createLocationsBatch = mutation({
   args: {
     from: v.number(),

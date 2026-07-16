@@ -20,8 +20,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { LOCATION_COLOUR_BY_SIZE } from "../../convex/types";
 import AdminPasswordDialog from "@/components/AdminPasswordDialog";
-import { isAdminUnlocked, lockAdmin } from "@/lib/adminAuth";
-import { Lock, LockOpen, ShieldCheck } from "lucide-react";
+import { isAdminUnlocked, lockAdmin, verifyAdminPassword } from "@/lib/adminAuth";
+import {
+  AlertTriangle,
+  Lock,
+  LockOpen,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type StorageAreaWithCount = Doc<"storage_areas"> & { locationCount: number };
 
@@ -232,6 +246,14 @@ export default function LocationManagementPage() {
           )}
         </CardContent>
       </Card>
+
+      {adminUnlocked && (
+        <DangerZoneCard
+          totalLocations={totalLocationsNumber}
+          occupiedLocations={occupiedLocationsNumber}
+          storageAreasCount={storageAreas.length}
+        />
+      )}
 
       <AdminPasswordDialog
         open={unlockDialogOpen}
@@ -646,6 +668,180 @@ function StorageAreasCard({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function DangerZoneCard({
+  totalLocations,
+  occupiedLocations,
+  storageAreasCount,
+}: {
+  totalLocations: number;
+  occupiedLocations: number;
+  storageAreasCount: number;
+}) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const canReset = occupiedLocations === 0 && totalLocations + storageAreasCount > 0;
+
+  return (
+    <>
+      <Card className="border-red-200 bg-red-50/40 shadow-none">
+        <CardHeader className="px-6 pb-3 pt-5">
+          <CardTitle className="flex items-center gap-2 text-lg text-red-800">
+            <AlertTriangle className="h-5 w-5" />
+            Danger zone
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 px-6 pb-5">
+          <div className="flex flex-col gap-2 rounded-lg border border-red-200 bg-white p-4">
+            <div className="flex flex-col gap-1">
+              <p className="font-semibold text-slate-900">
+                Reset all storage locations
+              </p>
+              <p className="text-sm text-slate-600">
+                Permanently deletes every storage area and every numbered
+                location, so you can rebuild the whole layout from scratch.
+                Only allowed when no locations are occupied.
+              </p>
+            </div>
+            {occupiedLocations > 0 ? (
+              <p className="mt-1 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                {occupiedLocations} location
+                {occupiedLocations === 1 ? " is" : "s are"} currently occupied.
+                Return every Amaanat item before you can reset.
+              </p>
+            ) : totalLocations + storageAreasCount === 0 ? (
+              <p className="mt-1 text-sm text-slate-500">
+                Nothing to reset — no areas or locations exist yet.
+              </p>
+            ) : (
+              <p className="mt-1 text-sm text-slate-600">
+                {storageAreasCount} area
+                {storageAreasCount === 1 ? "" : "s"} and {totalLocations}{" "}
+                location{totalLocations === 1 ? "" : "s"} will be deleted.
+              </p>
+            )}
+            <div className="mt-2">
+              <Button
+                variant="destructive"
+                disabled={!canReset}
+                onClick={() => setConfirmOpen(true)}
+              >
+                <Trash2 className="mr-1.5 h-4 w-4" />
+                Reset all locations
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <ResetLocationsDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        totalLocations={totalLocations}
+        storageAreasCount={storageAreasCount}
+      />
+    </>
+  );
+}
+
+function ResetLocationsDialog({
+  open,
+  onOpenChange,
+  totalLocations,
+  storageAreasCount,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  totalLocations: number;
+  storageAreasCount: number;
+}) {
+  const resetAllLocations = useMutation(
+    api.location.mutations.resetAllLocations,
+  );
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setPassword("");
+      setIsSubmitting(false);
+    }
+  }, [open]);
+
+  const handleReset = async () => {
+    if (!verifyAdminPassword(password)) {
+      toast.error("Incorrect admin password");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const result = await resetAllLocations();
+      toast.success(
+        `Deleted ${result.deletedAreas} area${result.deletedAreas === 1 ? "" : "s"} and ${result.deletedLocations} location${result.deletedLocations === 1 ? "" : "s"}.`,
+      );
+      onOpenChange(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to reset locations.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[440px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-red-800">
+            <AlertTriangle className="h-5 w-5" />
+            Reset all locations?
+          </DialogTitle>
+          <DialogDescription>
+            This will permanently delete {storageAreasCount} storage area
+            {storageAreasCount === 1 ? "" : "s"} and {totalLocations} numbered
+            location{totalLocations === 1 ? "" : "s"}. This action cannot be
+            undone.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2">
+          <Label htmlFor="reset-admin-password">
+            Enter admin password to confirm
+          </Label>
+          <Input
+            id="reset-admin-password"
+            type="password"
+            autoFocus
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                handleReset();
+              }
+            }}
+          />
+        </div>
+        <DialogFooter className="gap-2 sm:justify-between">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleReset}
+            disabled={isSubmitting || password.length === 0}
+          >
+            {isSubmitting ? "Deleting..." : "Delete everything"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
