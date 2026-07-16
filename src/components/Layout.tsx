@@ -26,7 +26,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {!selfServeEnabled && (
         <SidebarTrigger className="mt-2 rounded-l-none shadow-none" />
       )}
-      <main className="flex-1 flex flex-col h-full px-0 py-4">
+      {/* pr-7 mirrors the w-7 SidebarTrigger on the left so page content
+          sits evenly between both edges */}
+      <main className="flex-1 flex flex-col h-full pl-0 pr-7 py-4">
         {children}
         <Toaster />
         <ComputerNameSelecterDialog />
