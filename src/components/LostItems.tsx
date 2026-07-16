@@ -381,7 +381,7 @@ export default function LostItems(): JSX.Element {
 
       {/* Detail Dialog */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="max-w-xl overflow-y-auto max-h-[800px]">
+        <DialogContent className="max-w-xl">
           {modalData && (
             <>
               <DialogHeader>

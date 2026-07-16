@@ -362,7 +362,7 @@ export default function FoundItems(): JSX.Element {
           if (!open) setOpenReturnForm(false);
         }}
       >
-        <DialogContent className="max-w-xl overflow-y-auto max-h-[800px]">
+        <DialogContent className="max-w-xl">
           {modalData && (
             <>
               <DialogHeader>
