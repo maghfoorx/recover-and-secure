@@ -25,7 +25,8 @@
     "preview": "vite preview",
     "pretest": "vite build --mode=test",
     "test": "vitest run",
-    "migrate:list": "knex migrate:list"
+    "migrate:list": "knex migrate:list",
+    "build:windows": "electron-builder --win --x64"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

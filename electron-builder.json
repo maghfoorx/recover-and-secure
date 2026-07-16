@@ -9,7 +9,8 @@
   "extraFiles": ["database.sqlite3"],
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
-    "target": ["dmg"]
+    "target": ["dmg"],
+    "identity": null
   },
   "win": {
     "target": [
