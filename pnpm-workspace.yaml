@@ -1,7 +1,13 @@
-# pnpm 10.16+ reads package settings from here instead of the "pnpm"
-# field in package.json. Keeps native/build-script deps approved so
-# `pnpm install` (and `pnpm convex deploy`) doesn't stop on
-# ERR_PNPM_IGNORED_BUILDS.
+# pnpm 10.16+ reads package settings from here (not the "pnpm" field in
+# package.json, and not pnpm-specific keys in .npmrc). Keys are camelCase.
+
+# Don't run an implicit `pnpm install` before `pnpm <bin>` (e.g.
+# `pnpm convex deploy`). That pre-check hard-fails on ERR_PNPM_IGNORED_BUILDS
+# even though those native builds are irrelevant to a Convex deploy.
+verifyDepsBeforeRun: false
+
+# Allow these packages to run build scripts (electron binary download,
+# esbuild binary, sqlite3 native compile) instead of being silently ignored.
 onlyBuiltDependencies:
   - electron
   - esbuild
