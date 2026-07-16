@@ -1,4 +1,4 @@
-import { BrowserWindow } from "electron";
+import { app, BrowserWindow } from "electron";
 import { PosPrinter } from "../../../packages/electron-pos-printer/src/main/index";
 import {
   PaperSize,
@@ -102,7 +102,10 @@ export async function printReceipt(printReceiptData: any) {
     width: 300, // Around 80mm at 96 DPI
     height: 500,
     ...parsePaperSize("80mm"),
-    show: true,
+    // Only show the render window in development. In a packaged
+    // (production) build the receipt prints from an off-screen window so
+    // staff never see a preview pop up.
+    show: !app.isPackaged,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
