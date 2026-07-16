@@ -1,0 +1,8 @@
+# pnpm 10.16+ reads package settings from here instead of the "pnpm"
+# field in package.json. Keeps native/build-script deps approved so
+# `pnpm install` (and `pnpm convex deploy`) doesn't stop on
+# ERR_PNPM_IGNORED_BUILDS.
+onlyBuiltDependencies:
+  - electron
+  - esbuild
+  - sqlite3
