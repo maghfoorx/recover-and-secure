@@ -52,13 +52,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  getLostItemCategoryDisplayLabel,
-  getLostItemCategoryLabel,
-  LOST_ITEM_CATEGORIES,
-  OTHER_LOST_ITEM_CATEGORY,
-} from "@/lib/lostItemCategories";
+  getAmaanatCategoryDisplayLabel,
+  getAmaanatCategoryLabel,
+  AMAANAT_ITEM_CATEGORIES,
+  OTHER_AMAANAT_CATEGORY,
+} from "@/lib/amaanatItemCategories";
+import SearchableSelect from "@/components/SearchableSelect";
 
 const ALL_CATEGORIES_VALUE = "all_categories";
+
+// Numbered variant of AMAANAT_ITEM_CATEGORIES for the searchable dropdown, so
+// users can type either the name ("bag") or a memorised position ("1") to
+// find a category. Excludes the "Not listed" entry — that case is handled by
+// the searchable dropdown's fallback row.
+const NUMBERED_AMAANAT_CATEGORY_OPTIONS = AMAANAT_ITEM_CATEGORIES.filter(
+  (category) => category.value !== OTHER_AMAANAT_CATEGORY,
+).map((category, index) => ({
+  value: category.value,
+  label: `${index + 1}. ${category.label}`,
+}));
+
+const FALLBACK_OTHER_OPTION = {
+  value: OTHER_AMAANAT_CATEGORY,
+  label: "Other: specify in details",
+};
 
 // Types based on your Convex schema
 type AmaanatUserType = {
@@ -359,7 +376,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
       ),
   }).superRefine((data, ctx) => {
     if (
-      data.category_slug === OTHER_LOST_ITEM_CATEGORY &&
+      data.category_slug === OTHER_AMAANAT_CATEGORY &&
       data.name.trim().length === 0
     ) {
       ctx.addIssue({
@@ -381,9 +398,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
   });
 
   const selectedCategory = addForm.watch("category_slug");
-  const isCustomCategory = selectedCategory === OTHER_LOST_ITEM_CATEGORY;
-  const selectedCategoryDisplayLabel =
-    getLostItemCategoryDisplayLabel(selectedCategory);
+  const isCustomCategory = selectedCategory === OTHER_AMAANAT_CATEGORY;
 
   const handleCategoryChange = (value: string) => {
     addForm.setValue("category_slug", value, {
@@ -391,7 +406,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
       shouldValidate: true,
     });
 
-    if (value === OTHER_LOST_ITEM_CATEGORY) {
+    if (value === OTHER_AMAANAT_CATEGORY) {
       addForm.setValue("name", "", {
         shouldDirty: true,
         shouldValidate: false,
@@ -400,7 +415,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
       return;
     }
 
-    addForm.setValue("name", getLostItemCategoryLabel(value), {
+    addForm.setValue("name", getAmaanatCategoryLabel(value), {
       shouldDirty: true,
       shouldValidate: false,
     });
@@ -411,7 +426,7 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
     try {
       const resolvedName = isCustomCategory
         ? data.name.trim()
-        : getLostItemCategoryLabel(data.category_slug);
+        : getAmaanatCategoryLabel(data.category_slug);
 
       await addAmaanatItem({
         user_id: userId,
@@ -475,24 +490,16 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                   <FormItem>
                     <FormLabel>Item category*</FormLabel>
                     <FormControl>
-                      <Select
+                      <SearchableSelect
+                        options={NUMBERED_AMAANAT_CATEGORY_OPTIONS}
                         value={field.value}
-                        onValueChange={handleCategoryChange}
-                      >
-                        <SelectTrigger className="my-0">
-                          <SelectValue placeholder="Select item category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {LOST_ITEM_CATEGORIES.map((category, index) => (
-                            <SelectItem
-                              key={category.value}
-                              value={category.value}
-                            >
-                              {index + 1}. {category.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onChange={handleCategoryChange}
+                        placeholder="Select item category"
+                        searchPlaceholder="Search categories..."
+                        emptyMessage="No categories match your search."
+                        fallbackOption={FALLBACK_OTHER_OPTION}
+                        triggerClassName="my-0"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -517,19 +524,6 @@ function AddItemDialog({ open, onClose, userId }: AddItemDialogProps) {
                     </FormItem>
                   )}
                 />
-              ) : selectedCategoryDisplayLabel ? (
-                <div className="rounded-md border bg-slate-50 px-3 py-3">
-                  <div className="text-sm font-medium text-slate-900">
-                    Selected item
-                  </div>
-                  <div className="mt-1 text-sm text-slate-600">
-                    This Amaanat item will be saved as{" "}
-                    <span className="font-medium">
-                      {selectedCategoryDisplayLabel}
-                    </span>
-                    .
-                  </div>
-                </div>
               ) : null}
 
               <FormField
@@ -857,9 +851,9 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                 <SelectItem value={ALL_CATEGORIES_VALUE}>
                   All categories
                 </SelectItem>
-                {LOST_ITEM_CATEGORIES.map((category) => (
+                {AMAANAT_ITEM_CATEGORIES.map((category) => (
                   <SelectItem key={category.value} value={category.value}>
-                    {getLostItemCategoryDisplayLabel(category.value)}
+                    {getAmaanatCategoryDisplayLabel(category.value)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -920,7 +914,7 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                   <TableCell>{item.name}</TableCell>
                   <TableCell>
                     {item.category_slug
-                      ? getLostItemCategoryDisplayLabel(item.category_slug)
+                      ? getAmaanatCategoryDisplayLabel(item.category_slug)
                       : "Uncategorized"}
                   </TableCell>
                   <TableCell>
@@ -993,7 +987,7 @@ function ItemsTabs({ items }: ItemsTabsProps) {
                   <TableCell>{item.name}</TableCell>
                   <TableCell>
                     {item.category_slug
-                      ? getLostItemCategoryDisplayLabel(item.category_slug)
+                      ? getAmaanatCategoryDisplayLabel(item.category_slug)
                       : "Uncategorized"}
                   </TableCell>
                   <TableCell>
@@ -1056,7 +1050,7 @@ function ItemDetailDialog({ item, open, onClose }: ItemDetailDialogProps) {
                     Category
                   </dt>
                   <dd className="text-sm text-gray-900">
-                    {getLostItemCategoryDisplayLabel(item.category_slug)}
+                    {getAmaanatCategoryDisplayLabel(item.category_slug)}
                   </dd>
                 </div>
               )}

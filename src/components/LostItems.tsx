@@ -38,7 +38,8 @@ import { Check, CheckIcon, X, XIcon } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc, Id } from "../../convex/_generated/dataModel";
-import MatchWithFoundItemsDialog from "./MatchItemWithFoundItems";
+import MatchItemsDialog from "./MatchItemsDialog";
+import { formatDate } from "@/utils/formatDate";
 import { Checkbox } from "./ui/checkbox";
 import { Link } from "react-router-dom";
 import {
@@ -80,6 +81,7 @@ export default function LostItems(): JSX.Element {
   const matchItems = useMutation(
     api.lostProperty.mutations.matchLostItemWithFoundItem,
   );
+  const unmatchItems = useMutation(api.lostProperty.mutations.unmatchItems);
 
   const [searchBarValue, setSearchBarValue] = useState("");
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -162,6 +164,26 @@ export default function LostItems(): JSX.Element {
   const foundItemsToMatchWith = foundItems.filter(
     (item) => item.lost_item_id === undefined && item.is_returned === false,
   );
+
+  const matchedFoundItem = modalData?.found_item_id
+    ? foundItems.find((item) => item._id === modalData.found_item_id)
+    : undefined;
+
+  async function handleUnmatch(
+    lostItemId: Id<"lost_items">,
+    foundItemId: Id<"found_items">,
+  ) {
+    try {
+      await unmatchItems({ lostItemId, foundItemId });
+      toast.success("Match removed", {
+        style: { backgroundColor: "green", color: "white" },
+      });
+    } catch (error) {
+      toast.error("Failed to remove match. Please try again.", {
+        style: { backgroundColor: "red", color: "white" },
+      });
+    }
+  }
 
   async function createMatch(
     lostItemId: Id<"lost_items">,
@@ -424,35 +446,82 @@ export default function LostItems(): JSX.Element {
                     )}
                   </dd>
                 </div>
-                {modalData.is_found === true && (
-                  <div>
-                    <div className="flex justify-between">
-                      <dt className="text-sm font-medium text-gray-500">
-                        Matched with a found item
-                      </dt>
-                      <dd className="text-sm text-gray-900">
-                        {modalData.found_item_id == null ? (
-                          <X className="h-8 w-8 text-red-600" />
-                        ) : (
-                          <Check className="h-8 w-8 text-green-600" />
-                        )}
-                      </dd>
-                    </div>
-                    <div>
-                      <Button
-                        variant="link"
-                        size={"sm"}
-                        className="text-xs p-0"
-                        asChild
-                      >
-                        <Link to={`/found-item/${modalData.found_item_id}`}>
-                          Go to found item →
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                )}
               </dl>
+              {modalData.found_item_id != null && (
+                <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-medium uppercase tracking-[0.15em] text-emerald-700">
+                      Matched found item
+                    </p>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 border-emerald-300 text-emerald-800 hover:bg-emerald-100"
+                        >
+                          Unmatch
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Remove this match?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            The found item will be unlinked and this report
+                            will be marked as not found again. Both records
+                            are kept.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() =>
+                              modalData.found_item_id &&
+                              handleUnmatch(
+                                modalData._id,
+                                modalData.found_item_id,
+                              )
+                            }
+                          >
+                            Remove match
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                  {matchedFoundItem ? (
+                    <div className="mt-1 space-y-1">
+                      <p className="font-semibold text-slate-950">
+                        {matchedFoundItem.name}
+                      </p>
+                      {matchedFoundItem.details && (
+                        <p className="text-sm text-slate-600">
+                          {matchedFoundItem.details}
+                        </p>
+                      )}
+                      <p className="text-xs text-slate-500">
+                        Found {formatDate(matchedFoundItem.found_date)}
+                        {matchedFoundItem.location_stored
+                          ? ` · Stored at ${matchedFoundItem.location_stored}`
+                          : ""}
+                        {matchedFoundItem.is_returned ? " · Returned" : ""}
+                      </p>
+                    </div>
+                  ) : null}
+                  <Button
+                    variant="link"
+                    size={"sm"}
+                    className="text-xs p-0"
+                    asChild
+                  >
+                    <Link to={`/found-item/${modalData.found_item_id}`}>
+                      Go to found item →
+                    </Link>
+                  </Button>
+                </div>
+              )}
               <div className="flex justify-end gap-2 mt-4">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -527,21 +596,14 @@ export default function LostItems(): JSX.Element {
                 )}
               </div>
 
-              <MatchWithFoundItemsDialog
+              <MatchItemsDialog
                 open={matchingDialogOpen}
                 onOpenChange={setMatchingDialogOpen}
-                items={foundItemsToMatchWith}
+                fixedSide="lost"
                 lostItem={modalData}
-                onMatch={async (foundItemId) => {
-                  try {
-                    await createMatch(
-                      modalData._id,
-                      foundItemId as Id<"found_items">,
-                    );
-                    setMatchingDialogOpen(false);
-                  } catch (error) {
-                    // Error handling already done in createMatch
-                  }
+                candidates={foundItemsToMatchWith}
+                onConfirm={async ({ lostItemId, foundItemId }) => {
+                  await createMatch(lostItemId, foundItemId);
                 }}
               />
             </>

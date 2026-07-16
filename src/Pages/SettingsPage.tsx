@@ -23,6 +23,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { enableSelfServeMode } from "@/lib/selfServeMode";
+import {
+  isAdminUnlocked,
+  unlockAdmin,
+  verifyAdminPassword,
+} from "@/lib/adminAuth";
 
 const SELF_SERVE_PASSCODE = "lost2026";
 
@@ -205,14 +210,18 @@ const EditPrinterNameDialog = ({
       setAuthPassed(false);
       setInputPassword("");
       setNewPrinterName(currentPrinterName);
+    } else {
+      // Skip the password prompt if admin was unlocked recently.
+      setAuthPassed(isAdminUnlocked());
     }
   }, [dialogOpen, currentPrinterName]);
 
   const handlePasswordSubmit = () => {
-    if (inputPassword === "1234") {
+    if (verifyAdminPassword(inputPassword)) {
+      unlockAdmin();
       setAuthPassed(true);
     } else {
-      toast.error("Incorrect password");
+      toast.error("Incorrect admin password");
     }
   };
 

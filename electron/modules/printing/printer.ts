@@ -151,10 +151,20 @@ export async function printReceipt(printReceiptData: any) {
                     </div>
                   </section>
 
-                  <section style="font-size: 11px; line-height: 1.35; text-align: center;">
-                    <div style="font-weight: 700; margin-bottom: 4px;">Please keep this receipt for collection.</div>
-                    <div>If storing valuables like passports, please inform us.</div>
-                    <div>On Sunday, collect items promptly after Huzoor's final address.</div>
+                  <section style="font-size: 12px; line-height: 1.45;">
+                    <div style="text-align: center; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                      Please keep this receipt<br />for collection
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="width: 18px; vertical-align: top; font-weight: 700; padding-bottom: 6px;">1.</td>
+                        <td style="padding-bottom: 6px;">If storing valuables such as passports, please inform us.</td>
+                      </tr>
+                      <tr>
+                        <td style="width: 18px; vertical-align: top; font-weight: 700;">2.</td>
+                        <td>On Sunday, please collect your items promptly after Huzoor's final address.</td>
+                      </tr>
+                    </table>
                   </section>
                 </main>
               </body>

@@ -393,9 +393,9 @@ The best order is to build shared foundations first, then the device-specific fl
 
 ### Phase 5: Matching And Reporting
 
-- [ ] Add normalized candidate suggestion logic for lost/found matching.
+- [x] Add normalized candidate suggestion logic for lost/found matching.
 - [ ] Show top match suggestions on create and detail screens.
-- [ ] Add manual confirm-match actions from suggestion results.
+- [x] Add manual confirm-match actions from suggestion results.
 - [x] Add admin print view for all unreturned found items.
 - [ ] Add grouped totals in the print report by category and storage location.
 

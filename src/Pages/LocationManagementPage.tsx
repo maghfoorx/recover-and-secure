@@ -14,17 +14,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Doc, Id } from "convex/_generated/dataModel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { LOCATION_COLOUR_BY_SIZE } from "../../convex/types";
+import AdminPasswordDialog from "@/components/AdminPasswordDialog";
+import { isAdminUnlocked, lockAdmin } from "@/lib/adminAuth";
+import { Lock, LockOpen, ShieldCheck } from "lucide-react";
+
+type StorageAreaWithCount = Doc<"storage_areas"> & { locationCount: number };
 
 export default function LocationManagementPage() {
   const allLocationsGroupedBySize = useQuery(
     api.location.queries.getAllLocations,
   );
   const storageAreas = useQuery(api.location.queries.getStorageAreas);
+
+  const [adminUnlocked, setAdminUnlocked] = useState(isAdminUnlocked);
+  const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
 
   const extraSmallLocations = allLocationsGroupedBySize?.x_small ?? [];
   const smallLocations = allLocationsGroupedBySize?.small ?? [];
@@ -41,29 +49,24 @@ export default function LocationManagementPage() {
     ...bulkyStorageLocations,
   ];
 
-  const totalLocationsNumber =
-    extraSmallLocations.length +
-    smallLocations.length +
-    mediumLocations.length +
-    largeLocations.length +
-    extraLargeLocations.length +
-    bulkyStorageLocations.length;
-  const unassignedLocations = allLocations.filter((location) => !location.area_id)
-    .length;
+  const totalLocationsNumber = allLocations.length;
+  const occupiedLocationsNumber = allLocations.filter(
+    (location) => location.is_occupied,
+  ).length;
+  const availableLocationsNumber =
+    totalLocationsNumber - occupiedLocationsNumber;
+  const unassignedLocations = allLocations.filter(
+    (location) => !location.area_id,
+  ).length;
 
   const numberGroupsBySize = groupNumbersBySize(allLocations);
 
-  const extraSmallStats = summarize(extraSmallLocations);
-  const smallStats = summarize(smallLocations);
-  const mediumStats = summarize(mediumLocations);
-  const largeStats = summarize(largeLocations);
-  const extraLargeStats = summarize(extraLargeLocations);
-  const bulkyStorageStats = summarize(bulkyStorageLocations);
-
   if (allLocationsGroupedBySize === undefined || storageAreas === undefined) {
     return (
-      <div className="h-full px-2 py-6">
-        <h1 className="text-3xl font-bold">Location management</h1>
+      <div className="h-full px-0 py-6">
+        <h1 className="text-4xl font-bold tracking-tight text-slate-950">
+          Location management
+        </h1>
         <div className="h-full flex items-center justify-center">
           <FullScreenSpinner />
         </div>
@@ -72,10 +75,49 @@ export default function LocationManagementPage() {
   }
 
   return (
-    <div className="px-2 py-6">
-      <h1 className="text-3xl font-bold mb-4">Location management</h1>
-      <div className="text-muted-foreground mb-6">
-        Total locations: {totalLocationsNumber}
+    <div className="flex flex-col flex-1 h-full px-0 py-6 space-y-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-950">
+            Location management
+          </h1>
+          <p className="mt-2 text-sm text-slate-500">
+            Storage areas and numbered spaces used to store Amaanat items.
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[480px]">
+          <Card className="border-sky-200 bg-white shadow-none">
+            <CardContent className="p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                Locations
+              </p>
+              <p className="mt-2 text-3xl font-semibold text-slate-950">
+                {totalLocationsNumber}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-emerald-200 bg-white shadow-none">
+            <CardContent className="p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                Available
+              </p>
+              <p className="mt-2 text-3xl font-semibold text-slate-950">
+                {availableLocationsNumber}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-slate-200 bg-white shadow-none">
+            <CardContent className="p-4">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                Areas
+              </p>
+              <p className="mt-2 text-3xl font-semibold text-slate-950">
+                {storageAreas.length}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <StorageAreasCard
@@ -83,47 +125,120 @@ export default function LocationManagementPage() {
         unassignedLocations={unassignedLocations}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <LocationStatsCard
           label="Extra small"
           color="pink"
-          stats={extraSmallStats}
+          stats={summarize(extraSmallLocations)}
           numbers={numberGroupsBySize.x_small ?? []}
         />
         <LocationStatsCard
           label="Small"
           color="rose"
-          stats={smallStats}
+          stats={summarize(smallLocations)}
           numbers={numberGroupsBySize.small ?? []}
         />
         <LocationStatsCard
           label="Medium"
           color="orange"
-          stats={mediumStats}
+          stats={summarize(mediumLocations)}
           numbers={numberGroupsBySize.medium ?? []}
         />
         <LocationStatsCard
           label="Large"
           color="green"
-          stats={largeStats}
+          stats={summarize(largeLocations)}
           numbers={numberGroupsBySize.large ?? []}
         />
-
         <LocationStatsCard
           label="Extra large"
           color="teal"
-          stats={extraLargeStats}
+          stats={summarize(extraLargeLocations)}
           numbers={numberGroupsBySize.x_large ?? []}
         />
         <LocationStatsCard
           label="Bulky storage"
           color="sky"
-          stats={bulkyStorageStats}
+          stats={summarize(bulkyStorageLocations)}
           numbers={numberGroupsBySize.bulky_storage ?? []}
         />
       </div>
 
-      <CreateLocationBatchForm storageAreas={storageAreas} />
+      <Card className="border-slate-200 shadow-none">
+        <CardHeader className="flex flex-row items-start justify-between gap-4 px-6 pb-3 pt-5">
+          <div>
+            <CardTitle className="text-lg">
+              Manage areas &amp; locations
+            </CardTitle>
+            <p className="mt-1 text-sm text-slate-500">
+              Create storage areas and batches of numbered locations.
+            </p>
+          </div>
+          {adminUnlocked && (
+            <div className="flex shrink-0 items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
+                <ShieldCheck className="h-4 w-4" />
+                Admin unlocked
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  lockAdmin();
+                  setAdminUnlocked(false);
+                }}
+              >
+                <Lock className="mr-1 h-3.5 w-3.5" />
+                Lock
+              </Button>
+            </div>
+          )}
+        </CardHeader>
+        <CardContent className="px-6 pb-6">
+          {adminUnlocked ? (
+            <div className="grid gap-4 lg:grid-cols-2">
+              <section className="rounded-lg border border-slate-200 bg-slate-50/50 p-5">
+                <h3 className="mb-4 font-semibold text-slate-900">
+                  Add new area
+                </h3>
+                <AddAreaForm storageAreas={storageAreas} />
+              </section>
+              <section className="rounded-lg border border-slate-200 bg-slate-50/50 p-5">
+                <h3 className="mb-4 font-semibold text-slate-900">
+                  Create new locations
+                </h3>
+                <CreateLocationBatchForm storageAreas={storageAreas} />
+              </section>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200">
+                <Lock className="h-5 w-5 text-slate-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900">
+                  Admin access required
+                </p>
+                <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">
+                  Anyone can view locations, but creating storage areas and
+                  numbered locations requires the admin password.
+                </p>
+              </div>
+              <Button onClick={() => setUnlockDialogOpen(true)}>
+                <LockOpen className="mr-1.5 h-4 w-4" />
+                Unlock admin tools
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <AdminPasswordDialog
+        open={unlockDialogOpen}
+        onOpenChange={setUnlockDialogOpen}
+        onUnlocked={() => setAdminUnlocked(true)}
+        description="Enter the admin password to create storage areas and locations."
+      />
     </div>
   );
 }
@@ -142,11 +257,7 @@ interface StorageAreaFormData {
 function CreateLocationBatchForm({
   storageAreas,
 }: {
-  storageAreas: Array<
-    Doc<"storage_areas"> & {
-      locationCount: number;
-    }
-  >;
+  storageAreas: StorageAreaWithCount[];
 }) {
   const createLocations = useMutation(
     api.location.mutations.createLocationsBatch,
@@ -221,60 +332,59 @@ function CreateLocationBatchForm({
   const hasAreas = storageAreas.length > 0;
 
   return (
-    <div className="max-w-md mt-8">
-      <h3 className="text-2xl font-semibold mb-4">Create new locations</h3>
-      <form onSubmit={handleSubmit(handleCreate)} className="space-y-4">
-        <input
-          type="hidden"
-          {...register("areaId", {
-            required: "Area is required",
-          })}
-        />
-        <div>
-          <Label htmlFor="areaId">Area*</Label>
-          <Select
-            value={watch("areaId") || undefined}
-            onValueChange={(val) =>
-              setValue("areaId", val, {
-                shouldDirty: true,
-                shouldValidate: true,
-              })
-            }
-            disabled={!hasAreas}
-          >
-            <SelectTrigger id="areaId" className="w-full">
-              <SelectValue placeholder="Select area" />
-            </SelectTrigger>
-            <SelectContent>
-              {storageAreas.map((area) => (
-                <SelectItem key={area._id} value={area._id}>
-                  {area.name} ({area.code})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {!hasAreas && (
-            <p className="text-sm text-amber-700 mt-1">
-              Create an area first before adding new locations.
-            </p>
-          )}
-          {errors.areaId && (
-            <p className="text-sm text-red-500 mt-1">{errors.areaId.message}</p>
-          )}
-        </div>
+    <form onSubmit={handleSubmit(handleCreate)} className="space-y-4">
+      <input
+        type="hidden"
+        {...register("areaId", {
+          required: "Area is required",
+        })}
+      />
+      <div>
+        <Label htmlFor="areaId">Area*</Label>
+        <Select
+          value={watch("areaId") || undefined}
+          onValueChange={(val) =>
+            setValue("areaId", val, {
+              shouldDirty: true,
+              shouldValidate: true,
+            })
+          }
+          disabled={!hasAreas}
+        >
+          <SelectTrigger id="areaId" className="w-full bg-white">
+            <SelectValue placeholder="Select area" />
+          </SelectTrigger>
+          <SelectContent>
+            {storageAreas.map((area) => (
+              <SelectItem key={area._id} value={area._id}>
+                {area.name} ({area.code})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {!hasAreas && (
+          <p className="text-sm text-amber-700 mt-1">
+            Create an area first before adding new locations.
+          </p>
+        )}
+        {errors.areaId && (
+          <p className="text-sm text-red-500 mt-1">{errors.areaId.message}</p>
+        )}
+      </div>
 
+      <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Starting Number</Label>
-          <Input disabled value={startingNumber} />
+          <Label>Starting number</Label>
+          <Input disabled value={startingNumber} className="bg-white" />
         </div>
-
         <div>
-          <Label htmlFor="endingNumber">Ending Number*</Label>
+          <Label htmlFor="endingNumber">Ending number*</Label>
           <Input
             id="endingNumber"
             type="number"
             min={startingNumber}
             step={1}
+            className="bg-white"
             {...register("endingNumber", {
               required: "Ending number is required",
               min: {
@@ -285,102 +395,99 @@ function CreateLocationBatchForm({
                 Number.isInteger(Number(value)) || "Must be a whole number",
             })}
           />
-          {errors.endingNumber && (
-            <p className="text-sm text-red-500 mt-1">
-              {errors.endingNumber.message}
-            </p>
-          )}
         </div>
+      </div>
+      {errors.endingNumber && (
+        <p className="text-sm text-red-500 mt-1">
+          {errors.endingNumber.message}
+        </p>
+      )}
 
-        <div>
-          <Label htmlFor="size">Size</Label>
-          <Select
-            onValueChange={(val) => {
-              setValue(
-                "size",
-                val as CreateLocationFormData["size"],
-                { shouldDirty: true },
-              );
-            }}
-            value={selectedSize}
-          >
-            <SelectTrigger
-              className={cn("w-full", {
-                [LOCATION_COLOUR_BY_SIZE[selectedSize]]: true,
-              })}
-            >
-              <SelectValue placeholder="Select size" />
-            </SelectTrigger>
-            <SelectContent className="text-gray-700">
-              <SelectItem
-                value="x_small"
-                className="bg-pink-300 focus:bg-rose-400 hover:opacity-80"
-              >
-                Extra small
-              </SelectItem>
-              <SelectItem
-                value="small"
-                className="bg-rose-300 focus:bg-rose-400 hover:opacity-80"
-              >
-                Small
-              </SelectItem>
-              <SelectItem
-                value="medium"
-                className="bg-orange-300 focus:bg-orange-400 hover:opacity-80"
-              >
-                Medium
-              </SelectItem>
-              <SelectItem
-                value="large"
-                className="bg-green-300 focus:bg-green-400 hover:opacity-80"
-              >
-                Large
-              </SelectItem>
-              <SelectItem
-                value="x_large"
-                className="bg-teal-300 focus:bg-rose-400 hover:opacity-80"
-              >
-                Extra large
-              </SelectItem>
-              <SelectItem
-                value="bulky_storage"
-                className="bg-teal-300 focus:bg-rose-400 hover:opacity-80"
-              >
-                Bulky storage
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          Number of new locations being created: {totalNewLocationsBeingCreated}
-        </div>
-        <Button
-          type="submit"
-          disabled={isSubmitting || !hasAreas}
-          className="w-full"
+      <div>
+        <Label htmlFor="size">Size</Label>
+        <Select
+          onValueChange={(val) => {
+            setValue("size", val as CreateLocationFormData["size"], {
+              shouldDirty: true,
+            });
+          }}
+          value={selectedSize}
         >
-          {isSubmitting
-            ? "Creating..."
-            : `Create ${totalNewLocationsBeingCreated} new ${totalNewLocationsBeingCreated === 1 ? "location" : "locations"}`}
-        </Button>
-      </form>
-    </div>
+          <SelectTrigger
+            className={cn("w-full", {
+              [LOCATION_COLOUR_BY_SIZE[selectedSize]]: true,
+            })}
+          >
+            <SelectValue placeholder="Select size" />
+          </SelectTrigger>
+          <SelectContent className="text-gray-700">
+            <SelectItem
+              value="x_small"
+              className="bg-pink-300 focus:bg-pink-400 hover:opacity-80"
+            >
+              Extra small
+            </SelectItem>
+            <SelectItem
+              value="small"
+              className="bg-rose-300 focus:bg-rose-400 hover:opacity-80"
+            >
+              Small
+            </SelectItem>
+            <SelectItem
+              value="medium"
+              className="bg-orange-300 focus:bg-orange-400 hover:opacity-80"
+            >
+              Medium
+            </SelectItem>
+            <SelectItem
+              value="large"
+              className="bg-green-300 focus:bg-green-400 hover:opacity-80"
+            >
+              Large
+            </SelectItem>
+            <SelectItem
+              value="x_large"
+              className="bg-teal-300 focus:bg-teal-400 hover:opacity-80"
+            >
+              Extra large
+            </SelectItem>
+            <SelectItem
+              value="bulky_storage"
+              className="bg-sky-300 focus:bg-sky-400 hover:opacity-80"
+            >
+              Bulky storage
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <p className="text-sm text-slate-600">
+        Number of new locations being created:{" "}
+        <span className="font-semibold text-slate-900">
+          {totalNewLocationsBeingCreated}
+        </span>
+      </p>
+      <Button
+        type="submit"
+        disabled={isSubmitting || !hasAreas}
+        className="w-full"
+      >
+        {isSubmitting
+          ? "Creating..."
+          : `Create ${totalNewLocationsBeingCreated} new ${totalNewLocationsBeingCreated === 1 ? "location" : "locations"}`}
+      </Button>
+    </form>
   );
 }
 
-function StorageAreasCard({
+function AddAreaForm({
   storageAreas,
-  unassignedLocations,
 }: {
-  storageAreas: Array<
-    Doc<"storage_areas"> & {
-      locationCount: number;
-    }
-  >;
-  unassignedLocations: number;
+  storageAreas: StorageAreaWithCount[];
 }) {
-  const createStorageArea = useMutation(api.location.mutations.createStorageArea);
+  const createStorageArea = useMutation(
+    api.location.mutations.createStorageArea,
+  );
   const {
     register,
     handleSubmit,
@@ -432,113 +539,113 @@ function StorageAreasCard({
   };
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.2fr_0.8fr] mb-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Storage areas</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {storageAreas.map((area) => (
-              <div
-                key={area._id}
-                className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3"
-              >
-                <div className="text-sm font-semibold text-slate-950">
-                  {area.name}
-                </div>
-                <div className="mt-1 text-xs uppercase tracking-wide text-slate-500">
-                  {area.code}
-                </div>
-                <div className="mt-2 text-sm text-slate-600">
-                  {area.locationCount} location
-                  {area.locationCount === 1 ? "" : "s"}
-                </div>
+    <form onSubmit={handleSubmit(handleCreateArea)} className="space-y-4">
+      <div>
+        <Label htmlFor="areaName">Area name*</Label>
+        <Input
+          id="areaName"
+          placeholder="Rack A"
+          className="bg-white"
+          {...register("name", {
+            required: "Area name is required",
+            onChange: (event) => handleAreaNameChange(event.target.value),
+          })}
+        />
+        {errors.name && (
+          <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
+        )}
+      </div>
+
+      <div>
+        <Label htmlFor="areaCode">Short code*</Label>
+        <Input
+          id="areaCode"
+          placeholder="RA"
+          className="bg-white"
+          {...register("code", {
+            required: "Short code is required",
+          })}
+          onChange={(event) =>
+            setValue("code", normalizeAreaCode(event.target.value), {
+              shouldDirty: true,
+              shouldValidate: true,
+            })
+          }
+        />
+        {errors.code && (
+          <p className="text-sm text-red-500 mt-1">{errors.code.message}</p>
+        )}
+        <p className="text-xs text-muted-foreground mt-1">
+          Existing codes:{" "}
+          {storageAreas.length > 0
+            ? storageAreas.map((area) => area.code).join(", ")
+            : "None yet"}
+        </p>
+        {existingCodeMatch && (
+          <p className="text-sm text-amber-700 mt-1">
+            Code "{areaCode}" is already used by {existingCodeMatch.name}.
+          </p>
+        )}
+      </div>
+
+      <Button
+        type="submit"
+        disabled={isSubmitting || !!existingCodeMatch}
+        className="w-full"
+      >
+        {isSubmitting ? "Creating..." : "Create area"}
+      </Button>
+    </form>
+  );
+}
+
+function StorageAreasCard({
+  storageAreas,
+  unassignedLocations,
+}: {
+  storageAreas: StorageAreaWithCount[];
+  unassignedLocations: number;
+}) {
+  return (
+    <Card className="border-slate-200 shadow-none">
+      <CardHeader className="px-6 pb-3 pt-5">
+        <CardTitle className="text-lg">Storage areas</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4 px-6 pb-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {storageAreas.map((area) => (
+            <div
+              key={area._id}
+              className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3"
+            >
+              <div className="text-sm font-semibold text-slate-950">
+                {area.name}
               </div>
-            ))}
-            {storageAreas.length === 0 && (
-              <div className="rounded-md border border-dashed border-slate-300 px-4 py-6 text-sm text-slate-500">
-                No areas yet.
+              <div className="mt-1 text-xs uppercase tracking-wide text-slate-500">
+                {area.code}
               </div>
-            )}
-          </div>
-          {unassignedLocations > 0 && (
-            <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-              {unassignedLocations} existing location
-              {unassignedLocations === 1 ? "" : "s"} do not have an area yet.
-              New locations will use the area system from now on.
+              <div className="mt-2 text-sm text-slate-600">
+                {area.locationCount} location
+                {area.locationCount === 1 ? "" : "s"}
+              </div>
+            </div>
+          ))}
+          {storageAreas.length === 0 && (
+            <div className="rounded-md border border-dashed border-slate-300 px-4 py-6 text-sm text-slate-500 sm:col-span-2 lg:col-span-4">
+              No areas yet. Unlock the admin tools below to create the first
+              one.
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Add new area</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(handleCreateArea)} className="space-y-4">
-            <div>
-              <Label htmlFor="areaName">Area name*</Label>
-              <Input
-                id="areaName"
-                placeholder="Rack A"
-                {...register("name", {
-                  required: "Area name is required",
-                  onChange: (event) => handleAreaNameChange(event.target.value),
-                })}
-              />
-              {errors.name && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="areaCode">Short code*</Label>
-              <Input
-                id="areaCode"
-                placeholder="RA"
-                {...register("code", {
-                  required: "Short code is required",
-                })}
-                onChange={(event) =>
-                  setValue("code", normalizeAreaCode(event.target.value), {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              />
-              {errors.code && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.code.message}
-                </p>
-              )}
-              <p className="text-xs text-muted-foreground mt-1">
-                Existing codes:{" "}
-                {storageAreas.length > 0
-                  ? storageAreas.map((area) => area.code).join(", ")
-                  : "None yet"}
-              </p>
-              {existingCodeMatch && (
-                <p className="text-sm text-amber-700 mt-1">
-                  Code "{areaCode}" is already used by {existingCodeMatch.name}.
-                </p>
-              )}
-            </div>
-
-            <Button
-              type="submit"
-              disabled={isSubmitting || !!existingCodeMatch}
-              className="w-full"
-            >
-              {isSubmitting ? "Creating..." : "Create area"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+        {unassignedLocations > 0 && (
+          <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            {unassignedLocations} existing location
+            {unassignedLocations === 1 ? "" : "s"} do not have an area yet. New
+            locations will use the area system from now on.
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

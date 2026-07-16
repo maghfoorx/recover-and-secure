@@ -15,8 +15,10 @@ export default function FoundItemPage() {
     api.lostProperty.queries.getFoundItem,
     foundItemId ? { id: foundItemId as Id<"found_items"> } : "skip",
   );
-
-  console.log(foundItemId, "FOUND_ITEM_ID");
+  const matchedLostItem = useQuery(
+    api.lostProperty.queries.getLostItem,
+    foundItem?.lost_item_id ? { id: foundItem.lost_item_id } : "skip",
+  );
 
   if (foundItem === undefined) {
     return (
@@ -98,19 +100,37 @@ export default function FoundItemPage() {
             )}
           </dd>
         </div>
-        <div className="flex justify-between">
-          <dt className="text-sm font-medium text-gray-500">
-            Matched with a lost item
-          </dt>
-          <dd className="text-sm text-gray-900">
-            {foundItem.lost_item_id == null ? (
-              <X className="h-8 w-8 text-red-600" />
-            ) : (
-              <Check className="h-8 w-8 text-green-600" />
-            )}
-          </dd>
-        </div>
       </dl>
+      {foundItem.lost_item_id != null && (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-3">
+          <p className="text-xs font-medium uppercase tracking-[0.15em] text-emerald-700">
+            Matched lost report
+          </p>
+          {matchedLostItem ? (
+            <div className="mt-1 space-y-1">
+              <p className="font-semibold text-slate-950">
+                {matchedLostItem.name}
+              </p>
+              {matchedLostItem.details && (
+                <p className="text-sm text-slate-600">
+                  {matchedLostItem.details}
+                </p>
+              )}
+              <p className="text-xs text-slate-500">
+                Reported {formatDate(matchedLostItem.date_reported)}
+                {matchedLostItem.reporter_name
+                  ? ` · Owner: ${matchedLostItem.reporter_name}`
+                  : ""}
+                {matchedLostItem.phone_number
+                  ? ` · ${matchedLostItem.phone_number}`
+                  : ""}
+              </p>
+            </div>
+          ) : (
+            <p className="mt-1 text-sm text-slate-600">Loading report...</p>
+          )}
+        </div>
+      )}
       {foundItem?.is_returned === false && (
         <div className="max-w-md">
           <ReturnFoundItemForm foundItem={foundItem} />

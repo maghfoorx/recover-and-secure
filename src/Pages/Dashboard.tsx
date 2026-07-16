@@ -15,7 +15,7 @@ import { api } from "../../convex/_generated/api";
 import { useState } from "react";
 import { toast } from "sonner";
 import { formatDate } from "@/utils/formatDate";
-import { getLostItemCategoryLabel } from "@/lib/lostItemCategories";
+import { getAmaanatCategoryLabel } from "@/lib/amaanatItemCategories";
 
 export default function Dashboard(): JSX.Element {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
@@ -309,5 +309,5 @@ function getCategoryName(categorySlug?: string) {
     return "Uncategorized";
   }
 
-  return getLostItemCategoryLabel(categorySlug) || "Uncategorized";
+  return getAmaanatCategoryLabel(categorySlug) || "Uncategorized";
 }
