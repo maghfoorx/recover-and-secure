@@ -5,7 +5,7 @@
  * (editing the printer name, managing storage locations, ...).
  * Change the value here to change it everywhere.
  */
-export const ADMIN_PASSWORD = "1234";
+export const ADMIN_PASSWORD = "aims2026*";
 
 const UNLOCK_STORAGE_KEY = "adminUnlockedUntil";
 const UNLOCK_DURATION_MS = 30 * 60 * 1000; // 30 minutes

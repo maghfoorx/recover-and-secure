@@ -17,6 +17,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { disableSelfServeMode } from "@/lib/selfServeMode";
+import { verifyAdminPassword } from "@/lib/adminAuth";
 import { api } from "../../convex/_generated/api";
 import {
   getLostItemCategoryDisplayLabel,
@@ -32,7 +33,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const SELF_SERVE_PASSCODE = "lost2026";
 const SELF_SERVE_INACTIVITY_TIMEOUT_MS = 60000;
 const SELF_SERVE_WARNING_COUNTDOWN_MS = 10000;
 
@@ -110,7 +110,7 @@ export default function SelfServeLostItemPage() {
   };
 
   const handleExit = () => {
-    if (passcode !== SELF_SERVE_PASSCODE) {
+    if (!verifyAdminPassword(passcode)) {
       toast.error("Incorrect passcode", {
         style: { backgroundColor: "red", color: "white" },
       });

@@ -64,13 +64,13 @@ The current app is a staff application with full navigation. A public tablet mus
 #### Optimal Solution
 
 - Add a `Self serve enable` action on the admin dashboard.
-- When pressed, require the passcode `lost2026` before entering self-serve mode.
+- When pressed, require the admin password before entering self-serve mode.
 - After successful entry, switch the app into a dedicated self-serve route such as `/kiosk/lost-report`.
 - In self-serve mode:
   - hide the sidebar and all admin navigation
   - only allow adding lost items
   - show a clear `Exit self serve` action
-  - require the same passcode `lost2026` to exit and return to the normal staff view
+  - require the same admin password to exit and return to the normal staff view
   - auto-return to the start screen after successful submission or inactivity
 - Prefer a lightweight per-device session flag for this mode instead of a more complex permanent workstation-mode system.
 - Keep the self-serve form intentionally short:
@@ -369,10 +369,10 @@ The best order is to build shared foundations first, then the device-specific fl
 ### Phase 3: Device Modes And Scanner Support
 
 - [x] Add a `Self serve enable` button to settings.
-- [x] Require passcode `lost2026` before entering self-serve mode.
+- [x] Require the admin password before entering self-serve mode.
 - [x] Add route guards and a kiosk layout without sidebar/navigation.
 - [x] Add an `Exit self serve` action inside the kiosk view.
-- [x] Require passcode `lost2026` before leaving self-serve mode.
+- [x] Require the admin password before leaving self-serve mode.
 - [x] Add inactivity reset behavior for kiosk screens.
 - [x] Add barcode or QR output to Amaanat receipts using the AIMS number.
 - [x] Add scanner-aware search input with auto-submit on scan completion.
@@ -412,6 +412,6 @@ The best order is to build shared foundations first, then the device-specific fl
 - Do not build a separate found-item location engine. Reuse one structured storage model across workflows.
 - Do not make matching automatic. Suggestions should be ranked, but staff should confirm the actual match.
 - Do not rely on free-text item names for analytics. Use categories plus optional free text.
-- The current agreed self-serve passcode is `lost2026`. Treat it as an operational placeholder that can be moved into configuration later if needed.
+- Self-serve entry/exit is gated by the unified admin password (stored in `src/lib/adminAuth.ts`). Treat it as an operational placeholder that can be moved into configuration later if needed.
 - Start scanner work against the existing AIMS field first, then decide whether receipt rescanning needs anything beyond AIMS-based barcode/QR output.
 - The checked-in sample SQLite data is too small to derive a real category taxonomy, so the production export step is mandatory.

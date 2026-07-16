@@ -29,7 +29,6 @@ import {
   verifyAdminPassword,
 } from "@/lib/adminAuth";
 
-const SELF_SERVE_PASSCODE = "lost2026";
 
 export default function SettingsPage() {
   const [printerName, setPrinterName] = useState("UNKNOWN");
@@ -87,7 +86,7 @@ const SelfServeModeSettings = () => {
   const [passcode, setPasscode] = useState("");
 
   const handleEnableSelfServe = () => {
-    if (passcode !== SELF_SERVE_PASSCODE) {
+    if (!verifyAdminPassword(passcode)) {
       toast.error("Incorrect passcode", {
         style: { backgroundColor: "red", color: "white" },
       });
