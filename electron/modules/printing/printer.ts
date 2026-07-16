@@ -182,11 +182,26 @@ export async function printReceipt(printReceiptData: any) {
     );
 
     if (printerToUse) {
+      // Size the printed page to exactly the rendered receipt. Without an
+      // explicit pageSize, silent printing falls back to the driver's
+      // default page (Letter/A4 height), leaving a large blank area that
+      // spills the receipt onto a second label. 1px @ 96dpi = 264.5833µm.
+      const MICRONS_PER_PX = 264.5833;
+      const contentHeightPx: number =
+        await printingWindow.webContents.executeJavaScript(
+          "Math.ceil(document.body.scrollHeight)",
+        );
+      const pageSize = {
+        width: 80000, // 80mm paper width, in microns
+        height: Math.max(1, Math.ceil(contentHeightPx * MICRONS_PER_PX)),
+      };
+
       printingWindow.webContents.print(
         {
           silent: true, // Print directly to the printer without any dialog
           printBackground: true,
           deviceName: printerToUse.name, // Use the selected printer
+          pageSize, // Hug the content so there's no blank space / 2nd page
           margins: {
             marginType: "none",
           },
