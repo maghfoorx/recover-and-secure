@@ -3,34 +3,42 @@ export const OTHER_LOST_ITEM_CATEGORY = "other";
 /**
  * Lost & Found item categories.
  *
- * Ordered by real frequency from last year's ~140 lost item reports.
- * The top of the list is what staff actually pick most: phones, bags,
- * keys, wallets, glasses. Existing slugs from the previous "assumed"
- * list are preserved (suitcase, bottle, clothing, jewellery,
- * electronics) so historical rows still render — they sit lower in the
- * order since they were rare or unseen in real reports.
+ * Ordered by combined real frequency from last year — ~140 lost item
+ * reports and ~250 found item reports. Phones and AIMS/ID cards
+ * dominate; adds Chain, Umbrella, Toy, Book, Pushchair, Scarf, Cable,
+ * and Sports so what staff physically encountered has its own slot.
+ * Historical slugs from the previous "assumed" list (bottle, clothing,
+ * jewellery, electronics) stay at the end so old rows keep rendering.
  */
 export const LOST_ITEM_CATEGORIES = [
   { value: "phone", label: "Phone" },
+  { value: "id_card", label: "AIMS / ID card" },
   { value: "bag", label: "Bag" },
-  { value: "keys", label: "Keys" },
-  { value: "wallet", label: "Wallet" },
   { value: "glasses", label: "Glasses" },
-  { value: "id_card", label: "ID card" },
-  { value: "power_bank", label: "Power bank" },
-  { value: "earphones", label: "Earphones" },
-  { value: "jacket", label: "Jacket" },
-  { value: "watch", label: "Watch" },
+  { value: "wallet", label: "Wallet" },
+  { value: "keys", label: "Keys" },
   { value: "bank_card", label: "Bank card" },
-  { value: "shoes", label: "Shoes" },
   { value: "ring", label: "Ring" },
-  { value: "cap", label: "Cap" },
+  { value: "watch", label: "Watch" },
+  { value: "power_bank", label: "Power bank" },
+  { value: "jacket", label: "Jacket" },
+  { value: "earphones", label: "Earphones" },
   { value: "cash", label: "Cash" },
-  { value: "passport_documents", label: "Passport" },
+  { value: "cap", label: "Cap" },
+  { value: "shoes", label: "Shoes" },
+  { value: "suitcase", label: "Suitcase" },
   { value: "medicine", label: "Medicine" },
+  { value: "toy", label: "Toy" },
+  { value: "passport_documents", label: "Passport" },
+  { value: "chain", label: "Chain" },
+  { value: "umbrella", label: "Umbrella" },
+  { value: "book", label: "Book" },
+  { value: "pushchair", label: "Pushchair" },
+  { value: "scarf", label: "Scarf" },
+  { value: "sports", label: "Sports equipment" },
+  { value: "cable", label: "Cable" },
   { value: "clothing", label: "Clothing" },
   { value: "bottle", label: "Bottle" },
-  { value: "suitcase", label: "Suitcase" },
   { value: "jewellery", label: "Jewellery" },
   { value: "electronics", label: "Electronics" },
   { value: OTHER_LOST_ITEM_CATEGORY, label: "Other" },
