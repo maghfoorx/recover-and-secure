@@ -35,7 +35,7 @@ export const AMAANAT_ITEM_CATEGORIES = [
   { value: "books_documents", label: "Books" },
   { value: "box_parcel", label: "Box" },
   { value: "mobility_aid", label: "Mobility aid" },
-  { value: OTHER_AMAANAT_CATEGORY, label: "Not listed" },
+  { value: OTHER_AMAANAT_CATEGORY, label: "Other" },
 ] as const;
 
 export function getAmaanatCategoryLabel(categoryValue: string) {

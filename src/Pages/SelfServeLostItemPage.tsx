@@ -26,12 +26,12 @@ import {
 } from "@/lib/lostItemCategories";
 import SearchableSelect from "@/components/SearchableSelect";
 
-const NUMBERED_LOST_CATEGORY_OPTIONS = LOST_ITEM_CATEGORIES.filter(
-  (category) => category.value !== OTHER_LOST_ITEM_CATEGORY,
-).map((category, index) => ({
-  value: category.value,
-  label: `${index + 1}. ${category.label}`,
-}));
+const NUMBERED_LOST_CATEGORY_OPTIONS = LOST_ITEM_CATEGORIES.map(
+  (category, index) => ({
+    value: category.value,
+    label: `${index + 1}. ${category.label}`,
+  }),
+);
 
 const FALLBACK_OTHER_OPTION = {
   value: OTHER_LOST_ITEM_CATEGORY,

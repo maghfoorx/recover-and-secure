@@ -33,7 +33,7 @@ export const LOST_ITEM_CATEGORIES = [
   { value: "suitcase", label: "Suitcase" },
   { value: "jewellery", label: "Jewellery" },
   { value: "electronics", label: "Electronics" },
-  { value: OTHER_LOST_ITEM_CATEGORY, label: "Not listed" },
+  { value: OTHER_LOST_ITEM_CATEGORY, label: "Other" },
 ] as const;
 
 export function getLostItemCategoryLabel(categoryValue: string) {

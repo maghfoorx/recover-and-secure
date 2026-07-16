@@ -63,14 +63,15 @@ const ALL_CATEGORIES_VALUE = "all_categories";
 
 // Numbered variant of AMAANAT_ITEM_CATEGORIES for the searchable dropdown, so
 // users can type either the name ("bag") or a memorised position ("1") to
-// find a category. Excludes the "Not listed" entry — that case is handled by
-// the searchable dropdown's fallback row.
-const NUMBERED_AMAANAT_CATEGORY_OPTIONS = AMAANAT_ITEM_CATEGORIES.filter(
-  (category) => category.value !== OTHER_AMAANAT_CATEGORY,
-).map((category, index) => ({
-  value: category.value,
-  label: `${index + 1}. ${category.label}`,
-}));
+// find a category. "Other" is included as a regular numbered entry so users
+// who scroll can find it, and is also offered via the fallback row when a
+// search yields no matches.
+const NUMBERED_AMAANAT_CATEGORY_OPTIONS = AMAANAT_ITEM_CATEGORIES.map(
+  (category, index) => ({
+    value: category.value,
+    label: `${index + 1}. ${category.label}`,
+  }),
+);
 
 const FALLBACK_OTHER_OPTION = {
   value: OTHER_AMAANAT_CATEGORY,

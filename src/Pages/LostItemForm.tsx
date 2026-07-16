@@ -14,14 +14,15 @@ import {
 } from "@/lib/lostItemCategories";
 
 // Numbered options for the searchable dropdown, so staff can type the
-// name ("phone") or a memorised number ("1"). "Not listed" is offered
-// via the fallback row when a search yields no matches.
-const NUMBERED_LOST_CATEGORY_OPTIONS = LOST_ITEM_CATEGORIES.filter(
-  (category) => category.value !== OTHER_LOST_ITEM_CATEGORY,
-).map((category, index) => ({
-  value: category.value,
-  label: `${index + 1}. ${category.label}`,
-}));
+// name ("phone") or a memorised number ("1"). "Other" is included as a
+// regular numbered entry so users who scroll can find it, and is also
+// offered via the fallback row when a search yields no matches.
+const NUMBERED_LOST_CATEGORY_OPTIONS = LOST_ITEM_CATEGORIES.map(
+  (category, index) => ({
+    value: category.value,
+    label: `${index + 1}. ${category.label}`,
+  }),
+);
 
 const FALLBACK_OTHER_OPTION = {
   value: OTHER_LOST_ITEM_CATEGORY,
