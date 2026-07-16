@@ -145,15 +145,11 @@ export async function printReceipt(printReceiptData: any) {
                       <span>Office ref</span>
                       <strong>${escapeHtml(printReceiptData.location ?? "N/A")}</strong>
                     </div>
-                    <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px; margin-top: 6px;">
-                      <span>Desk</span>
-                      <strong>${escapeHtml(printReceiptData.computerName ?? "N/A")}</strong>
-                    </div>
                   </section>
 
                   <section style="font-size: 12px; line-height: 1.45;">
-                    <div style="text-align: center; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
-                      Please keep this receipt<br />for collection
+                    <div style="text-align: center; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px;">
+                      Please keep this receipt for collection
                     </div>
                     <table style="width: 100%; border-collapse: collapse;">
                       <tr>
