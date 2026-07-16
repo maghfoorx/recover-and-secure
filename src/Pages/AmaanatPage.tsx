@@ -224,9 +224,9 @@ export default function AmaanatPage(): JSX.Element {
                 <TableHead>Name</TableHead>
                 <TableHead>Stored items</TableHead>
                 <TableHead>Returned items</TableHead>
-                <TableHead>AIMS number</TableHead>
                 <TableHead>Jamaat</TableHead>
                 <TableHead>Phone number</TableHead>
+                <TableHead>AIMS number</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -248,9 +248,9 @@ export default function AmaanatPage(): JSX.Element {
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.storedItems}</TableCell>
                     <TableCell>{user.returnedItems}</TableCell>
-                    <TableCell>{user.aims_number}</TableCell>
                     <TableCell>{user.jamaat}</TableCell>
                     <TableCell>{user.phone_number}</TableCell>
+                    <TableCell>{user.aims_number}</TableCell>
                   </TableRow>
                 ))
               )}

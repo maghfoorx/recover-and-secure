@@ -1,12 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -178,180 +174,156 @@ export default function FoundItems(): JSX.Element {
   }
 
   return (
-    <div className="flex flex-col flex-1 h-full px-0 py-6 space-y-4">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight text-slate-950">
-            Found items
-          </h1>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[360px]">
-          <Card className="border-teal-200 bg-white shadow-none">
-            <CardContent className="p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                Total found
-              </p>
-              <p className="mt-2 text-3xl font-semibold text-slate-950">
-                {foundItems.length}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border-emerald-200 bg-white shadow-none">
-            <CardContent className="p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                Returned
-              </p>
-              <p className="mt-2 text-3xl font-semibold text-slate-950">
-                {returnedCount}
-              </p>
-            </CardContent>
-          </Card>
+    <div className="flex flex-col flex-1 h-full min-h-0 gap-3 px-0 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-950">
+          Found items
+        </h1>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 font-medium text-teal-800">
+            {foundItems.length} found
+          </span>
+          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-medium text-emerald-800">
+            {returnedCount} returned
+          </span>
         </div>
       </div>
 
-      <Card className="border-slate-200 shadow-none">
-        <CardHeader className="px-6 pb-2 pt-5">
-          <CardTitle className="text-lg">Filters</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 px-6 pb-5 pt-0">
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_280px]">
-            <Input
-              value={searchBarValue}
-              onChange={(e) => setSearchBarValue(e.target.value)}
-              placeholder="Search by item name or details"
-              className="h-11 bg-white"
-            />
-            <Select
-              value={selectedCategory}
-              onValueChange={(value) => {
-                localStorage.setItem("filterFoundItemsByCategory", value);
-                setSelectedCategory(value);
-              }}
-            >
-              <SelectTrigger className="h-11 bg-white">
-                <SelectValue placeholder="Filter by category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_CATEGORIES_VALUE}>
-                  All categories
-                </SelectItem>
-                {LOST_ITEM_CATEGORIES.map((category) => (
-                  <SelectItem key={category.value} value={category.value}>
-                    {getLostItemCategoryDisplayLabel(category.value)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+        <Input
+          value={searchBarValue}
+          onChange={(e) => setSearchBarValue(e.target.value)}
+          placeholder="Search by item name or details"
+          className="h-9 bg-white lg:max-w-sm"
+        />
+        <Select
+          value={selectedCategory}
+          onValueChange={(value) => {
+            localStorage.setItem("filterFoundItemsByCategory", value);
+            setSelectedCategory(value);
+          }}
+        >
+          <SelectTrigger className="h-9 bg-white lg:w-[220px]">
+            <SelectValue placeholder="Filter by category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_CATEGORIES_VALUE}>
+              All categories
+            </SelectItem>
+            {LOST_ITEM_CATEGORIES.map((category) => (
+              <SelectItem key={category.value} value={category.value}>
+                {getLostItemCategoryDisplayLabel(category.value)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <label className="flex items-center gap-2 text-sm font-medium text-slate-700 lg:ml-2">
+          <Checkbox
+            checked={isFilteredByNotReturned}
+            onCheckedChange={() => {
+              const updatedValue = !isFilteredByNotReturned;
+              const stringToStore = updatedValue.toString();
+              localStorage.setItem(
+                "filterFoundItemsByNotReturnedOnly",
+                stringToStore,
+              );
+              setIsFilteredByNotReturned(updatedValue);
+            }}
+          />
+          <span>Not returned only</span>
+        </label>
+        <p className="text-sm text-slate-500 lg:ml-auto">
+          Showing{" "}
+          <span className="font-semibold text-slate-900">
+            {filteredItems.length}
+          </span>{" "}
+          of {foundItems.length} items
+        </p>
+      </div>
 
-          <div className="flex flex-col gap-3 rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
-              <Checkbox
-                checked={isFilteredByNotReturned}
-                onCheckedChange={() => {
-                  const updatedValue = !isFilteredByNotReturned;
-                  const stringToStore = updatedValue.toString();
-                  localStorage.setItem(
-                    "filterFoundItemsByNotReturnedOnly",
-                    stringToStore,
-                  );
-                  setIsFilteredByNotReturned(updatedValue);
-                }}
-              />
-              <span>Show not returned items only</span>
-            </label>
-
-            <p className="text-sm text-slate-500">
-              Showing{" "}
-              <span className="font-semibold text-slate-900">
-                {filteredItems.length}
-              </span>{" "}
-              of {foundItems.length} items
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="flex-1 overflow-hidden border-slate-200 shadow-none">
-        <CardHeader className="px-6 pb-3 pt-5">
-          <CardTitle className="text-lg">Stored items</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="max-h-[calc(100vh-23rem)] overflow-y-auto">
-            <Table>
-              <TableHeader className="sticky top-0 z-10 bg-slate-100/95 backdrop-blur">
-                <TableRow className="border-b border-slate-200 hover:bg-transparent">
-                  <TableHead className="w-[28%] pl-6">Item</TableHead>
-                  <TableHead className="w-[34%]">Details</TableHead>
-                  <TableHead className="w-[18%] whitespace-nowrap">
-                    Date found
-                  </TableHead>
-                  <TableHead className="w-[20%] pr-6">Status</TableHead>
+      <Card className="relative min-h-0 flex-1 overflow-hidden border-slate-200 shadow-none">
+        <div className="absolute inset-0 overflow-y-auto">
+          <Table>
+            <TableHeader className="sticky top-0 z-10 bg-slate-100/95 backdrop-blur">
+              <TableRow className="border-b border-slate-200 hover:bg-transparent">
+                <TableHead className="w-[28%] pl-6">Item</TableHead>
+                <TableHead className="w-[34%]">Details</TableHead>
+                <TableHead className="w-[18%] whitespace-nowrap">
+                  Date found
+                </TableHead>
+                <TableHead className="w-[20%] pr-6">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredItems.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="h-28 text-center text-sm text-slate-500"
+                  >
+                    No found items match the current filters.
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredItems.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      className="h-28 text-center text-sm text-slate-500"
-                    >
-                      No found items match the current filters.
+              ) : (
+                filteredItems.map((item) => (
+                  <TableRow
+                    key={item._id}
+                    onClick={() => handleRowClick(item)}
+                    className={cn(
+                      "cursor-pointer border-b border-slate-100 hover:bg-teal-50/60",
+                      item.is_returned &&
+                        "bg-green-200/60 hover:bg-green-200",
+                    )}
+                  >
+                    <TableCell className="pl-6 align-top">
+                      <div className="space-y-2">
+                        <p className="font-medium text-slate-950">
+                          {item.name}
+                        </p>
+                        {item.category_slug && (
+                          <Badge
+                            variant="secondary"
+                            className="rounded-full bg-slate-100 text-slate-700"
+                          >
+                            {getLostItemCategoryDisplayLabel(
+                              item.category_slug,
+                            )}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="align-top text-sm leading-6 text-slate-600">
+                      {item.details || "No details provided."}
+                    </TableCell>
+                    <TableCell className="align-top whitespace-nowrap font-medium text-slate-700">
+                      {formatDate(item.found_date)}
+                    </TableCell>
+                    <TableCell className="pr-6 align-top">
+                      <div
+                        className={cn(
+                          "inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700",
+                          item.is_returned && "bg-white/70",
+                        )}
+                      >
+                        {item.is_returned ? (
+                          <>
+                            <CheckIcon className="h-4 w-4 text-emerald-600" />
+                            Returned
+                          </>
+                        ) : (
+                          <>
+                            <XIcon className="h-4 w-4 text-amber-600" />
+                            In storage
+                          </>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  filteredItems.map((item) => (
-                    <TableRow
-                      key={item._id}
-                      onClick={() => handleRowClick(item)}
-                      className="cursor-pointer border-b border-slate-100 hover:bg-teal-50/60"
-                    >
-                      <TableCell className="pl-6 align-top">
-                        <div className="space-y-2">
-                          <p className="font-medium text-slate-950">
-                            {item.name}
-                          </p>
-                          {item.category_slug && (
-                            <Badge
-                              variant="secondary"
-                              className="rounded-full bg-slate-100 text-slate-700"
-                            >
-                              {getLostItemCategoryDisplayLabel(
-                                item.category_slug,
-                              )}
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="align-top text-sm leading-6 text-slate-600">
-                        {item.details || "No details provided."}
-                      </TableCell>
-                      <TableCell className="align-top whitespace-nowrap font-medium text-slate-700">
-                        {formatDate(item.found_date)}
-                      </TableCell>
-                      <TableCell className="pr-6 align-top">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
-                          {item.is_returned ? (
-                            <>
-                              <CheckIcon className="h-4 w-4 text-emerald-600" />
-                              Returned
-                            </>
-                          ) : (
-                            <>
-                              <XIcon className="h-4 w-4 text-amber-600" />
-                              In storage
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </Card>
 
       {/* Item Detail Dialog */}

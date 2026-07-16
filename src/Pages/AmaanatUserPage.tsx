@@ -260,7 +260,7 @@ export default function AmaanatUserPage() {
   }
 
   return (
-    <div className="px-2 py-6 space-y-6">
+    <div className="px-0 py-4 space-y-3">
       <Header onPrint={handlePrint} userId={userId!} />
       <UserInfoCard user={amaanatUser} />
       <ItemsTabs items={amaanatItems} />
@@ -277,24 +277,21 @@ function Header({ onPrint, userId }: HeaderProps) {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   return (
     <>
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <Button variant="outline" size="lg" asChild className="w-full lg:w-auto">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        {/* preflight is disabled, so anchors need explicit border-style and
+            link-reset classes to render like a real outline button */}
+        <Button
+          variant="outline"
+          asChild
+          className="border-solid text-foreground no-underline"
+        >
           <Link to="/">← Back to all users</Link>
         </Button>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:w-auto">
-          <Button
-            size="lg"
-            onClick={onPrint}
-            variant="secondary"
-            className="w-full"
-          >
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={onPrint} variant="secondary">
             Print receipt
           </Button>
-          <Button
-            size="lg"
-            onClick={() => setOpenAddDialog(true)}
-            className="w-full"
-          >
+          <Button onClick={() => setOpenAddDialog(true)}>
             Add new items
           </Button>
         </div>
@@ -314,28 +311,24 @@ interface UserInfoCardProps {
 
 function UserInfoCard({ user }: UserInfoCardProps) {
   return (
-    <Card>
-      <CardHeader className="pb-4">
-        <CardTitle className="text-3xl md:text-4xl">{user.name}</CardTitle>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="grid gap-3 md:grid-cols-3">
-          <InfoTile label="AIMS number" value={user.aims_number || "N/A"} />
-          <InfoTile label="Jamaat" value={user.jamaat || "N/A"} />
-          <InfoTile label="Phone number" value={user.phone_number || "N/A"} />
-        </div>
+    <Card className="border-slate-200 shadow-none">
+      <CardContent className="flex flex-wrap items-center gap-x-8 gap-y-2 px-4 py-3">
+        <span className="text-2xl font-bold text-slate-950">{user.name}</span>
+        <InfoPair label="AIMS" value={user.aims_number || "N/A"} />
+        <InfoPair label="Jamaat" value={user.jamaat || "N/A"} />
+        <InfoPair label="Phone" value={user.phone_number || "N/A"} />
       </CardContent>
     </Card>
   );
 }
 
-function InfoTile({ label, value }: { label: string; value: string }) {
+function InfoPair({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3">
-      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+    <div className="flex items-baseline gap-2">
+      <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
         {label}
-      </div>
-      <div className="mt-1 text-lg font-semibold text-slate-950">{value}</div>
+      </span>
+      <span className="font-semibold text-slate-900">{value}</span>
     </div>
   );
 }
@@ -806,67 +799,56 @@ function ItemsTabs({ items }: ItemsTabsProps) {
   return (
     <>
       <Tabs defaultValue="stored">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <TabsList className="grid h-12 w-full grid-cols-2 lg:max-w-md">
-            <TabsTrigger value="stored" className="text-base">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
+          <TabsList className="grid h-10 w-full grid-cols-2 lg:w-auto lg:min-w-[320px]">
+            <TabsTrigger value="stored">
               Stored ({storedItems.length})
             </TabsTrigger>
-            <TabsTrigger value="returned" className="text-base">
+            <TabsTrigger value="returned">
               Returned ({returnedItems.length})
             </TabsTrigger>
           </TabsList>
 
-          <div className="w-full lg:w-auto">
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => setReturnDialogOpen(true)}
-              disabled={selectedItems.length === 0}
-              className="w-full lg:w-auto"
-            >
-              {selectedItems.length > 0
-                ? `Return selected items (${selectedItems.length})`
-                : "Return selected items"}
-            </Button>
-          </div>
-        </div>
-        {selectedItems.length > 0 && (
-          <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-            {selectedItems.length} item
-            {selectedItems.length === 1 ? "" : "s"} selected for return
-          </div>
-        )}
-        <div className="mt-4 flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="w-full max-w-sm">
-            <Select
-              value={selectedCategory}
-              onValueChange={(value) => {
-                localStorage.setItem("filterAmaanatItemsByCategory", value);
-                setSelectedCategory(value);
-              }}
-            >
-              <SelectTrigger className="h-11 bg-white">
-                <SelectValue placeholder="Filter by category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL_CATEGORIES_VALUE}>
-                  All categories
+          <Select
+            value={selectedCategory}
+            onValueChange={(value) => {
+              localStorage.setItem("filterAmaanatItemsByCategory", value);
+              setSelectedCategory(value);
+            }}
+          >
+            <SelectTrigger className="h-9 bg-white lg:w-[220px]">
+              <SelectValue placeholder="Filter by category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_CATEGORIES_VALUE}>
+                All categories
+              </SelectItem>
+              {AMAANAT_ITEM_CATEGORIES.map((category) => (
+                <SelectItem key={category.value} value={category.value}>
+                  {getAmaanatCategoryDisplayLabel(category.value)}
                 </SelectItem>
-                {AMAANAT_ITEM_CATEGORIES.map((category) => (
-                  <SelectItem key={category.value} value={category.value}>
-                    {getAmaanatCategoryDisplayLabel(category.value)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <p className="text-sm text-slate-500">
+              ))}
+            </SelectContent>
+          </Select>
+
+          <p className="text-sm text-slate-500 lg:ml-auto">
             Showing{" "}
             <span className="font-semibold text-slate-900">
               {filteredStoredItems.length + filteredReturnedItems.length}
             </span>{" "}
             of {items.length} items
           </p>
+
+          <Button
+            variant={selectedItems.length > 0 ? "default" : "outline"}
+            onClick={() => setReturnDialogOpen(true)}
+            disabled={selectedItems.length === 0}
+            className="w-full lg:w-auto"
+          >
+            {selectedItems.length > 0
+              ? `Return selected (${selectedItems.length})`
+              : "Return selected"}
+          </Button>
         </div>
         <TabsContent value="stored">
           <Table>
