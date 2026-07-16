@@ -151,9 +151,6 @@ export async function printReceipt(printReceiptData: any) {
                   </section>
 
                   <section style="font-size: 12px; line-height: 1.45;">
-                    <div style="text-align: center; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px;">
-                      Please keep this receipt for collection
-                    </div>
                     <table style="width: 100%; border-collapse: collapse;">
                       <tr>
                         <td style="width: 18px; vertical-align: top; font-weight: 700; padding-bottom: 6px;">1.</td>
@@ -187,7 +184,7 @@ export async function printReceipt(printReceiptData: any) {
     if (printerToUse) {
       printingWindow.webContents.print(
         {
-          silent: false, // Print without showing dialog
+          silent: true, // Print directly to the printer without any dialog
           printBackground: true,
           deviceName: printerToUse.name, // Use the selected printer
           margins: {
