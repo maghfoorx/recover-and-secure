@@ -26,7 +26,8 @@
     "pretest": "vite build --mode=test",
     "test": "vitest run",
     "migrate:list": "knex migrate:list",
-    "build:windows": "electron-builder --win --x64"
+    "build:windows": "vite build && electron-builder --win --x64",
+    "build:mac": "vite build && electron-builder --mac"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
