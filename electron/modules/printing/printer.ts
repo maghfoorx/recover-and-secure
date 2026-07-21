@@ -134,23 +134,18 @@ export async function printReceipt(printReceiptData: any) {
 
                   <section style="text-align: center; margin-bottom: 10px;">
                     ${barcode}
-                    <div style="font-size: 11px; margin-top: 4px;">
+                    <div style="font-size: 18px; margin-top: 4px;">
                       <strong>${escapeHtml(aimsId || "N/A")}</strong>
                     </div>
                   </section>
 
                   <section style="border-top: 1px dashed #444; border-bottom: 1px dashed #444; padding: 8px 0; margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px;">
-                      <span>Items stored</span>
-                      <strong>${escapeHtml(itemsLabel)}</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px; margin-top: 6px;">
-                      <span>Office ref</span>
-                      <strong>${escapeHtml(printReceiptData.location ?? "N/A")}</strong>
+                    <div style="font-size: 18px; text-align: center;">
+                      <strong>${escapeHtml(itemsLabel)}</strong> items stored | Office: <strong>${escapeHtml(printReceiptData.location ?? "N/A")}</strong>
                     </div>
                   </section>
 
-                  <section style="font-size: 12px; line-height: 1.45;">
+                  <section style="font-size: 11px; line-height: 1.45;">
                     <table style="width: 100%; border-collapse: collapse;">
                       <tr>
                         <td style="width: 18px; vertical-align: top; font-weight: 700; padding-bottom: 6px;">1.</td>
@@ -202,6 +197,7 @@ export async function printReceipt(printReceiptData: any) {
           printBackground: true,
           deviceName: printerToUse.name, // Use the selected printer
           pageSize, // Hug the content so there's no blank space / 2nd page
+          copies: 2, // Print two copies of the receipt per job
           margins: {
             marginType: "none",
           },
@@ -366,7 +362,7 @@ function generateCode128BarcodeSvg(value: string) {
       const width = Number(pattern[index]);
 
       if (index % 2 === 0) {
-        bars.push(`<rect x="${x}" y="0" width="${width}" height="58" />`);
+        bars.push(`<rect x="${x}" y="0" width="${width}" height="44" />`);
       }
 
       x += width;
@@ -377,9 +373,9 @@ function generateCode128BarcodeSvg(value: string) {
     <svg
       role="img"
       aria-label="AIMS barcode ${escapeHtml(cleanedValue)}"
-      viewBox="0 0 ${x} 58"
-      width="260"
-      height="58"
+      viewBox="0 0 ${x} 44"
+      width="240"
+      height="44"
       preserveAspectRatio="none"
       xmlns="http://www.w3.org/2000/svg"
       style="display: inline-block; max-width: 100%;"
